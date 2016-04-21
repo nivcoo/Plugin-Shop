@@ -395,7 +395,11 @@ class ShopController extends ShopAppController {
 												$quantity = (isset($value['quantity'])) ? $value['quantity'] : 1;
 												$msg = str_replace('{QUANTITY}', $quantity, $msg);
 												$msg = str_replace('{ITEM_NAME}', $findItem['Item']['name'], $msg);
-												$items[$i]['broadcast'] .= $msg;
+												if(isset($items[$i]['broadcast'])) {
+													$items[$i]['broadcast'] .= $msg;
+												} else {
+													$items[$i]['broadcast'] = $msg;
+												}
 												unset($msg);
 											}
 										}
@@ -477,7 +481,7 @@ class ShopController extends ShopAppController {
 									unset($findItem);
 								}
 							}
-
+debug($items);
 						// On évite le reste si on a pas d'article
 							if(empty($items)) {
 								echo json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__BUY_ERROR_EMPTY')));
