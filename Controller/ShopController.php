@@ -143,8 +143,9 @@ class ShopController extends ShopAppController {
 				$add_to_cart = (!empty($search_item[0]['Item']['cart']) && $search_item[0]['Item']['cart']) ? true : false;
 
 				//On récupére l'element
-				if(file_exists(APP.DS.'View'.DS.'Themed'.DS.$this->Configuration->getKey('theme').DS.'Elements'.DS.'modal_buy.ctp')) {
-					$element_content = file_get_contents(APP.DS.'View'.DS.'Themed'.DS.$this->Configuration->getKey('theme').DS.'Elements'.DS.'modal_buy.ctp');
+				$filename_theme = APP.DS.'View'.DS.'Themed'.DS.$this->Configuration->getKey('theme').DS.'Plugin'.DS.'Shop'.DS.'Elements'.DS.'modal_buy.ctp';
+				if(file_exists($filename_theme)) {
+					$element_content = file_get_contents($filename_theme);
 				} else {
 					$element_content = file_get_contents($this->EyPlugin->pluginsFolder.DS.'Shop'.DS.'View'.DS.'Elements'.DS.'modal_buy.ctp');
 				}
@@ -481,7 +482,7 @@ class ShopController extends ShopAppController {
 									unset($findItem);
 								}
 							}
-debug($items);
+
 						// On évite le reste si on a pas d'article
 							if(empty($items)) {
 								echo json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__BUY_ERROR_EMPTY')));
