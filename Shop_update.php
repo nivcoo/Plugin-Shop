@@ -165,15 +165,15 @@ function author_to_userid($table, $column = 'author') {
     switch_table_name('categories', 'shop__categories');
 
   // Dédipass config
-    @$db->query('CREATE TABLE IF NOT EXISTS `shop__dedipass_configs` (
+    @$db->query("CREATE TABLE IF NOT EXISTS `shop__dedipass_configs` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `public_key` varchar(50) DEFAULT NULL,
       `status` int(1) NOT NULL DEFAULT '0',
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;');
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 
   // Dédipass histories
-    @$db->query('CREATE TABLE IF NOT EXISTS `shop__dedipass_histories` (
+    @$db->query("CREATE TABLE IF NOT EXISTS `shop__dedipass_histories` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `user_id` int(11) NOT NULL,
       `code` varchar(8) DEFAULT NULL,
@@ -181,7 +181,7 @@ function author_to_userid($table, $column = 'author') {
       `credits_gived` varchar(5) DEFAULT NULL,
       `created` datetime NOT NULL,
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;');
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 
   // Items
     switch_table_name('items', 'shop__items');
@@ -199,13 +199,13 @@ function author_to_userid($table, $column = 'author') {
     add_column('shop__items', 'give_cape', "int(1) DEFAULT '0'");
 
   // items_buy_histories
-    @$db->query('CREATE TABLE IF NOT EXISTS `shop__items_buy_histories` (
+    @$db->query("CREATE TABLE IF NOT EXISTS `shop__items_buy_histories` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `item_id` int(11) NOT NULL,
       `user_id` int(11) NOT NULL,
       `created` datetime NOT NULL,
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;');
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 
     // on ajoute dans l'historique si la table est vide (donc première mise à jour)
     $first_update = $db->query('SELECT * FROM shop__items_buy_histories');
@@ -251,16 +251,16 @@ function author_to_userid($table, $column = 'author') {
 
   // items_configs
 
-    @$db->query('CREATE TABLE IF NOT EXISTS `shop__items_configs` (
+    @$db->query("CREATE TABLE IF NOT EXISTS `shop__items_configs` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `broadcast_global` text,
       `sort_by_server` int(1) DEFAULT '0',
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;');
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 
   // paypal_histories
 
-    @$db->query('CREATE TABLE IF NOT EXISTS `shop__paypal_histories` (
+    @$db->query("CREATE TABLE IF NOT EXISTS `shop__paypal_histories` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `payment_id` varchar(20) NOT NULL DEFAULT '',
       `user_id` int(11) NOT NULL,
@@ -269,7 +269,7 @@ function author_to_userid($table, $column = 'author') {
       `credits_gived` varchar(5) DEFAULT NULL,
       `created` datetime NOT NULL,
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;');
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 
     // on ajoute dans l'historique si la table est vide (donc première mise à jour)
     $first_update = $db->query('SELECT * FROM shop__paypal_histories');
@@ -306,7 +306,7 @@ function author_to_userid($table, $column = 'author') {
 
   // paysafecard_histories
 
-    @$db->query('CREATE TABLE IF NOT EXISTS `shop__paysafecard_histories` (
+    @$db->query("CREATE TABLE IF NOT EXISTS `shop__paysafecard_histories` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `code` varchar(20) NOT NULL DEFAULT '',
       `amount` varchar(3) NOT NULL DEFAULT '',
@@ -315,7 +315,7 @@ function author_to_userid($table, $column = 'author') {
       `created` datetime NOT NULL,
       `author_id` int(11) NOT NULL,
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;');
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 
     // on ajoute dans l'historique si la table est vide (donc première mise à jour)
     $first_update = $db->query('SELECT * FROM shop__paysafecard_histories');
@@ -358,7 +358,7 @@ function author_to_userid($table, $column = 'author') {
     author_to_userid('shop__paysafecards', 'to');
 
   // starpass_histories
-    @$db->query('CREATE TABLE IF NOT EXISTS `shop__starpass_histories` (
+    @$db->query("CREATE TABLE IF NOT EXISTS `shop__starpass_histories` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `code` varchar(40) NOT NULL DEFAULT '',
       `user_id` int(11) NOT NULL,
@@ -366,7 +366,7 @@ function author_to_userid($table, $column = 'author') {
       `credits_gived` varchar(5) DEFAULT NULL,
       `created` datetime DEFAULT NULL,
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;');
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 
     // on ajoute dans l'historique si la table est vide (donc première mise à jour)
     $first_update = $db->query('SELECT * FROM shop__starpass_histories');
@@ -404,11 +404,11 @@ function author_to_userid($table, $column = 'author') {
     switch_table_name('vouchers', 'shop__vouchers');
 
   // vouchers history
-    @$db->query('CREATE TABLE IF NOT EXISTS `shop__vouchers_histories` (
+    @$db->query("CREATE TABLE IF NOT EXISTS `shop__vouchers_histories` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `code` varchar(20) NOT NULL DEFAULT '',
       `user_id` int(11) NOT NULL,
       `reduction` varchar(3) NOT NULL DEFAULT '',
       `created` datetime NOT NULL,
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;');
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
