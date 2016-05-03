@@ -354,8 +354,8 @@ function author_to_userid($table, $column = 'author') {
 
   // paysafecards
     switch_table_name('paysafecard_messages', 'shop__paysafecard_messages');
-    add_column('shop__paysafecards', 'user_id', 'int(20) NOT NULL');
-    author_to_userid('shop__paysafecards', 'to');
+    add_column('shop__paysafecard_messages', 'user_id', 'int(20) NOT NULL');
+    author_to_userid('shop__paysafecard_messages', 'to');
 
   // starpass_histories
     @$db->query("CREATE TABLE IF NOT EXISTS `shop__starpass_histories` (
