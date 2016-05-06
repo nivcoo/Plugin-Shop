@@ -916,9 +916,17 @@ class ShopController extends ShopAppController {
 				}
 				$this->set(compact('categories'));
 
+				$this->loadModel('Shop.Item');
+				$search_items = $this->Item->find('all', array('fields' => array('name', 'id')));
+				foreach ($search_items as $v) {
+					$items_available[$v['Item']['id']] = $v['Item']['name'];
+				}
+				$this->set(compact('items_available'));
+
 				$this->loadModel('Server');
 				$servers = $this->Server->findSelectableServers(true);
 				$this->set(compact('servers'));
+
 			} else {
 				$this->redirect('/');
 			}
