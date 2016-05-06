@@ -422,6 +422,7 @@ class ShopController extends ShopAppController {
 													continue;
 												}
 
+												$this->loadModel('Shop.ItemsBuyHistory');
 												$findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
 												if(empty($findHistory)) {
 													continue;
