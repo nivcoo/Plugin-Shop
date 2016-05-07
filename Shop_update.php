@@ -1,7 +1,7 @@
 <?php
 // Ajout des tables pour la MAJ
 $db = ConnectionManager::getDataSource('default');
-
+/*
 // 0.2
 $verif_02 = $db->query('SHOW COLUMNS FROM items;');
 $execute_02 = true;
@@ -54,7 +54,7 @@ if(!empty($verif_03_1)) {
 		unset($effective_on);
 	}
 }
-
+*/
 // 0.4
 
 function switch_table_name($old_table, $new_table) {

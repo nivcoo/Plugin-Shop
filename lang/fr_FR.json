@@ -81,6 +81,9 @@
   "SHOP__DEDIPASS_PAYMENT_SUCCESS":"La transaction Dédipass s'est bien déroulée ! Vous avez été crédité de {MONEY} {MONEY_NAME}.",
   "SHOP__DEDIPASS_CODE":"Code",
   "SHOP__DEDIPASS_RATE":"Palier",
+  "SHOP__DEDIPASS_EXPLAIN_CONFIG":"Pour utiliser Dédipass, il vous faut vous inscrire sur le site de <b>Dédipass</b>, puis ajouter un nouveau service. Il vous faut choisir <i>monnaie virtuelle</i> et configurer ensuite le reste. Vous aurez besoin des URLs ci-dessous :",
+  "SHOP__DEDIPASS_EXPLAIN_CONFIG_URL_1":"URL d'installation",
+  "SHOP__DEDIPASS_EXPLAIN_CONFIG_URL_2":"URL de redirection",
 
   "SHOP__USER_POINTS_TRANSFER": "Envoyer de l'argent",
   "SHOP__USER_POINTS_TRANSFER_ADMIN":"Transfert de points",

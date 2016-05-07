@@ -251,6 +251,14 @@ table tr td:last-child > div.btn-group {
 
                 <h3><?= $Lang->get('SHOP__DEDIPASS_CONFIGURATION') ?> <a href="<?= $this->Html->url(array('action' => 'toggle_dedipass')) ?>" class="btn btn-<?= (isset($dedipassConfig['DedipassConfig']['status']) && $dedipassConfig['DedipassConfig']['status']) ? 'danger' : 'success' ?> pull-right"><?= (isset($dedipassConfig['DedipassConfig']['status']) && $dedipassConfig['DedipassConfig']['status']) ? $Lang->get('GLOBAL__DISABLE') : $Lang->get('GLOBAL__ENABLE') ?></a></h3>
 
+                <div class="alert alert-info">
+                  <p>
+                    <?= $Lang->get('SHOP__DEDIPASS_EXPLAIN_CONFIG') ?>
+                  </p>
+                  <p><b><?= $Lang->get('SHOP__DEDIPASS_EXPLAIN_CONFIG_URL_1') ?> :</b> <?= $this->Html->url('/shop/payment/dedipass', true) ?></p>
+                  <p><b><?= $Lang->get('SHOP__DEDIPASS_EXPLAIN_CONFIG_URL_2') ?> :</b> <?= $this->Html->url('/shop/payment/dedipass_ipn', true) ?></p>
+                </div>
+
                 <form action="<?= $this->Html->url(array('action' => 'dedipass_config')) ?>" data-ajax="true">
 
                   <div class="form-group">
