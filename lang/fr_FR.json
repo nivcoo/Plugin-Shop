@@ -165,6 +165,7 @@
   "SHOP__PAYPAL_OFFER_EDIT_SUCCESS": "Offre PayPal modifi\u00e9e avec succ\u00e8s !",
   "SHOP__PAYPAL_OFFER_DELETE_SUCCESS": "L'offre PayPal \u00e0 bien \u00e9t\u00e9 supprim\u00e9e !",
   "SHOP__PAYPAL_PAYMENT_ID": "ID PayPal",
+  "SHOP__PAYPAL_PAYMENT_DELAY":"Les utilisateurs peuvent être créditer jusqu'a 5min après le paiement sur PayPal. Ce délai dépends des services de PayPal.",
 
   "SHOP__OFFER_MONEY_TO_ADD": "Combien de {MONEY_NAME} voulez-vous donner ?",
 

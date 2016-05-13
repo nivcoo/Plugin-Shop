@@ -97,7 +97,10 @@ table tr td:last-child > div.btn-group {
 
                 <h3><?= $Lang->get('SHOP__PAYPAL_OFFERS') ?> <a href="<?= $this->Html->url(array('controller' => 'payment', 'action' => 'add_paypal', 'admin' => true)) ?>" class="btn btn-success pull-right"><?= $Lang->get('GLOBAL__ADD') ?></a></h3>
 
-                <br><br>
+                <br>
+                <div class="alert alert-info">
+                  <b><?= $Lang->get('GLOBAL__INFO') ?></b> <?= $Lang->get('SHOP__PAYPAL_PAYMENT_DELAY') ?>
+                </div>
 
                 <table class="table table-bordered">
                   <thead>

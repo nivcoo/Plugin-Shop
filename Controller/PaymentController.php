@@ -58,7 +58,7 @@ class PaymentController extends ShopAppController {
           $this->loadModel('Shop.PaysafecardHistory', array('order' => 'id DESC'));
           $histories['paysafecard'] = $this->PaysafecardHistory->find('all');
           foreach ($histories['paysafecard'] as $key => $value) {
-            $usersToFind[] = $value['PaysafecardHistory']['author_id'];
+            $usersToFind[] = $value['PaysafecardHistory']['user_id'];
           }
 
           $this->loadModel('Shop.DedipassHistory', array('order' => 'id DESC'));
@@ -768,11 +768,11 @@ class PaymentController extends ShopAppController {
   										$new_sold = $sold + $findOffer['Paypal']['money'];
 
   										// On ajoute l'argent à l'utilisateur
-  										$this->User->setToUser('money', $newSold, $user_id);
+  										$this->User->setToUser('money', $new_sold, $user_id);
 
   										// On l'ajoute dans l'historique global
   										$this->HistoryC = $this->Components->load('History');
-  										$this->HistoryC->set('BUY_MONEY', 'shop');
+  										$this->HistoryC->set('BUY_MONEY', 'shop', null, $user_id);
 
   										// On l'ajoute dans l'historique des paiements
   										$this->PaypalHistory->create();
@@ -788,10 +788,12 @@ class PaymentController extends ShopAppController {
   										$this->response->statusCode(200);
 
   									} else {
-  										throw new InternalErrorException('PayPal : Payment already credited');
+  										throw new InternalErrorException('PayPal : Receiver email invalid');
   									}
 
-  								}
+  								} else {
+                    throw new InternalErrorException('PayPal : Payment already credited');
+                  }
 
   							} else {
   								throw new InternalErrorException('PayPal : Unknown offer');

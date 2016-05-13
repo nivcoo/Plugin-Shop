@@ -344,14 +344,14 @@ class ShopController extends ShopAppController {
 
 												foreach ($prerequisites as $key => $value) {
 
-													$findItem = $this->Item->find('first', array('conditions' => array('id' => $value)));
-													if(empty($findItem)) {
+													$findItemRequired = $this->Item->find('first', array('conditions' => array('id' => $value)));
+													if(empty($findItemRequired)) {
 														continue;
 													}
 
-													$findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
+													$findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItemRequired['Item']['id'])));
 													if(empty($findHistory)) {
-														$prerequisites_items[] = $findItem['Item']['name'];
+														$prerequisites_items[] = $findItemRequired['Item']['name'];
 														$prerequisites_items_buyed[] = false;
 														continue;
 													}
