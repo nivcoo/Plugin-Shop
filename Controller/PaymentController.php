@@ -38,35 +38,6 @@ class PaymentController extends ShopAppController {
             $offersByID['paypal'][$value['Paypal']['id']] = $value['Paypal']['name'];
           }
 
-        // On récupére tous les historiques
-
-          $histories = array();
-          $usersToFind = array();
-
-          $this->loadModel('Shop.StarpassHistory', array('order' => 'id DESC'));
-          $histories['starpass'] = $this->StarpassHistory->find('all');
-          foreach ($histories['starpass'] as $key => $value) {
-            $usersToFind[] = $value['StarpassHistory']['user_id'];
-          }
-
-          $this->loadModel('Shop.PaypalHistory', array('order' => 'id DESC'));
-          $histories['paypal'] = $this->PaypalHistory->find('all');
-          foreach ($histories['paypal'] as $key => $value) {
-            $usersToFind[] = $value['PaypalHistory']['user_id'];
-          }
-
-          $this->loadModel('Shop.PaysafecardHistory', array('order' => 'id DESC'));
-          $histories['paysafecard'] = $this->PaysafecardHistory->find('all');
-          foreach ($histories['paysafecard'] as $key => $value) {
-            $usersToFind[] = $value['PaysafecardHistory']['user_id'];
-          }
-
-          $this->loadModel('Shop.DedipassHistory', array('order' => 'id DESC'));
-          $histories['dedipass'] = $this->DedipassHistory->find('all');
-          foreach ($histories['dedipass'] as $key => $value) {
-            $usersToFind[] = $value['DedipassHistory']['user_id'];
-          }
-
 
         // Les PaySafeCards c'est différents
 
@@ -74,6 +45,7 @@ class PaymentController extends ShopAppController {
           $findPaysafecardsStatus = $this->Paysafecard->find('first', array('conditions' => array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '1990/00/00 15:00:00')));
     			$paysafecardsStatus = (empty($findPaysafecardsStatus)) ? true : false;
 
+          $usersToFind = array();
           $paysafecards = $this->Paysafecard->find('all');
           foreach ($paysafecards as $key => $value) {
             $usersToFind[] = $value['Paysafecard']['user_id'];
@@ -110,6 +82,143 @@ class PaymentController extends ShopAppController {
       }
     }
 
+    public function admin_get_starpass_histories() {
+      if($this->isConnected && $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
+
+				$this->loadModel('Shop.Starpass');
+
+				$this->autoRender = false;
+				$this->response->type('json');
+
+				$this->DataTable = $this->Components->load('DataTable');
+				$this->modelClass = 'StarpassHistory';
+				$this->DataTable->initialize($this);
+				$this->paginate = array(
+			  'fields' => array('StarpassHistory.code','StarpassHistory.offer_id','StarpassHistory.user_id','StarpassHistory.credits_gived','StarpassHistory.created'),
+				);
+        $this->DataTable->mDataProp = true;
+
+				$response = $this->DataTable->getResponse();
+
+				$histories = $response['aaData'];
+				foreach ($histories as $history) {
+
+					$username = $this->User->getFromUser('pseudo', $history['StarpassHistory']['user_id']);
+					$offer = $this->Starpass->find('first', array('conditions' => array('id' => $history['StarpassHistory']['offer_id'])));
+					$offer = $offer['Starpass']['name'];
+					$date = 'Le '.$this->Lang->date($history['StarpassHistory']['created']);
+
+					$data[]['StarpassHistory'] = array(
+            'code' => $history['StarpassHistory']['code'],
+            'credits_gived' => $history['StarpassHistory']['credits_gived'],
+						'user' => $username,
+						'offer' => $offer,
+						'created' => $date,
+					);
+
+				}
+
+				$response['aaData'] = $data;
+
+				$this->response->body(json_encode($response));
+
+			} else {
+				throw new ForbiddenException();
+			}
+    }
+
+    public function admin_get_paypal_histories() {
+      if($this->isConnected && $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
+
+				$this->loadModel('Shop.Paypal');
+
+				$this->autoRender = false;
+				$this->response->type('json');
+
+				$this->DataTable = $this->Components->load('DataTable');
+				$this->modelClass = 'PaypalHistory';
+				$this->DataTable->initialize($this);
+				$this->paginate = array(
+			  'fields' => array('PaypalHistory.payment_id','PaypalHistory.payment_amount','PaypalHistory.offer_id','PaypalHistory.user_id','PaypalHistory.credits_gived','PaypalHistory.created'),
+				);
+        $this->DataTable->mDataProp = true;
+
+				$response = $this->DataTable->getResponse();
+
+				$histories = $response['aaData'];
+				foreach ($histories as $history) {
+
+					$username = $this->User->getFromUser('pseudo', $history['PaypalHistory']['user_id']);
+					$offer = $this->Paypal->find('first', array('conditions' => array('id' => $history['PaypalHistory']['offer_id'])));
+					$offer = $offer['Paypal']['name'];
+					$date = 'Le '.$this->Lang->date($history['PaypalHistory']['created']);
+
+					$data[]['PaypalHistory'] = array(
+            'payment_id' => $history['PaypalHistory']['payment_id'],
+            'payment_amount' => $history['PaypalHistory']['payment_amount'],
+            'credits_gived' => $history['PaypalHistory']['credits_gived'],
+						'user' => $username,
+						'offer' => $offer,
+						'created' => $date,
+					);
+
+				}
+
+				$response['aaData'] = $data;
+
+				$this->response->body(json_encode($response));
+
+			} else {
+				throw new ForbiddenException();
+			}
+    }
+
+    public function admin_get_paysafecard_histories() {
+      if($this->isConnected && $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
+
+				$this->autoRender = false;
+				$this->response->type('json');
+
+				$this->DataTable = $this->Components->load('DataTable');
+				$this->modelClass = 'PaysafecardHistories';
+				$this->DataTable->initialize($this);
+				$this->paginate = array(
+			  'fields' => array($this->modelClass.'.code',$this->modelClass.'.amount',$this->modelClass.'.user_id',$this->modelClass.'.author_id',$this->modelClass.'.credits_gived',$this->modelClass.'.created'),
+				);
+        $this->DataTable->mDataProp = true;
+
+				$response = $this->DataTable->getResponse();
+
+				$histories = $response['aaData'];
+				foreach ($histories as $history) {
+
+					$username = $this->User->getFromUser('pseudo', $history[$this->modelClass]['user_id']);
+          $author = $this->User->getFromUser('pseudo', $history[$this->modelClass]['author_id']);
+					$date = 'Le '.$this->Lang->date($history[$this->modelClass]['created']);
+
+					$data[][$this->modelClass] = array(
+            'code' => $history[$this->modelClass]['code'],
+            'amount' => $history[$this->modelClass]['amount'],
+            'credits_gived' => $history[$this->modelClass]['credits_gived'],
+						'user' => $username,
+            'author' => $author,
+						'created' => $date,
+					);
+
+				}
+
+				$response['aaData'] = $data;
+
+				$this->response->body(json_encode($response));
+
+			} else {
+				throw new ForbiddenException();
+			}
+    }
+
+    public function admin_get_dedipass_histories() {}
+
+    public function admin_get_points_exchange_histories() {}
 
   /*
 	* ======== Switch du mode de paiement PaySafeCard (traitement POST) ===========

@@ -66,7 +66,7 @@ table tr td:last-child > div.btn-group {
 
                 <h3><?= $Lang->get('SHOP__STARPASS_HISTORIES') ?></h3>
 
-                <table class="table table-bordered dataTable">
+                <table class="table table-bordered dataTable" id="histories_starpass">
                   <thead>
                     <tr>
                       <th><?= $Lang->get('SHOP__STARPASS_CODE') ?></th>
@@ -77,19 +77,32 @@ table tr td:last-child > div.btn-group {
                     </tr>
                   </thead>
                   <tbody>
-                    <?php if(isset($histories['starpass'])) { ?>
-                      <?php foreach ($histories['starpass'] as $key => $value) { ?>
-                        <tr>
-                          <td><?= $value['StarpassHistory']['code'] ?></td>
-                          <td><?= (isset($usersByID[$value['StarpassHistory']['user_id']])) ? $usersByID[$value['StarpassHistory']['user_id']] : $value['StarpassHistory']['user_id'] ?></td>
-                          <td><?= (isset($offersByID['starpass'][$value['StarpassHistory']['offer_id']])) ? $offersByID['starpass'][$value['StarpassHistory']['offer_id']] : $value['StarpassHistory']['offer_id'] ?></td>
-                          <td><?= $value['StarpassHistory']['credits_gived'] ?></td>
-                          <td><?= $Lang->date($value['StarpassHistory']['created']) ?></td>
-                        </tr>
-                      <?php } ?>
-                    <?php } ?>
                   </tbody>
                 </table>
+
+                <script type="text/javascript">
+                $(document).ready(function() {
+                  $('#histories_starpass').DataTable({
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": false,
+                    "ordering": false,
+                    "info": false,
+                    "autoWidth": false,
+                    'searching': true,
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_starpass_histories')) ?>",
+                    "aoColumns": [
+                        {mData:"StarpassHistory.code"},
+                        {mData:"StarpassHistory.user"},
+                        {mData:"StarpassHistory.offer"},
+                        {mData:"StarpassHistory.credits_gived"},
+                        {mData:"StarpassHistory.created"}
+                    ],
+                  });
+                });
+                </script>
 
               </div>
 
@@ -138,7 +151,7 @@ table tr td:last-child > div.btn-group {
 
                 <h3><?= $Lang->get('SHOP__PAYPAL_HISTORIES') ?></h3>
 
-                <table class="table table-bordered dataTable">
+                <table class="table table-bordered dataTable" id="histories_paypal">
                   <thead>
                     <tr>
                       <th><?= $Lang->get('SHOP__PAYPAL_PAYMENT_ID') ?></th>
@@ -150,20 +163,32 @@ table tr td:last-child > div.btn-group {
                     </tr>
                   </thead>
                   <tbody>
-                    <?php if(isset($histories['paypal'])) { ?>
-                      <?php foreach ($histories['paypal'] as $key => $value) { ?>
-                        <tr>
-                          <td><?= $value['PaypalHistory']['payment_id'] ?></td>
-                          <td><?= (isset($usersByID[$value['PaypalHistory']['user_id']])) ? $usersByID[$value['PaypalHistory']['user_id']] : $value['PaypalHistory']['user_id'] ?></td>
-                          <td><?= (isset($offersByID['starpass'][$value['PaypalHistory']['offer_id']])) ? $offersByID['starpass'][$value['PaypalHistory']['offer_id']] : $value['PaypalHistory']['offer_id'] ?></td>
-                          <td><?= $value['PaypalHistory']['payment_amount'] ?></td>
-                          <td><?= $value['PaypalHistory']['credits_gived'] ?></td>
-                          <td><?= $Lang->date($value['PaypalHistory']['created']) ?></td>
-                        </tr>
-                      <?php } ?>
-                    <?php } ?>
                   </tbody>
                 </table>
+                <script type="text/javascript">
+                $(document).ready(function() {
+                  $('#histories_paypal').DataTable({
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": false,
+                    "ordering": false,
+                    "info": false,
+                    "autoWidth": false,
+                    'searching': true,
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_paypal_histories')) ?>",
+                    "aoColumns": [
+                        {mData:"PaypalHistory.payment_id"},
+                        {mData:"PaypalHistory.user"},
+                        {mData:"PaypalHistory.offer"},
+                        {mData:"PaypalHistory.payment_amount"},
+                        {mData:"PaypalHistory.credits_gived"},
+                        {mData:"PaypalHistory.created"}
+                    ],
+                  });
+                });
+                </script>
 
               </div>
 
@@ -220,7 +245,7 @@ table tr td:last-child > div.btn-group {
 
                 <h3><?= $Lang->get('SHOP__PAYSAFECARD_HISTORIES') ?></h3>
 
-                <table class="table table-bordered dataTable">
+                <table class="table table-bordered dataTable" id="histories_paysafecard">
                   <thead>
                     <tr>
                       <th><?= $Lang->get('SHOP__PAYSAFECARD_CODE') ?></th>
@@ -232,20 +257,32 @@ table tr td:last-child > div.btn-group {
                     </tr>
                   </thead>
                   <tbody>
-                    <?php if(isset($histories['paysafecard'])) { ?>
-                      <?php foreach ($histories['paysafecard'] as $key => $value) { ?>
-                        <tr>
-                          <td><?= $value['PaysafecardHistory']['code'] ?></td>
-                          <td><?= (isset($usersByID[$value['PaysafecardHistory']['user_id']])) ? $usersByID[$value['PaysafecardHistory']['user_id']] : $value['PaysafecardHistory']['user_id'] ?></td>
-                          <td><?= (isset($usersByID[$value['PaysafecardHistory']['author_id']])) ? $usersByID[$value['PaysafecardHistory']['author_id']] : $value['PaysafecardHistory']['author_id'] ?></td>
-                          <td><?= $value['PaysafecardHistory']['amount'] ?></td>
-                          <td><?= $value['PaysafecardHistory']['credits_gived'] ?></td>
-                          <td><?= $Lang->date($value['PaysafecardHistory']['created']) ?></td>
-                        </tr>
-                      <?php } ?>
-                    <?php } ?>
                   </tbody>
                 </table>
+                <script type="text/javascript">
+                $(document).ready(function() {
+                  $('#histories_paysafecard').DataTable({
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": false,
+                    "ordering": false,
+                    "info": false,
+                    "autoWidth": false,
+                    'searching': true,
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_paysafecard_histories')) ?>",
+                    "aoColumns": [
+                        {mData:"PaysafecardHistories.code"},
+                        {mData:"PaysafecardHistories.user"},
+                        {mData:"PaysafecardHistories.author"},
+                        {mData:"PaysafecardHistories.amount"},
+                        {mData:"PaysafecardHistories.credits_gived"},
+                        {mData:"PaysafecardHistories.created"}
+                    ],
+                  });
+                });
+                </script>
 
 
               </div>
