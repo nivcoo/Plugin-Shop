@@ -243,6 +243,7 @@ class ShopController extends ShopAppController {
 
 					if(!empty($findItem)) {
 
+						// On gère la quantité
 						$total_price += $findItem['Item']['price']*$quantity;
 
 						$i = 0;
@@ -260,9 +261,46 @@ class ShopController extends ShopAppController {
 						}
 
 
-						if($new_price == 0) {
+						/*if($new_price == 0) {
 							$new_price = $total_price;
-						}
+						}*/
+
+						/*
+								On gère les réductions de prix
+						*/
+							$reductional_items_list = unserialize($findItem['Item']['reductional_items']);
+							$reductional_items = true; // de base on dis que c'est okay
+							$reduction = 0; // 0 de réduction
+							$this->loadModel('Shop.ItemsBuyHistory');
+							if(is_array($reductional_items_list)) {
+								foreach ($reductional_items_list as $key => $value) {
+
+									$findItemReductionnal = $this->Item->find('first', array('conditions' => array('id' => $value)));
+									if(empty($findItemReductionnal)) {
+										$reductional_items = false;
+										break;
+									}
+
+									$findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItemReductionnal['Item']['id'])));
+									if(empty($findHistory)) {
+										$reductional_items = false;
+										break;
+									}
+
+									$reduction =+ $findItemReductionnal['Item']['price'];
+
+									unset($findItemReductionnal);
+
+								}
+							}
+
+							if($reductional_items) {
+								$new_price = $new_price - $reduction*$quantity;
+							}
+
+							if($new_price < 0) {
+								$new_price = 0;
+							}
 
 					}
 				}
@@ -299,6 +337,9 @@ class ShopController extends ShopAppController {
 							$give_cape = false;
 
 							$voucher_code = (isset($this->request->data['code']) && !empty($this->request->data['code'])) ? $this->request->data['code'] : NULL;
+							$voucher_code_used = false;
+							$voucher_used_count = 0;
+							$voucher_reduction = 0;
 
 						// On récupère le broadcast global
 							$this->loadModel('Shop.ItemsConfig');
@@ -406,7 +447,26 @@ class ShopController extends ShopAppController {
 										}
 
 										/*
-											On vérifie si y'a une réduction (articles déjà achetés)
+										=== Code promotionnel ===
+										*/
+											if(!empty($this->request->data['code'])) {
+
+												$getVoucherPrice = $this->DiscountVoucher->getNewPrice($items[$i]['id'], $voucher_code);
+
+												if($getVoucherPrice['status']) {
+													$voucher_code_used = true;
+													$voucher_used_count++;
+													$voucher_reduction += $items[$i]['price'] - $getVoucherPrice['price'];
+													$items[$i]['price'] = $getVoucherPrice['price'];
+												}
+
+											}
+										/*
+										===
+										*/
+
+										/*
+											 === Réduction d'articles ===
 										*/
 										$reductional_items_func = (!empty($findItem['Item']['reductional_items']) && !is_bool(unserialize($findItem['Item']['reductional_items']))) ? true : false;
 										$reductional_items = false;
@@ -490,28 +550,8 @@ class ShopController extends ShopAppController {
 								return;
 							}
 
-						// Traitement du prix avec le code promotionnel
-							$total_price_before_voucher = $total_price;
-							/*
-								On parcours tous les articles si y'a un code promo
-							*/
-							if(!empty($this->request->data['code'])) {
+							if($total_price < 0) {
 								$total_price = 0;
-								$voucher_used_count = 0;
-								$i = 0;
-								foreach ($items as $key => $value) {
-
-									$getVoucherPrice = $this->DiscountVoucher->getNewPrice($value['id'], $this->request->data['code']);
-
-									if($getVoucherPrice['status']) {
-										$voucher_used_count++;
-										$total_price = $total_price+$getVoucherPrice['price'];
-									} else {
-										$total_price = $total_price+$value['price']; // erreur
-									}
-
-									$i++;
-								}
 							}
 
 
@@ -537,7 +577,7 @@ class ShopController extends ShopAppController {
 									}
 
 								// Ajouter au champ used si il a utiliser un voucher
-									if(!empty($voucher_code) && $total_price_before_voucher != $total_price) {
+									if(!empty($voucher_code) && $voucher_code_used) {
 
 										// On le met en utilisé
 											$this->DiscountVoucher->set_used($this->User->getKey('id'), $voucher_code, $voucher_used_count);
@@ -545,11 +585,10 @@ class ShopController extends ShopAppController {
 										// On le met dans l'historique
 											$this->loadModel('Shop.VouchersHistory');
 											$this->VouchersHistory->create();
-											$diff = $total_price_before_voucher - $total_price;
 											$this->VouchersHistory->set(array(
 												'code' => $voucher_code,
 												'user_id' => $this->User->getKey('id'),
-												'reduction' => $diff
+												'reduction' => $voucher_reduction
 											));
 											$this->VouchersHistory->save();
 									}

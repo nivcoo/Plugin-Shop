@@ -70,6 +70,9 @@ $('.display-item').click(function(e) {
             } else { // si y'a un code promo - on re-calcule le prix selon la quantité
 
               var quantity = $(this).val();
+              if(quantity == undefined) {
+                quantity = 1;
+              }
               $.get(VOUCHER_CHECK_URL+code+'/'+id+'/'+quantity, function(data) {
                 if(data.price !== undefined) {
                   $("#buy-modal .modal-body").find('#total-price').html(data.price);
@@ -93,6 +96,9 @@ $('.display-item').click(function(e) {
 
             var code = $(this).val();
             var quantity = $("input[name='quantity']").val();
+            if(quantity == undefined) {
+              quantity = 1;
+            }
 
             if(code.length > 0) {
 
@@ -124,6 +130,9 @@ $('.display-item').click(function(e) {
             var id = $(this).attr('data-item-id');
 
             var quantity = $("input[name='quantity']").val();
+            if(quantity == undefined) {
+              quantity = 1;
+            }
 
             var code = $('#code-voucher').val();
 
