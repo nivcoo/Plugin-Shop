@@ -700,8 +700,11 @@ class PaymentController extends ShopAppController {
   				}
 
   			// On prépare la requête de vérification
-  				$IPN = $this->request->data;
-  				$IPN['cmd'] = '_notify-validate';
+          $IPN = 'cmd=_notify-validate';
+          foreach ($this->request->data as $key => $value) {
+            $value = urlencode($value);
+            $IPN .= "&$key=$value";
+          }
 
   			// On fais la requête
 
@@ -765,7 +768,7 @@ class PaymentController extends ShopAppController {
 
   										// On récupére le solde de l'utilisateur et on ajoute ses nouveaux crédits
   										$sold = $this->User->getFromUser('money', $user_id);
-  										$new_sold = $sold + $findOffer['Paypal']['money'];
+  										$new_sold = floatval( $sold + floatval($findOffer['Paypal']['money']) );
 
   										// On ajoute l'argent à l'utilisateur
   										$this->User->setToUser('money', $new_sold, $user_id);
