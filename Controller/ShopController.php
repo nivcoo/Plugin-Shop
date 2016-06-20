@@ -752,6 +752,49 @@ class ShopController extends ShopAppController {
 			}
 		}
 
+		public function admin_get_histories_buy() {
+			if($this->isConnected && $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
+
+				$this->loadModel('Shop.Item');
+
+				$this->autoRender = false;
+				$this->response->type('json');
+
+				$this->DataTable = $this->Components->load('DataTable');
+				$this->modelClass = 'ItemsBuyHistory';
+				$this->DataTable->initialize($this);
+				$this->paginate = array(
+			  'fields' => array('ItemsBuyHistory.item_id','ItemsBuyHistory.user_id','ItemsBuyHistory.created'),
+				);
+        $this->DataTable->mDataProp = true;
+
+				$response = $this->DataTable->getResponse();
+
+				$histories = $response['aaData'];
+				foreach ($histories as $history) {
+
+					$username = $this->User->getFromUser('pseudo', $history['ItemsBuyHistory']['user_id']);
+					$item = $this->Item->find('first', array('conditions' => array('id' => $history['ItemsBuyHistory']['item_id'])));
+					$item = $item['Item']['name'];
+					$date = 'Le '.$this->Lang->date($history['ItemsBuyHistory']['created']);
+
+					$data[]['ItemsBuyHistory'] = array(
+						'user' => $username,
+						'item' => $item,
+						'created' => $date,
+					);
+
+				}
+
+				$response['aaData'] = $data;
+
+				$this->response->body(json_encode($response));
+
+			} else {
+				throw new ForbiddenException();
+			}
+		}
+
 
 
 	/*

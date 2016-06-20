@@ -119,7 +119,7 @@
           </div>
           <div class="box-body">
 
-            <table class="table table-bordered dataTable">
+            <table class="table table-bordered dataTable" id="histories_buy">
               <thead>
                 <tr>
                   <th><?= $Lang->get('SHOP__ITEM') ?></th>
@@ -128,13 +128,6 @@
                 </tr>
               </thead>
               <tbody>
-                <?php foreach ($histories_buy as $value => $v) { ?>
-                  <tr>
-                    <td><?= (isset($items[$v['ItemsBuyHistory']['item_id']])) ? $items[$v['ItemsBuyHistory']['item_id']] : $items[$v['ItemsBuyHistory']['item_id']] ?></td>
-                    <td><?= (isset($users[$v['ItemsBuyHistory']['user_id']])) ? $users[$v['ItemsBuyHistory']['user_id']] : $users[$v['ItemsBuyHistory']['user_id']] ?></td>
-                    <td><?= $Lang->date($v['ItemsBuyHistory']['created']) ?></td>
-                  </tr>
-                <?php } ?>
               </tbody>
             </table>
 
@@ -144,3 +137,24 @@
     </div>
   </div>
 </section>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#histories_buy').DataTable({
+    "paging": true,
+    "lengthChange": false,
+    "searching": false,
+    "ordering": false,
+    "info": false,
+    "autoWidth": false,
+    'searching': true,
+    "bProcessing": true,
+    "bServerSide": true,
+    "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_histories_buy')) ?>",
+    "aoColumns": [
+        {mData:"ItemsBuyHistory.item"},
+        {mData:"ItemsBuyHistory.user"},
+        {mData:"ItemsBuyHistory.created"}
+    ],
+  });
+});
+</script>
