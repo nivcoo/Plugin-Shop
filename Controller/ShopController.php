@@ -708,7 +708,7 @@ class ShopController extends ShopAppController {
 	* ======== Page principale du panel admin ===========
 	*/
 		public function admin_index() {
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
 				$this->set('title_for_layout',$this->Lang->get('SHOP__TITLE'));
 				$this->layout = 'admin';
@@ -758,7 +758,7 @@ class ShopController extends ShopAppController {
 	*/
 		public function admin_config_items() {
 			$this->autoRender = false;
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
 				if($this->request->is('ajax')) {
 
@@ -792,7 +792,7 @@ class ShopController extends ShopAppController {
 	*/
 
 		public function admin_edit($id = false) {
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 				if($id != false) {
 
 					$this->set('title_for_layout', $this->Lang->get('SHOP__ITEM_EDIT'));
@@ -874,7 +874,7 @@ class ShopController extends ShopAppController {
 
 		public function admin_edit_ajax() {
 			$this->autoRender = false;
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 				if($this->request->is('post')) {
 					if(empty($this->request->data['category'])) {
 						$this->request->data['category'] = $this->request->data['category_default'];
@@ -947,7 +947,7 @@ class ShopController extends ShopAppController {
 	*/
 
 		public function admin_add_item() {
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
 				$this->set('title_for_layout', $this->Lang->get('SHOP__ITEM_ADD'));
 				$this->layout = 'admin';
@@ -984,7 +984,7 @@ class ShopController extends ShopAppController {
 
 		public function admin_add_item_ajax() {
 			$this->autoRender = false;
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 				if($this->request->is('post')) {
 
 					if(!empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND !empty($this->request->data['price']) AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
@@ -1057,7 +1057,7 @@ class ShopController extends ShopAppController {
 	*/
 
 		public function admin_add_category() {
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
 				$this->layout = 'admin';
 				$this->set('title_for_layout', $this->Lang->get('SHOP__CATEGORY_ADD'));
@@ -1094,7 +1094,7 @@ class ShopController extends ShopAppController {
 
 		public function admin_delete($type = false, $id = false) {
 			$this->autoRender = false;
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 				if($type != false AND $id != false) {
 					if($type == "item") {
 						$this->loadModel('Shop.Item');
@@ -1190,7 +1190,7 @@ class ShopController extends ShopAppController {
 
 
 		public function admin_vouchers() {
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_VOUCHERS')) {
 
 				$this->set('title_for_layout',$this->Lang->get('SHOP__VOUCHERS_MANAGE'));
 				$this->layout = 'admin';
@@ -1236,7 +1236,7 @@ class ShopController extends ShopAppController {
 	*/
 
 		public function admin_add_voucher() {
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_VOUCHERS')) {
 
 				$this->set('title_for_layout', $this->Lang->get('SHOP__VOUCHER_ADD'));
 				$this->layout = 'admin';
@@ -1268,7 +1268,7 @@ class ShopController extends ShopAppController {
 
 		public function admin_add_voucher_ajax() {
 			$this->autoRender = false;
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_VOUCHERS')) {
 				if($this->request->is('post')) {
 					if(!empty($this->request->data['code']) AND !empty($this->request->data['effective_on']) AND !empty($this->request->data['type']) AND !empty($this->request->data['reduction']) AND !empty($this->request->data['end_date'])) {
 						if(preg_match('/^[a-zA-Z0-9#]{0,20}$/', $this->request->data['code'])) {
@@ -1329,7 +1329,7 @@ class ShopController extends ShopAppController {
 
 		public function admin_delete_voucher($id = false) {
 			$this->autoRender = false;
-			if($this->isConnected AND $this->User->isAdmin()) {
+			if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_VOUCHERS')) {
 				if($id != false) {
 
 					$event = new CakeEvent('beforeDeleteVoucher', $this, array('voucher_id' => $id, 'user' => $this->User->getAllFromCurrentUser()));

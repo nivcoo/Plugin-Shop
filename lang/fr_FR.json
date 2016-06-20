@@ -191,6 +191,9 @@
 
   "PERMISSIONS__CREDIT_ACCOUNT": "Cr\u00e9diter son compte",
   "PERMISSIONS__CAN_BUY": "Acheter",
+  "PERMISSIONS__SHOP__ADMIN_MANAGE_ITEMS":"Gérer les articles de la boutique (Ajouter, éditer, supprimer)",
+  "PERMISSIONS__SHOP__ADMIN_MANAGE_VOUCHERS":"Gérer les codes promotionnels de la boutique (Ajouter, supprimer)",
+  "PERMISSIONS__SHOP__ADMIN_MANAGE_PAYMENT":"Gérer les paiements de la boutique (Ajouter, éditer, supprimer, valider les PSC...)",
 
   "HISTORY__CATEGORY_SHOP": "Boutique",
   "HISTORY__CATEGORY_CREDIT_SHOP": "Cr\u00e9ditation boutique",

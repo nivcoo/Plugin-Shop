@@ -31,7 +31,7 @@
 	"apiID":1,
 	"useEvents":true,
 	"permissions" : {
-		"available" : ["CREDIT_ACCOUNT", "CAN_BUY"],
+		"available" : ["CREDIT_ACCOUNT", "CAN_BUY", "SHOP__ADMIN_MANAGE_ITEMS", "SHOP__ADMIN_MANAGE_VOUCHERS", "SHOP__ADMIN_MANAGE_PAYMENT"],
 		"default" : {
 			"0" : ["CREDIT_ACCOUNT", "CAN_BUY"],
 			"2" : ["CREDIT_ACCOUNT", "CAN_BUY"]

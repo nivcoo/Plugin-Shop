@@ -13,7 +13,7 @@ class PaymentController extends ShopAppController {
 
 
     public function admin_index() {
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
 
         $this->layout = 'admin';
 
@@ -117,7 +117,7 @@ class PaymentController extends ShopAppController {
 
   	public function admin_toggle_paysafecard() {
   		$this->autoRender = false;
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
   			$this->loadModel('Shop.Paysafecard');
 
   			$paysafecard_enabled = $this->Paysafecard->find('all', array('conditions' => array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '1990/00/00 15:00:00')));
@@ -154,7 +154,7 @@ class PaymentController extends ShopAppController {
 
   	public function admin_paysafecard_valid($id = false, $money = false) {
   		$this->autoRender = false;
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
   			if($id != false AND $money != false) {
 
   				$this->loadModel('Shop.Paysafecard');
@@ -217,7 +217,7 @@ class PaymentController extends ShopAppController {
 
   	public function admin_paysafecard_invalid($id = false) {
   		$this->autoRender = false;
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
   			if($id != false) {
   				$this->loadModel('Shop.Paysafecard');
   				$search = $this->Paysafecard->find('all', array('conditions' => array('id' => $id)));
@@ -311,7 +311,7 @@ class PaymentController extends ShopAppController {
 	*/
 
   	public function admin_add_paypal() {
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
 
   			$this->set('title_for_layout', $this->Lang->get('SHOP__PAYPAL_OFFER_ADD'));
   			$this->layout = 'admin';
@@ -327,7 +327,7 @@ class PaymentController extends ShopAppController {
 
     public function admin_add_paypal_ajax() {
       $this->autoRender = false;
-      if($this->isConnected AND $this->User->isAdmin()) {
+      if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
         if($this->request->is('ajax')) {
           if(!empty($this->request->data['name']) AND !empty($this->request->data['email']) AND !empty($this->request->data['price']) AND !empty($this->request->data['money'])) {
             $this->request->data['price'] = number_format($this->request->data['price'], 2, '.', '');
@@ -361,7 +361,7 @@ class PaymentController extends ShopAppController {
 	*/
 
   	public function admin_edit_paypal($id = false) {
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
 
   			$this->set('title_for_layout', $this->Lang->get('SHOP__PAYPAL_OFFER_EDIT'));
   			$this->layout = 'admin';
@@ -390,7 +390,7 @@ class PaymentController extends ShopAppController {
 
   	public function admin_edit_paypal_ajax($id = false) {
   		$this->autoRender = false;
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
   			if($id != false) {
   				$this->loadModel('Shop.Paypal');
   				$search = $this->Paypal->find('all', array('conditions' => array('id' => $id)));
@@ -434,7 +434,7 @@ class PaymentController extends ShopAppController {
   */
 
     public function admin_add_starpass() {
-      if($this->isConnected AND $this->User->isAdmin()) {
+      if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
 
         $this->set('title_for_layout', $this->Lang->get('SHOP__STARPASS_OFFER_ADD'));
         $this->layout = 'admin';
@@ -451,7 +451,7 @@ class PaymentController extends ShopAppController {
 
   	public function admin_add_starpass_ajax() {
   		$this->autoRender = false;
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
   			if($this->request->is('ajax')) {
   				if(!empty($this->request->data['name']) AND !empty($this->request->data['idd']) AND !empty($this->request->data['idp']) AND !empty($this->request->data['money'])) {
   					$this->request->data['money'] = intval($this->request->data['money']);
@@ -483,7 +483,7 @@ class PaymentController extends ShopAppController {
 	*/
 
   	public function admin_edit_starpass($id = false) {
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
 
   			$this->set('title_for_layout', $this->Lang->get('SHOP__STARPASS_OFFER_EDIT'));
   			$this->layout = 'admin';
@@ -512,7 +512,7 @@ class PaymentController extends ShopAppController {
 
   	public function admin_edit_starpass_ajax($id = false) {
   		$this->autoRender = false;
-  		if($this->isConnected AND $this->User->isAdmin()) {
+  		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
   			if($id != false) {
   				if($this->request->is('ajax')) {
   					if(!empty($this->request->data['name']) AND !empty($this->request->data['idd']) AND !empty($this->request->data['idp']) AND !empty($this->request->data['money'])) {
@@ -848,7 +848,7 @@ class PaymentController extends ShopAppController {
 
     public function admin_toggle_dedipass() {
       $this->autoRender = false;
-      if($this->isConnected AND $this->User->isAdmin()) {
+      if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
 
         $this->loadModel('Shop.DedipassConfig');
         $findConfig = $this->DedipassConfig->find('first');
@@ -884,7 +884,7 @@ class PaymentController extends ShopAppController {
 
     public function admin_dedipass_config() {
       $this->autoRender = false;
-      if($this->isConnected AND $this->User->isAdmin()) {
+      if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
         if($this->request->is('ajax')) {
           if(!empty($this->request->data['publicKey'])) {
 
