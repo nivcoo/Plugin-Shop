@@ -2,7 +2,30 @@
 	"name":"Boutique",
 	"slug":"shop",
 	"nav":true,
-	"admin":false,
+	"admin":true,
+	"admin_group_menu":"customisation",
+	"admin_name":"Boutique",
+	"admin_icon":"shopping-cart",
+	"admin_menus": [
+		{
+			"name": "Gérer les articles",
+			"icon": "shopping-basket",
+			"url": "/admin/shop",
+			"permission": "SHOP__ADMIN_MANAGE_ITEMS"
+		},
+		{
+			"name": "Gérer les promotions",
+			"icon": "percent",
+			"url": "/admin/shop/shop/vouchers",
+			"permission": "SHOP__ADMIN_MANAGE_VOUCHERS"
+		},
+		{
+			"name": "Gérer les paiements",
+			"icon": "credit-card",
+			"url": "/admin/shop/payment",
+			"permission": "SHOP__ADMIN_MANAGE_PAYMENT"
+		}
+	],
 	"author":"Eywek",
 	"version":"0.4.3",
 	"apiID":1,

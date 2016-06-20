@@ -767,6 +767,7 @@ class ShopController extends ShopAppController {
 						$item['category'] = $item['category'][0]['Category']['name'];
 
 						$search_categories = $this->Category->find('all', array('fields' => 'name'));
+						$categories = array();
 						foreach ($search_categories as $v) {
 							if($v['Category']['name'] != $item['category']) {
 								$categories[$v['Category']['name']] = $v['Category']['name'];
@@ -775,6 +776,7 @@ class ShopController extends ShopAppController {
 						$this->set(compact('categories'));
 
 						$search_items = $this->Item->find('all', array('fields' => array('name', 'id')));
+						$items_available = array();
 						foreach ($search_items as $v) {
 							$items_available[$v['Item']['id']] = $v['Item']['name'];
 						}
@@ -912,6 +914,7 @@ class ShopController extends ShopAppController {
 				$this->layout = 'admin';
 				$this->loadModel('Shop.Category');
 				$search_categories = $this->Category->find('all', array('fields' => 'name'));
+				$categories = array();
 				foreach ($search_categories as $v) {
 					$categories[$v['Category']['name']] = $v['Category']['name'];
 				}
@@ -919,6 +922,7 @@ class ShopController extends ShopAppController {
 
 				$this->loadModel('Shop.Item');
 				$search_items = $this->Item->find('all', array('fields' => array('name', 'id')));
+				$items_available = array();
 				foreach ($search_items as $v) {
 					$items_available[$v['Item']['id']] = $v['Item']['name'];
 				}
@@ -1160,7 +1164,7 @@ class ShopController extends ShopAppController {
 
 				$usersToFind = array();
 				foreach ($vouchers_histories as $key => $value) {
-					$usersToFind[] = $vouchers_histories['VouchersHistory']['user_id'];
+					$usersToFind[] = $value['VouchersHistory']['user_id'];
 				}
 
 				$usersByID = array();
