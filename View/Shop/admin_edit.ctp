@@ -97,7 +97,7 @@
               <div class="input-group">
                 <input name="commands[0]" class="form-control" value="<?= htmlentities($item['commands'][0]) ?>" type="text">
                 <div class="input-group-btn">
-                  <button data-i="1" type="button" id="addCommand" class="btn btn-success"><?= $Lang->get('SHOP__ITEM_ADD_COMMAND') ?></button>
+                  <button data-i="<?= count($item['commands']) ?>" type="button" id="addCommand" class="btn btn-success"><?= $Lang->get('SHOP__ITEM_ADD_COMMAND') ?></button>
                 </div>
               </div>
               <div class="addCommand">
