@@ -32,10 +32,8 @@
           foreach ($search_items as $k => $v) {
             if(!isset($category) AND $v['Item']['category'] == $search_first_category OR isset($category) AND $v['Item']['category'] == $category) {
               $i++;
-              $newRow = ( ( $i % ( (12 / $col) +1 ) ) == 0);
+              $newRow = ( ( $i % ( (12 / $col) ) ) == 0);
           ?>
-              <?= ($newRow) ? '</div>' : '' ?>
-              <?= ($newRow) ? '<div class="row">' : '' ?>
                 <div class="col-sm-<?= $col ?> col-lg-<?= $col ?> col-md-<?= $col ?>">
                     <div class="thumbnail">
                         <?php if(isset($v['Item']['img_url'])) { ?><img src="<?= $v['Item']['img_url'] ?>" alt=""><?php } ?>
@@ -54,6 +52,9 @@
                         </div>
                     </div>
                 </div>
+
+              <?= ($newRow) ? '</div>' : '' ?>
+              <?= ($newRow) ? '<div class="row">' : '' ?>
             <?php } ?>
           <?php } ?>
         </div>
