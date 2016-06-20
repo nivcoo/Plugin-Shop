@@ -180,6 +180,14 @@ class PaymentController extends ShopAppController {
   					));
   					$this->PaysafecardMessage->save();
 
+            $this->loadModel('Notification');
+            $notification = $this->Lang->get('SHOP__PAYSAFECARD_MESSAGE_VALID', array(
+              '{AMOUNT}' => $findPaysafecard['amount'],
+              '{POINTS}' => $money,
+              '{MONEY_NAME}' => $this->Configuration->getMoneyName()
+            ));;
+            $this->Notification->setToUser($notification, $findPaysafecard['user_id']);
+
             $this->loadModel('Shop.PaysafecardHistory');
             $this->PaysafecardHistory->create();
             $this->PaysafecardHistory->set(array(
@@ -220,18 +228,25 @@ class PaymentController extends ShopAppController {
   		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
   			if($id != false) {
   				$this->loadModel('Shop.Paysafecard');
-  				$search = $this->Paysafecard->find('all', array('conditions' => array('id' => $id)));
+  				$search = $this->Paysafecard->find('first', array('conditions' => array('id' => $id)));
   				if(!empty($search)) {
   					$this->Paysafecard->delete($id);
+
   					$this->loadModel('Shop.PaysafecardMessage');
-  					$this->PaysafecardMessage->read(null, null);
+  					$this->PaysafecardMessage->create();
   					$this->PaysafecardMessage->set(array(
-  						'to' => $search['0']['Paysafecard']['user_id'],
+  						'user_id' => $search['Paysafecard']['user_id'],
   						'type' => 0,
-  						'amount' => $search['0']['Paysafecard']['amount'],
+  						'amount' => $search['Paysafecard']['amount'],
   						'added_points' => 0
   					));
   					$this->PaysafecardMessage->save();
+
+            $this->loadModel('Notification');
+            $notification = $this->Lang->get('SHOP__PAYSAFECARD_MESSAGE_INVALID', array(
+              '{AMOUNT}' => $search['Paysafecard']['amount'],
+            ));;
+            $this->Notification->setToUser($notification, $search['Paysafecard']['user_id']);
 
   					$this->History->set('INVALID_PAYSAFECARD', 'shop');
 
@@ -279,6 +294,10 @@ class PaymentController extends ShopAppController {
   										'user_id' => $this->User->getKey('id')
   									));
   									$this->Paysafecard->save();
+
+                    $this->loadModel('Notification');
+                    $this->Notification->setToAdmin($this->Lang->get('NOTIFICATION__NEW_PSC'));
+
   									$this->History->set('ADD_PAYSAFECARD', 'credit_shop');
   									echo json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__PAYSAFECARD_ADD_SUCCESS')));
   								} else {
@@ -787,6 +806,9 @@ class PaymentController extends ShopAppController {
                         'credits_gived' => $findOffer['Paypal']['money']
   										));
   										$this->PaypalHistory->save();
+
+                      $this->loadModel('Notification');
+                      $this->Notification->setToUser($this->Lang->get('NOTIFICATION__PAYPAL_IPN_VALIDED'), $user_id);
 
   										$this->response->statusCode(200);
 

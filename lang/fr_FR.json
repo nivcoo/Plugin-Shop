@@ -195,6 +195,10 @@
   "PERMISSIONS__SHOP__ADMIN_MANAGE_VOUCHERS":"Gérer les codes promotionnels de la boutique (Ajouter, supprimer)",
   "PERMISSIONS__SHOP__ADMIN_MANAGE_PAYMENT":"Gérer les paiements de la boutique (Ajouter, éditer, supprimer, valider les PSC...)",
 
+  "NOTIFICATION__NEW_VOUCHER":"Un nouveau code promotionnel est disponible !",
+  "NOTIFICATION__NEW_PSC":"Une nouvelle PaySafeCard doit être validée !",
+  "NOTIFICATION__PAYPAL_IPN_VALIDED":"Votre paiement PayPal vient d'être confirmé !",
+
   "HISTORY__CATEGORY_SHOP": "Boutique",
   "HISTORY__CATEGORY_CREDIT_SHOP": "Cr\u00e9ditation boutique",
   "HISTORY__ACTION_VALID_PAYSAFECARD":"Validation d'une PaySafeCard",

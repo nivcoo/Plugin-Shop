@@ -1290,6 +1290,11 @@ class ShopController extends ShopAppController {
 								return $event->result;
 							}
 
+							if($this->request->data['affich']) {
+								$this->loadModel('Notification');
+								$this->Notification->setToAll($this->Lang->get('NOTIFICATION__NEW_VOUCHER'));
+							}
+
 							$this->loadModel('Shop.Voucher');
 							$this->Voucher->read(null, null);
 							$this->Voucher->set(array(
