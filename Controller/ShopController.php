@@ -173,7 +173,8 @@ class ShopController extends ShopAppController {
 					'{ITEM_SERVERS}' => $servers,
 					'{ITEM_PRICE}' => $item_price,
 					'{SITE_MONEY}' => $money,
-					'{ITEM_ID}' => $search_item['0']['Item']['id']
+					'{ITEM_ID}' => $search_item['0']['Item']['id'],
+					'{ITEM_IMG_URL}' => $search_item['0']['Item']['img_url']
 				);
 				$element_content = strtr($element_content, $vars);
 
