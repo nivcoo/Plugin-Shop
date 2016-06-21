@@ -376,6 +376,26 @@ class ShopController extends ShopAppController {
 											}
 
 										/*
+											On vérifie l'intervalle de buy
+										*/
+											if(isset($findItem['Item']['wait_time']) && !empty($findItem['Item']['wait_time'])) {
+												$last_buy = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id']), 'order' => 'id desc'));
+												if(!empty($last_buy)) {
+
+													if(strtotime('+'.$findItem['Item']['wait_time'], strtotime($last_buy['ItemsBuyHistory']['created'])) > time()) {
+
+														$wait_time = explode(' ', $findItem['Item']['wait_time']);
+														$wait_time = $wait_time[0].' '.$this->Lang->get('GLOBAL__DATE_R_'.strtoupper($wait_time[1]));
+														$this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_WAIT_TIME', array('{ITEM_NAME}' => $findItem['Item']['name'], '{WAIT_TIME}' => $wait_time)))));
+														return;
+
+													}
+
+												}
+												unset($last_buy);
+											}
+
+										/*
 											On vérifie les pré-requis
 										*/
 										$prerequisites = $this->Item->checkPrerequisites($findItem['Item'], $this->User->getKey('id'));
@@ -838,6 +858,15 @@ class ShopController extends ShopAppController {
 							$item['reductional_items'] = array();
 						}
 
+						if(isset($item['wait_time']) && !empty($item['wait_time'])) {
+							$wait_time = explode(' ', $item['wait_time']);
+							if(is_array($wait_time) && count($wait_time) == 2) {
+								$item['wait_time'] = array();
+								$item['wait_time']['time'] = $wait_time[0];
+								$item['wait_time']['type'] = $wait_time[1];
+							}
+						}
+
 						$this->set(compact('item'));
 
 					} else {
@@ -887,6 +916,8 @@ class ShopController extends ShopAppController {
 						$prerequisites = (isset($this->request->data['prerequisites'])) ? serialize($this->request->data['prerequisites']) : NULL;
 						$reductional_items = (isset($this->request->data['reductional_items']) && $this->request->data['reductional_items_checkbox']) ? serialize($this->request->data['reductional_items']) : NULL;
 
+						$wait_time = implode(' ', $this->request->data['wait_time']);
+
 						$this->loadModel('Shop.Item');
 						$this->Item->read(null, $this->request->data['id']);
 						$this->Item->set(array(
@@ -911,7 +942,8 @@ class ShopController extends ShopAppController {
 							'reductional_items' => $reductional_items,
 							'give_skin' => $this->request->data['give_skin'],
 							'give_cape' => $this->request->data['give_cape'],
-							'buy_limit' => $this->request->data['buy_limit']
+							'buy_limit' => $this->request->data['buy_limit'],
+							'wait_time' => $wait_time
 						));
 						$this->Item->save();
 						$this->Session->setFlash($this->Lang->get('SHOP__ITEM_EDIT_SUCCESS'), 'default.success');
@@ -996,6 +1028,8 @@ class ShopController extends ShopAppController {
 						$prerequisites = (isset($this->request->data['prerequisites'])) ? serialize($this->request->data['prerequisites']) : NULL;
 						$reductional_items = (isset($this->request->data['reductional_items']) && $this->request->data['reductional_items_checkbox']) ? serialize($this->request->data['reductional_items']) : NULL;
 
+						$wait_time = implode(' ', $this->request->data['wait_time']);
+
 						$this->loadModel('Shop.Item');
 						$this->Item->read(null, null);
 						$this->Item->set(array(
@@ -1020,7 +1054,8 @@ class ShopController extends ShopAppController {
 							'reductional_items' => $reductional_items,
 							'give_skin' => $this->request->data['give_skin'],
 							'give_cape' => $this->request->data['give_cape'],
-							'buy_limit' => $this->request->data['buy_limit']
+							'buy_limit' => $this->request->data['buy_limit'],
+							'wait_time' => $wait_time
 						));
 						$this->Item->save();
 						$this->History->set('ADD_ITEM', 'shop');

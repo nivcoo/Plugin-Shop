@@ -252,6 +252,26 @@
               <input name="buy_limit" class="form-control" type="text" value="<?= (!isset($item['buy_limit']) || empty($item['buy_limit'])) ? '0' : $item['buy_limit'] ?>" placeholder="<?= $Lang->get('SHOP__ITEM_BUY_LIMIT_PLACEHOLDER') ?>">
             </div>
 
+            <hr>
+
+            <div class="form-group">
+              <label><?= $Lang->get('SHOP__ITEM_WAIT_TIME') ?></label>
+              <div class="row">
+                <div class="col-md-6">
+                  <input name="wait_time[time]" class="form-control" type="text" value="<?= (!isset($item['wait_time']['time']) || empty($item['wait_time']['time'])) ? '0' : $item['wait_time']['time'] ?>">
+                </div>
+                <div class="col-md-6">
+                  <select class="form-control" name="wait_time[type]">
+                    <option value="seconds"<?= ((!isset($item['wait_time']['type']) || empty($item['wait_time']['type'])) || (isset($item['wait_time']['type']) && $item['wait_time']['type'] == "seconds")) ? ' selected' : '' ?>><?= $Lang->get('GLOBAL__DATE_SECONDS') ?></option>
+                    <option value="hours"<?= (isset($item['wait_time']['type']) && $item['wait_time']['type'] == "hours") ? ' selected' : '' ?>><?= $Lang->get('GLOBAL__DATE_HOURS') ?></option>
+                    <option value="days"<?= (isset($item['wait_time']['type']) && $item['wait_time']['type'] == "days") ? ' selected' : '' ?>><?= $Lang->get('GLOBAL__DATE_DAYS') ?></option>
+                    <option value="months"<?= (isset($item['wait_time']['type']) && $item['wait_time']['type'] == "months") ? ' selected' : '' ?>><?= $Lang->get('GLOBAL__DATE_MONTH') ?></option>
+                    <option value="years"<?= (isset($item['wait_time']['type']) && $item['wait_time']['type'] == "years") ? ' selected' : '' ?>><?= $Lang->get('GLOBAL__DATE_YEARS') ?></option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             <div class="pull-right">
               <a href="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'index', 'admin' => true)) ?>" class="btn btn-default"><?= $Lang->get('GLOBAL__CANCEL') ?></a>
               <button class="btn btn-primary" type="submit"><?= $Lang->get('GLOBAL__SUBMIT') ?></button>
