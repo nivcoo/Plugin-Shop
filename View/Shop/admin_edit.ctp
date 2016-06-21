@@ -245,6 +245,13 @@
               </select>
             </div>
 
+            <hr>
+
+            <div class="form-group">
+              <label><?= $Lang->get('SHOP__ITEM_BUY_LIMIT') ?></label>
+              <input name="buy_limit" class="form-control" type="text" value="<?= (!isset($item['buy_limit']) || empty($item['buy_limit'])) ? '0' : $item['buy_limit'] ?>" placeholder="<?= $Lang->get('SHOP__ITEM_BUY_LIMIT_PLACEHOLDER') ?>">
+            </div>
+
             <div class="pull-right">
               <a href="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'index', 'admin' => true)) ?>" class="btn btn-default"><?= $Lang->get('GLOBAL__CANCEL') ?></a>
               <button class="btn btn-primary" type="submit"><?= $Lang->get('GLOBAL__SUBMIT') ?></button>

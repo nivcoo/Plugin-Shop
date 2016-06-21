@@ -299,6 +299,28 @@ class ShopController extends ShopAppController {
 
 					if(!empty($this->request->data['items'])) {
 
+						/*
+							Traitement préalable - On ajoute de la quantité si un article est envoyé plusieurs fois (tentative de cheat)
+						*/
+						$items_in_cart = array();
+						foreach ($this->request->data['items'] as $item) {
+
+							if(isset($items_in_cart[$item['item_id']])) {
+								if(isset($items_in_cart[$item['item_id']]['quantity'])) {
+									intval($items_in_cart[$item['item_id']]['quantity']);
+									$items_in_cart[$item['item_id']]['quantity']++;
+								} else {
+									$items_in_cart[$item['item_id']]['quantity'] = 1;
+								}
+							} else {
+								$items_in_cart[$item['item_id']] = $item;
+							}
+
+						}
+						/*
+						===
+						*/
+
 						// Nos variables de traitement
 							$items = array();
 							$total_price = 0;
@@ -322,9 +344,10 @@ class ShopController extends ShopAppController {
 
 						// On parcours les articles donnés
 							$this->loadModel('Shop.Item');
+							$this->loadModel('Shop.ItemsBuyHistory');
 
 							$i = 0;
-							foreach ($this->request->data['items'] as $key => $value) {
+							foreach ($items_in_cart as $key => $value) {
 								if(!isset($value['quantity']) || $value['quantity'] > 0) {
 
 									$findItem = $this->Item->find('first', array('conditions' => array('id' => $value['item_id'])));
@@ -339,6 +362,18 @@ class ShopController extends ShopAppController {
 											$this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_ADDED_TO_CART', array('{ITEM_NAME}' => $findItem['Item']['name'])))));
 											return;
 										}
+
+										/*
+											On vérifie la limite d'achat
+										*/
+											if(isset($findItem['Item']['buy_limit']) && $findItem['Item']['buy_limit'] > 0) {
+												$buy_count = $this->ItemsBuyHistory->find('count', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
+												if($buy_count >= $findItem['Item']['buy_limit']) {
+													$this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_LIMIT', array('{ITEM_NAME}' => $findItem['Item']['name'], '{LIMIT}' => $findItem['Item']['buy_limit'])))));
+													return;
+												}
+												unset($buy_count);
+											}
 
 										/*
 											On vérifie les pré-requis
@@ -584,7 +619,6 @@ class ShopController extends ShopAppController {
 									}
 
 								//On le met dans l'historique
-									$this->loadModel('Shop.ItemsBuyHistory');
 									$this->ItemsBuyHistory->saveMany($history);
 
 								echo json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__BUY_SUCCESS')));
@@ -876,7 +910,8 @@ class ShopController extends ShopAppController {
 							'prerequisites' => $prerequisites,
 							'reductional_items' => $reductional_items,
 							'give_skin' => $this->request->data['give_skin'],
-							'give_cape' => $this->request->data['give_cape']
+							'give_cape' => $this->request->data['give_cape'],
+							'buy_limit' => $this->request->data['buy_limit']
 						));
 						$this->Item->save();
 						$this->Session->setFlash($this->Lang->get('SHOP__ITEM_EDIT_SUCCESS'), 'default.success');
@@ -984,7 +1019,8 @@ class ShopController extends ShopAppController {
 							'prerequisites' => $prerequisites,
 							'reductional_items' => $reductional_items,
 							'give_skin' => $this->request->data['give_skin'],
-							'give_cape' => $this->request->data['give_cape']
+							'give_cape' => $this->request->data['give_cape'],
+							'buy_limit' => $this->request->data['buy_limit']
 						));
 						$this->Item->save();
 						$this->History->set('ADD_ITEM', 'shop');

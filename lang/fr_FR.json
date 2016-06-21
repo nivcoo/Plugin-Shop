@@ -119,6 +119,7 @@
   "SHOP__ITEM_CANT_BUY_MULTIPLE":"Vous ne pouvez pas acheter cet article (<i>{ITEM_NAME}</i>) plus d'une fois",
   "SHOP__ITEM_CART":"Autoriser l'ajout au panier de cet article",
   "SHOP__ITEM_CANT_ADDED_TO_CART":"Vous ne pouvez acheter l'article <i>{ITEM_NAME}</i> avec un panier.",
+  "SHOP__ITEM_CANT_BUY_LIMIT":"Vous ne pouvez pas acheter l'article <i>{ITEM_NAME}</i> plus de {LIMIT} fois.",
   "SHOP__ITEM_BROADCAST_GLOBAL":"Effectuer la commande globale lors de l'achat de cet article",
   "SHOP__ITEM_PREREQUISITES":"Voulez-vous activer les pré-requis ?",
   "SHOP__ITEM_PREREQUISITES_TYPE_0":"Non",
@@ -132,6 +133,8 @@
   "SHOP__ITEM_GIVE_SKIN":"Donner l'autorisation de changer skin à l'achat de cet article",
   "SHOP__ITEM_GIVE_CAPE":"Donner l'autorisation de changer cape à l'achat de cet article",
   "SHOP__ITEM_CANT_BUY_NOT_CONNECTED":"Vous devez être connecté pour acheter l'article <b>{ITEM_NAME}</b> !",
+  "SHOP__ITEM_BUY_LIMIT":"Limite d'achats (combien au maximum un article peut être acheté)",
+  "SHOP__ITEM_BUY_LIMIT_PLACEHOLDER":"Mettez 0 pour aucune limite",
 
   "SHOP__CATEGORIES": "Cat\u00e9gories",
   "SHOP__CATEGORY": "Cat\u00e9gorie",
