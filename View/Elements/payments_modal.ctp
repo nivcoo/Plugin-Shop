@@ -36,8 +36,8 @@
                 <input name="currency_code" type="hidden" value="EUR" />
                 <input name="shipping" type="hidden" value="0.00" />
                 <input name="tax" type="hidden" value="0.00" />
-                <input name="return" type="hidden" value="<?= $this->Html->url(array('controller' => 'payment', 'action' => 'index', 'return'), true) ?>" />
-                <input name="cancel_return" type="hidden" value="<?= $this->Html->url(array('controller' => 'payment', 'action' => 'index', 'error'), true) ?>" />
+                <input name="return" type="hidden" value="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'index', 'return'), true) ?>" />
+                <input name="cancel_return" type="hidden" value="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'index', 'error'), true) ?>" />
                 <input name="notify_url" type="hidden" value="<?= $this->Html->url(array('controller' => 'payment', 'action' => 'ipn'), true) ?>" />
                 <input name="cmd" type="hidden" value="_xclick" />
 
