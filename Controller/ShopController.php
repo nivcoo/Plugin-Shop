@@ -262,42 +262,12 @@ class ShopController extends ShopAppController {
 						}
 
 
-						/*if($new_price == 0) {
-							$new_price = $total_price;
-						}*/
-
 						/*
 								On gère les réductions de prix
 						*/
-							$reductional_items_list = unserialize($findItem['Item']['reductional_items']);
-							$reductional_items = true; // de base on dis que c'est okay
-							$reduction = 0; // 0 de réduction
-							$this->loadModel('Shop.ItemsBuyHistory');
-							if(is_array($reductional_items_list)) {
-								foreach ($reductional_items_list as $key => $value) {
-
-									$findItemReductionnal = $this->Item->find('first', array('conditions' => array('id' => $value)));
-									if(empty($findItemReductionnal)) {
-										$reductional_items = false;
-										break;
-									}
-
-									$findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItemReductionnal['Item']['id'])));
-									if(empty($findHistory)) {
-										$reductional_items = false;
-										break;
-									}
-
-									$reduction =+ $findItemReductionnal['Item']['price'];
-
-									unset($findItemReductionnal);
-
-								}
-							}
-
-							if($reductional_items) {
-								$new_price = $new_price - $reduction*$quantity;
-							}
+							$reduction = $this->Item->getReductionWithReductionalItems($findItem['Item'], $this->User->getKey('id'));
+							// on effectue la reduction
+							$new_price = $new_price - $reduction*$quantity;
 
 							if($new_price < 0) {
 								$new_price = 0;
@@ -361,61 +331,25 @@ class ShopController extends ShopAppController {
 									if(!empty($findItem)) {
 
 										if(isset($value['quantity']) && $value['quantity'] > 1 && (empty($findItem['Item']['multiple_buy']) || !$findItem['Item']['multiple_buy'])) {
-											echo json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_MULTIPLE', array('{ITEM_NAME}' => $findItem['Item']['name']))));
+											$this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_MULTIPLE', array('{ITEM_NAME}' => $findItem['Item']['name'])))));
 											return;
 										}
 
 										if(count($this->request->data['items']) > 1 && (empty($findItem['Item']['cart']) || $findItem['Item']['cart'] == 0)) {
-											echo json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_ADDED_TO_CART', array('{ITEM_NAME}' => $findItem['Item']['name']))));
+											$this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_ADDED_TO_CART', array('{ITEM_NAME}' => $findItem['Item']['name'])))));
 											return;
 										}
 
 										/*
 											On vérifie les pré-requis
 										*/
-										$prerequisites = (isset($findItem['Item']['prerequisites_type']) && ($findItem['Item']['prerequisites_type'] == 1 || $findItem['Item']['prerequisites_type'] == 2)) ? true : false;
-										if($prerequisites) {
-											$prerequisites_type = $findItem['Item']['prerequisites_type'];
-											$prerequisites = @unserialize($findItem['Item']['prerequisites']);
-
-											if(!is_bool($prerequisites) && !empty($prerequisites)) {
-
-												$this->loadModel('Shop.ItemsBuyHistory');
-												$prerequisites_items = array();
-												$prerequisites_items_buyed = array();
-
-												foreach ($prerequisites as $key => $value) {
-
-													$findItemRequired = $this->Item->find('first', array('conditions' => array('id' => $value)));
-													if(empty($findItemRequired)) {
-														continue;
-													}
-
-													$findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItemRequired['Item']['id'])));
-													if(empty($findHistory)) {
-														$prerequisites_items[] = $findItemRequired['Item']['name'];
-														$prerequisites_items_buyed[] = false;
-														continue;
-													}
-
-													$prerequisites_items_buyed[] = true;
-
-												}
-
-												if($prerequisites_type == 1 && in_array(false, $prerequisites_items_buyed)) {
-													$prerequisites_items_list = '<i>'.implode('</i>, <i>', $prerequisites_items).'</i>';
-													echo json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_PREREQUISITES_1', array('{ITEMS}' => $prerequisites_items_list))));
-													return;
-												}
-
-												if($prerequisites_type == 2 && !in_array(true, $prerequisites_items_buyed)) {
-													$prerequisites_items_list = '<i>'.implode('</i>, <i>', $prerequisites_items).'</i>';
-													echo json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_PREREQUISITES_2', array('{ITEMS}' => $prerequisites_items_list))));
-													return;
-												}
-
-											}
-
+										$prerequisites = $this->Item->checkPrerequisites($findItem['Item'], $this->User->getKey('id'));
+										if($prerequisites !== TRUE) {
+											$this->response->body(json_encode(array(
+												'statut' => false,
+												'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_PREREQUISITES_'.$prerequisites['error'], array('{ITEMS}' => $prerequisites['items_list']))
+											)));
+											return;
 										}
 										/*
 										===
@@ -469,36 +403,10 @@ class ShopController extends ShopAppController {
 										/*
 											 === Réduction d'articles ===
 										*/
-										$reductional_items_func = (!empty($findItem['Item']['reductional_items']) && !is_bool(unserialize($findItem['Item']['reductional_items']))) ? true : false;
-										$reductional_items = false;
-										if($reductional_items_func) {
 
-											$reductional_items_list = unserialize($findItem['Item']['reductional_items']);
-											// on parcours tous les articles pour voir si ils ont été achetés
-												$reduction = 0; // 0 de réduction
-											foreach ($reductional_items_list as $key => $value) {
-
-												$findItem = $this->Item->find('first', array('conditions' => array('id' => $value)));
-												if(empty($findItem)) {
-													continue;
-												}
-
-												$this->loadModel('Shop.ItemsBuyHistory');
-												$findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
-												if(empty($findHistory)) {
-													continue;
-												}
-
-												$reduction =+ $findItem['Item']['price'];
-
-												unset($findItem);
-
-											}
-
+											$reduction = $this->Item->getReductionWithReductionalItems($findItem['Item'], $this->User->getKey('id'));
 											// on effectue la reduction
 											$items[$i]['price'] = $items[$i]['price'] - $reduction;
-
-										}
 										/*
 										===
 										*/
