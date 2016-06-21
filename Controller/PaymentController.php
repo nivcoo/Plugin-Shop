@@ -216,9 +216,46 @@ class PaymentController extends ShopAppController {
 			}
     }
 
-    public function admin_get_dedipass_histories() {}
+    public function admin_get_dedipass_histories() {
+      if($this->isConnected && $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
-    public function admin_get_points_exchange_histories() {}
+				$this->autoRender = false;
+				$this->response->type('json');
+
+				$this->DataTable = $this->Components->load('DataTable');
+				$this->modelClass = 'DedipassHistory';
+				$this->DataTable->initialize($this);
+				$this->paginate = array(
+			  'fields' => array($this->modelClass.'.code',$this->modelClass.'.rate',$this->modelClass.'.user_id',$this->modelClass.'.credits_gived',$this->modelClass.'.created'),
+				);
+        $this->DataTable->mDataProp = true;
+
+				$response = $this->DataTable->getResponse();
+
+				$histories = $response['aaData'];
+				foreach ($histories as $history) {
+
+					$username = $this->User->getFromUser('pseudo', $history[$this->modelClass]['user_id']);
+					$date = 'Le '.$this->Lang->date($history[$this->modelClass]['created']);
+
+					$data[][$this->modelClass] = array(
+            'code' => $history[$this->modelClass]['code'],
+            'rate' => $history[$this->modelClass]['rate'],
+            'credits_gived' => $history[$this->modelClass]['credits_gived'],
+						'user' => $username,
+						'created' => $date,
+					);
+
+				}
+
+				$response['aaData'] = $data;
+
+				$this->response->body(json_encode($response));
+
+			} else {
+				throw new ForbiddenException();
+			}
+    }
 
   /*
 	* ======== Switch du mode de paiement PaySafeCard (traitement POST) ===========

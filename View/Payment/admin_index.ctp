@@ -316,7 +316,7 @@ table tr td:last-child > div.btn-group {
 
                 <h3><?= $Lang->get('SHOP__DEDIPASS_HISTORIES') ?></h3>
 
-                <table class="table table-bordered dataTable">
+                <table class="table table-bordered dataTable" id="histories_dedipass">
                   <thead>
                     <tr>
                       <th><?= $Lang->get('SHOP__DEDIPASS_CODE') ?></th>
@@ -327,19 +327,31 @@ table tr td:last-child > div.btn-group {
                     </tr>
                   </thead>
                   <tbody>
-                    <?php if(isset($histories['dedipass'])) { ?>
-                      <?php foreach ($histories['dedipass'] as $key => $value) { ?>
-                        <tr>
-                          <td><?= $value['DedipassHistory']['code'] ?></td>
-                          <td><?= $value['DedipassHistory']['rate'] ?></td>
-                          <td><?= (isset($usersByID[$value['DedipassHistory']['user_id']])) ? $usersByID[$value['DedipassHistory']['user_id']] : $value['DedipassHistory']['user_id'] ?></td>
-                          <td><?= $value['DedipassHistory']['credits_gived'] ?></td>
-                          <td><?= $Lang->date($value['DedipassHistory']['created']) ?></td>
-                        </tr>
-                      <?php } ?>
-                    <?php } ?>
                   </tbody>
                 </table>
+                <script type="text/javascript">
+                $(document).ready(function() {
+                  $('#histories_dedipass').DataTable({
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": false,
+                    "ordering": false,
+                    "info": false,
+                    "autoWidth": false,
+                    'searching': true,
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_dedipass_histories')) ?>",
+                    "aoColumns": [
+                        {mData:"DedipassHistory.code"},
+                        {mData:"DedipassHistory.rate"},
+                        {mData:"DedipassHistory.user"},
+                        {mData:"DedipassHistory.credits_gived"},
+                        {mData:"DedipassHistory.created"}
+                    ],
+                  });
+                });
+                </script>
 
               </div>
 
