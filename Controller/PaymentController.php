@@ -189,39 +189,15 @@ class PaymentController extends ShopAppController {
 				$this->response->type('json');
 
 				$this->DataTable = $this->Components->load('DataTable');
-        $this->loadModel('History');
-				$this->modelClass = 'History';
+				$this->modelClass = 'PointsTransferHistory';
 				$this->DataTable->initialize($this);
 				$this->paginate = array(
-  			  'fields' => array('User.pseudo',$this->modelClass.'.other',$this->modelClass.'.created'),
-          'conditions' => array('action' => 'SEND_MONEY'),
+  			  'fields' => array('User.pseudo', 'Author.pseudo', 'PointsTransferHistory.points', 'PointsTransferHistory.created'),
           'recursive' => 1
 				);
         $this->DataTable->mDataProp = true;
 
 				$response = $this->DataTable->getResponse();
-
-				$histories = $response['aaData'];
-				foreach ($histories as $history) {
-
-          $other = explode('|', $history[$this->modelClass]['other']);
-          $to = $this->User->getFromUser('pseudo', $other[0]);
-					$date = 'Le '.$this->Lang->date($history[$this->modelClass]['created']);
-
-					$data[] = array(
-            $this->modelClass => array(
-              'points' => $other[1],
-              'to' => $to,
-  						'created' => $date,
-            ),
-            'User' => array(
-              'pseudo' => $history['User']['pseudo']
-            )
-					);
-
-				}
-
-				$response['aaData'] = $data;
 
 				$this->response->body(json_encode($response));
 
@@ -229,6 +205,70 @@ class PaymentController extends ShopAppController {
 				throw new ForbiddenException();
 			}
     }
+
+  /*
+    * ========= Transfert de points ==========
+  */
+
+    function transfer_points() {
+      $this->autoRender = false;
+      $this->response->type('json');
+      if($this->isConnected) {
+        if($this->request->is('ajax')) {
+          if(!empty($this->request->data['to']) AND !empty($this->request->data['how'])) {
+            if($this->User->exist($this->request->data['to'])) {
+              if(strtolower($this->User->getKey('pseudo')) != strtolower($this->request->data['to']) && $this->User->getKey('id') != $this->request->data['to']) {
+                $how = floatval($this->request->data['how']);
+                if($how > 0) {
+                  $money_user = $this->User->getKey('money') - $how;
+                  if($money_user >= 0) {
+
+                    $to = $this->User->getFromUser('id', $this->request->data['to']);
+
+                    $event = new CakeEvent('beforeSendPoints', $this, array('user' => $this->User->getAllFromCurrentUser(), 'new_user_sold' => $money_user, 'to' => $to, 'how' => $how));
+                    $this->getEventManager()->dispatch($event);
+                    if($event->isStopped()) {
+                      return $event->result;
+                    }
+
+                    $this->User->setKey('money', $money_user);
+                    $to_money = $this->User->getFromUser('money', $to) + $how;
+                    $this->User->setToUser('money', $to_money, $to);
+
+                    $this->loadModel('Shop.PointsTransferHistory');
+                    $this->PointsTransferHistory->create();
+                    $this->PointsTransferHistory->set(array(
+                      'user_id' => $to,
+                      'points' => $how,
+                      'author_id' => $this->User->getKey('id')
+                    ));
+                    $this->PointsTransferHistory->save();
+                    $this->History->set('SEND_MONEY', 'shop', $to.'|'.$how);
+
+                    $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__USER_POINTS_TRANSFER_SUCCESS'))));
+                  } else {
+                    $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__BUY_ERROR_NO_ENOUGH_MONEY'))));
+                  }
+                } else {
+                  $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__USER_POINTS_TRANSFER_ERROR_EMPTY'))));
+                }
+              } else {
+                $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__USER_POINTS_TRANSFER_ERROR_YOURSELF'))));
+              }
+            } else {
+              $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('USER__ERROR_NOT_FOUND'))));
+            }
+          } else {
+            $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
+          }
+        } else {
+          $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST'))));
+        }
+      } else {
+        $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('USER__ERROR_MUST_BE_LOGGED'))));
+      }
+    }
+
 
   /*
 	* ======== Switch du mode de paiement PaySafeCard (traitement POST) ===========

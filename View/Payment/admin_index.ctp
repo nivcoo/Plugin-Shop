@@ -385,10 +385,10 @@ table tr td:last-child > div.btn-group {
                   "bServerSide": true,
                   "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_points_transfer')) ?>",
                   "aoColumns": [
+                      {mData:"Author.pseudo"},
+                      {mData:"PointsTransferHistory.points"},
                       {mData:"User.pseudo"},
-                      {mData:"History.points"},
-                      {mData:"History.to"},
-                      {mData:"History.created"}
+                      {mData:"PointsTransferHistory.created"}
                   ],
                 });
               });
