@@ -72,12 +72,23 @@
             </div>
 
             <div class="form-group">
+              <label><?= $Lang->get('SHOP__VOUCHER_START_DATE') ?></label>
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-calendar"></i>
+                </div>
+                <input value="<?= date('Y-m-d H:i:s') ?>" type="text" class="form-control" name="start_date" id="datetimepicker" placeholder="<?= 'Format : '.$Lang->get('GLOBAL__DATE_YEAR').'-'.$Lang->get('GLOBAL__DATE_MONTH').'-'.$Lang->get('GLOBAL__DATE_DAY').' '.$Lang->get('GLOBAL__DATE_HOUR').':'.$Lang->get('GLOBAL__DATE_MINUTES').':'.$Lang->get('GLOBAL__DATE_SECONDS') ?>">
+              </div>
+              <small class="text-info"><em><?= $Lang->get('SHOP__VOUCHER_START_DATE_EXPLAIN') ?></em></small>
+            </div>
+
+            <div class="form-group">
               <label><?= $Lang->get('SHOP__VOUCHER_END_DATE') ?></label>
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-calendar"></i>
                 </div>
-                <input type="text" class="form-control" name="end_date" id="datetimepicker" placeholder="<?= 'Format : '.$Lang->get('GLOBAL__DATE_YEAR').'-'.$Lang->get('GLOBAL__DATE_MONTH').'-'.$Lang->get('GLOBAL__DATE_DAY').' '.$Lang->get('GLOBAL__DATE_HOUR').':'.$Lang->get('GLOBAL__DATE_MINUTES').':'.$Lang->get('GLOBAL__DATE_SECONDS') ?>">
+                <input type="text" class="form-control" name="end_date" id="datetimepicker2" placeholder="<?= 'Format : '.$Lang->get('GLOBAL__DATE_YEAR').'-'.$Lang->get('GLOBAL__DATE_MONTH').'-'.$Lang->get('GLOBAL__DATE_DAY').' '.$Lang->get('GLOBAL__DATE_HOUR').':'.$Lang->get('GLOBAL__DATE_MINUTES').':'.$Lang->get('GLOBAL__DATE_SECONDS') ?>">
               </div>
             </div>
 
@@ -148,6 +159,10 @@
 <script type="text/javascript">
 $(function () {
   $('#datetimepicker').datetimepicker({
+      locale: 'fr',
+      format: 'YYYY-MM-DD HH:mm:ss'
+  });
+  $('#datetimepicker2').datetimepicker({
       locale: 'fr',
       format: 'YYYY-MM-DD HH:mm:ss'
   });

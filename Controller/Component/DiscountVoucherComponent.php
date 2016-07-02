@@ -87,60 +87,79 @@ class DiscountVoucherComponent extends Object {
       foreach ($search_vouchers as $k) { // un foreach si il y en a plusieurs
         $voucher = $k['Voucher'];
         if($voucher['affich'] == 1) { // si on doit l'afficher, sinon je retourne rien
-          $voucher['effective_on'] = unserialize($voucher['effective_on']); // j'unserilise le effective_on qui est un array
+          if( (!isset($voucher['start_date']) || empty($voucher['start_date'])) || (time() >= strtotime($voucher['start_date'])) ) {
 
-          $return = '<div class="alert alert-info"><i class="fa fa-shopping-cart"></i> '; // début du message
+            $voucher['effective_on'] = unserialize($voucher['effective_on']); // j'unserilise le effective_on qui est un array
 
-            $langVars = array();
+            $return = '<div class="alert alert-info"><i class="fa fa-shopping-cart"></i> '; // début du message
 
-            if($voucher['effective_on']['type'] == 'categories') { // si cela concerne une catégorie
+              $langVars = array();
 
-              if(count($voucher['effective_on']['value']) == 1) { // combien de catégories concernée ?
-                $langMSG = 'SHOP__VOUCHER_MSG_ONE_CATEGORY'; // plusieurs
-                $langVars['{CATEGORY}'] = '"'.$this->getCategoryNameById($voucher['effective_on']['value'][0]).'"';
-              } else {
-                $langMSG = 'SHOP__VOUCHER_MSG_MANY_CATEGORIES'; // plusieurs
+              if($voucher['effective_on']['type'] == 'categories') { // si cela concerne une catégorie
 
-                foreach ($voucher['effective_on']['value'] as $key => $value) {
-                  $voucher['effective_on']['value'][$key] = $this->getCategoryNameById($value);
+                if(count($voucher['effective_on']['value']) == 1) { // combien de catégories concernée ?
+                  $langMSG = 'SHOP__VOUCHER_MSG_ONE_CATEGORY'; // plusieurs
+                  $langVars['{CATEGORY}'] = '"'.$this->getCategoryNameById($voucher['effective_on']['value'][0]).'"';
+                } else {
+                  $langMSG = 'SHOP__VOUCHER_MSG_MANY_CATEGORIES'; // plusieurs
+
+                  foreach ($voucher['effective_on']['value'] as $key => $value) {
+                    $voucher['effective_on']['value'][$key] = $this->getCategoryNameById($value);
+                  }
+
+                  $langVars['{CATEGORIES}'] = '"'.implode('", "', $voucher['effective_on']['value']).'"';
                 }
 
-                $langVars['{CATEGORIES}'] = '"'.implode('", "', $voucher['effective_on']['value']).'"';
-              }
+              } elseif ($voucher['effective_on']['type'] == 'items') { // si cela concerne un article
 
-            } elseif ($voucher['effective_on']['type'] == 'items') { // si cela concerne un article
+                if(count($voucher['effective_on']['value']) == 1) { // combien de catégories concernée ?
+                  $langMSG = 'SHOP__VOUCHER_MSG_ONE_ITEM'; // plusieurs
+                  $langVars['{ITEM}'] = '"'.$this->getItemNameById($voucher['effective_on']['value'][0]).'"';
+                } else {
+                  $langMSG = 'SHOP__VOUCHER_MSG_MANY_ITEMS'; // plusieurs
 
-              if(count($voucher['effective_on']['value']) == 1) { // combien de catégories concernée ?
-                $langMSG = 'SHOP__VOUCHER_MSG_ONE_ITEM'; // plusieurs
-                $langVars['{ITEM}'] = '"'.$this->getItemNameById($voucher['effective_on']['value'][0]).'"';
-              } else {
-                $langMSG = 'SHOP__VOUCHER_MSG_MANY_ITEMS'; // plusieurs
+                  foreach ($voucher['effective_on']['value'] as $key => $value) {
+                    $voucher['effective_on']['value'][$key] = $this->getItemNameById($value);
+                  }
 
-                foreach ($voucher['effective_on']['value'] as $key => $value) {
-                  $voucher['effective_on']['value'][$key] = $this->getItemNameById($value);
+                  $langVars['{ITEMS}'] = implode('", "', $voucher['effective_on']['value']);
                 }
 
-                $langVars['{ITEMS}'] = implode('", "', $voucher['effective_on']['value']);
+              } elseif ($voucher['effective_on']['type'] == 'all') { // si cela concerne toute la boutique
+                $langMSG = 'SHOP__VOUCHER_MSG_ALL';
               }
 
-            } elseif ($voucher['effective_on']['type'] == 'all') { // si cela concerne toute la boutique
-              $langMSG = 'SHOP__VOUCHER_MSG_ALL';
-            }
+              $langVars['{CODE}'] = $voucher['code'];
 
-            $langVars['{CODE}'] = $voucher['code'];
+              $langVars['{REDUCTION}'] = ' -'.$voucher['reduction'];
+              if($voucher['type'] == 1) {
+                $langVars['{REDUCTION}'] .= '%';
+              } elseif ($voucher['type'] == 2) {
+                $langVars['{REDUCTION}'] .= ' '.$this->Configuration->getMoneyName();
+              }
 
-            $langVars['{REDUCTION}'] = ' -'.$voucher['reduction'];
-            if($voucher['type'] == 1) {
-              $langVars['{REDUCTION}'] .= '%';
-            } elseif ($voucher['type'] == 2) {
-              $langVars['{REDUCTION}'] .= ' '.$this->Configuration->getMoneyName();
-            }
+              $return .= $this->Lang->get($langMSG, $langVars);
 
-            $return .= $this->Lang->get($langMSG, $langVars);
+            $return .= '</div>';
 
-          $return .= '</div>';
+            echo $return;
 
-          echo $return;
+          } else {
+            $return = '<div class="alert alert-info"><i class="fa fa-shopping-cart"></i> '; // début du message
+
+              $reduction = ' -'.$voucher['reduction'];
+              if($voucher['type'] == 1) {
+                $reduction .= '%';
+              } elseif ($voucher['type'] == 2) {
+                $reduction .= ' '.$this->Configuration->getMoneyName();
+              }
+
+              $return .= $this->Lang->get('SHOP__VOUCHER_MSG_SOON', array('{REDUCTION}' => $reduction, '{START_DATE}' => $this->Lang->date($voucher['start_date'])));
+
+            $return .= '</div>';
+
+            echo $return;
+          }
 
         }
       }

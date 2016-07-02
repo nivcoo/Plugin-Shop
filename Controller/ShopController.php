@@ -1303,6 +1303,7 @@ class ShopController extends ShopAppController {
 								'type' => intval($this->request->data['type']),
 								'reduction' => $this->request->data['reduction'],
 								'limit_per_user' => $this->request->data['limit_per_user'],
+								'start_date' => $this->request->data['start_date'],
 								'end_date' => $this->request->data['end_date'],
 								'affich' => $this->request->data['affich'],
 							));

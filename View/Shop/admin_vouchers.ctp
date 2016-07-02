@@ -15,6 +15,7 @@ $this->DiscountVoucher = new DiscountVoucherComponent;
               <thead>
                 <tr>
                   <th><?= $Lang->get('SHOP__VOUCHER_CODE') ?></th>
+                  <th><?= $Lang->get('SHOP__VOUCHER_START_DATE') ?></th>
                   <th><?= $Lang->get('SHOP__VOUCHER_END_DATE') ?></th>
                   <th><?= $Lang->get('GLOBAL__CREATED') ?></th>
                   <th><?= $Lang->get('SHOP__VOUCHER_LIMIT_SHORT') ?></th>
@@ -26,6 +27,7 @@ $this->DiscountVoucher = new DiscountVoucherComponent;
                 <?php foreach ($vouchers as $key => $value) { ?>
                   <tr>
                     <td><?= $value['Voucher']['code'] ?></td>
+                    <td><?= $Lang->date($value['Voucher']['start_date']) ?></td>
                     <td><?= $Lang->date($value['Voucher']['end_date']) ?></td>
                     <td><?= $Lang->date($value['Voucher']['created']) ?></td>
                     <td><?= $value['Voucher']['limit_per_user'] ?></td>
