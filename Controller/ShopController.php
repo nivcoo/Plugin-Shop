@@ -427,6 +427,14 @@ class ShopController extends ShopAppController {
 												$quantity = (isset($value['quantity'])) ? $value['quantity'] : 1;
 												$msg = str_replace('{QUANTITY}', $quantity, $msg);
 												$msg = str_replace('{ITEM_NAME}', $findItem['Item']['name'], $msg);
+
+												$servers_names = array();
+												foreach ($items[$i]['servers'] as $serverid) {
+													$servers_names[] = @ClassRegistry::init('Server')->find('first', array('conditions' => array('id' => $serverid)))['Server']['name'];
+												}
+
+												$servers_names = implode(', ', $servers_names);
+												$msg = str_replace('{SERVERNAME}', $servers_names, $msg);
 												if(isset($items[$i]['broadcast'])) {
 													$items[$i]['broadcast'] .= $msg;
 												} else {
@@ -435,7 +443,6 @@ class ShopController extends ShopAppController {
 												unset($msg);
 											}
 										}
-
 										/*
 										=== Code promotionnel ===
 										*/

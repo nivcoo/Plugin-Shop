@@ -42,6 +42,7 @@
           <p><em>{ITEM_NAME}</em> : <?= $Lang->get('SHOP__CONFIG_VARIABLE_ITEM') ?></p>
           <p><em>{QUANTITY}</em> : <?= $Lang->get('SHOP__CONFIG_VARIABLE_QUANTITY') ?></p>
           <p><em>{PLAYER}</em> : <?= $Lang->get('SHOP__CONFIG_VARIABLE_PLAYER') ?></p>
+          <p><em>{SERVERNAME}</em> : <?= $Lang->get('SHOP__CONFIG_VARIABLE_SERVERNAME') ?></p>
         </div>
       </div>
     </div>
