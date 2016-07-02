@@ -94,31 +94,12 @@ class PaymentController extends ShopAppController {
 				$this->modelClass = 'StarpassHistory';
 				$this->DataTable->initialize($this);
 				$this->paginate = array(
-			  'fields' => array('StarpassHistory.code','StarpassHistory.offer_id','StarpassHistory.user_id','StarpassHistory.credits_gived','StarpassHistory.created'),
+			    'fields' => array('StarpassHistory.code','Starpass.name','User.pseudo','StarpassHistory.credits_gived','StarpassHistory.created'),
+          'recursive' => 1
 				);
         $this->DataTable->mDataProp = true;
 
 				$response = $this->DataTable->getResponse();
-
-				$histories = $response['aaData'];
-				foreach ($histories as $history) {
-
-					$username = $this->User->getFromUser('pseudo', $history['StarpassHistory']['user_id']);
-					$offer = $this->Starpass->find('first', array('conditions' => array('id' => $history['StarpassHistory']['offer_id'])));
-					$offer = $offer['Starpass']['name'];
-					$date = 'Le '.$this->Lang->date($history['StarpassHistory']['created']);
-
-					$data[]['StarpassHistory'] = array(
-            'code' => $history['StarpassHistory']['code'],
-            'credits_gived' => $history['StarpassHistory']['credits_gived'],
-						'user' => $username,
-						'offer' => $offer,
-						'created' => $date,
-					);
-
-				}
-
-				$response['aaData'] = $data;
 
 				$this->response->body(json_encode($response));
 
@@ -139,32 +120,12 @@ class PaymentController extends ShopAppController {
 				$this->modelClass = 'PaypalHistory';
 				$this->DataTable->initialize($this);
 				$this->paginate = array(
-			  'fields' => array('PaypalHistory.payment_id','PaypalHistory.payment_amount','PaypalHistory.offer_id','PaypalHistory.user_id','PaypalHistory.credits_gived','PaypalHistory.created'),
+			    'fields' => array('PaypalHistory.payment_id','PaypalHistory.payment_amount','Paypal.name','User.pseudo','PaypalHistory.credits_gived','PaypalHistory.created'),
+          'recursive' => 1
 				);
         $this->DataTable->mDataProp = true;
 
 				$response = $this->DataTable->getResponse();
-
-				$histories = $response['aaData'];
-				foreach ($histories as $history) {
-
-					$username = $this->User->getFromUser('pseudo', $history['PaypalHistory']['user_id']);
-					$offer = $this->Paypal->find('first', array('conditions' => array('id' => $history['PaypalHistory']['offer_id'])));
-					$offer = $offer['Paypal']['name'];
-					$date = 'Le '.$this->Lang->date($history['PaypalHistory']['created']);
-
-					$data[]['PaypalHistory'] = array(
-            'payment_id' => $history['PaypalHistory']['payment_id'],
-            'payment_amount' => $history['PaypalHistory']['payment_amount'],
-            'credits_gived' => $history['PaypalHistory']['credits_gived'],
-						'user' => $username,
-						'offer' => $offer,
-						'created' => $date,
-					);
-
-				}
-
-				$response['aaData'] = $data;
 
 				$this->response->body(json_encode($response));
 
@@ -180,34 +141,15 @@ class PaymentController extends ShopAppController {
 				$this->response->type('json');
 
 				$this->DataTable = $this->Components->load('DataTable');
-				$this->modelClass = 'PaysafecardHistories';
+				$this->modelClass = 'PaysafecardHistory';
 				$this->DataTable->initialize($this);
 				$this->paginate = array(
-			  'fields' => array($this->modelClass.'.code',$this->modelClass.'.amount',$this->modelClass.'.user_id',$this->modelClass.'.author_id',$this->modelClass.'.credits_gived',$this->modelClass.'.created'),
+			    'fields' => array($this->modelClass.'.code',$this->modelClass.'.amount','User.pseudo','Author.pseudo',$this->modelClass.'.credits_gived',$this->modelClass.'.created'),
+          'recursive' => 1
 				);
         $this->DataTable->mDataProp = true;
 
 				$response = $this->DataTable->getResponse();
-
-				$histories = $response['aaData'];
-				foreach ($histories as $history) {
-
-					$username = $this->User->getFromUser('pseudo', $history[$this->modelClass]['user_id']);
-          $author = $this->User->getFromUser('pseudo', $history[$this->modelClass]['author_id']);
-					$date = 'Le '.$this->Lang->date($history[$this->modelClass]['created']);
-
-					$data[][$this->modelClass] = array(
-            'code' => $history[$this->modelClass]['code'],
-            'amount' => $history[$this->modelClass]['amount'],
-            'credits_gived' => $history[$this->modelClass]['credits_gived'],
-						'user' => $username,
-            'author' => $author,
-						'created' => $date,
-					);
-
-				}
-
-				$response['aaData'] = $data;
 
 				$this->response->body(json_encode($response));
 
@@ -226,7 +168,34 @@ class PaymentController extends ShopAppController {
 				$this->modelClass = 'DedipassHistory';
 				$this->DataTable->initialize($this);
 				$this->paginate = array(
-			  'fields' => array($this->modelClass.'.code',$this->modelClass.'.rate',$this->modelClass.'.user_id',$this->modelClass.'.credits_gived',$this->modelClass.'.created'),
+			    'fields' => array($this->modelClass.'.code',$this->modelClass.'.rate','User.pseudo',$this->modelClass.'.credits_gived',$this->modelClass.'.created'),
+          'recursive' => 1
+				);
+        $this->DataTable->mDataProp = true;
+
+				$response = $this->DataTable->getResponse();
+
+				$this->response->body(json_encode($response));
+
+			} else {
+				throw new ForbiddenException();
+			}
+    }
+
+    public function admin_get_points_transfer() {
+      if($this->isConnected && $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
+
+				$this->autoRender = false;
+				$this->response->type('json');
+
+				$this->DataTable = $this->Components->load('DataTable');
+        $this->loadModel('History');
+				$this->modelClass = 'History';
+				$this->DataTable->initialize($this);
+				$this->paginate = array(
+  			  'fields' => array('User.pseudo',$this->modelClass.'.other',$this->modelClass.'.created'),
+          'conditions' => array('action' => 'SEND_MONEY'),
+          'recursive' => 1
 				);
         $this->DataTable->mDataProp = true;
 
@@ -235,15 +204,19 @@ class PaymentController extends ShopAppController {
 				$histories = $response['aaData'];
 				foreach ($histories as $history) {
 
-					$username = $this->User->getFromUser('pseudo', $history[$this->modelClass]['user_id']);
+          $other = explode('|', $history[$this->modelClass]['other']);
+          $to = $this->User->getFromUser('pseudo', $other[0]);
 					$date = 'Le '.$this->Lang->date($history[$this->modelClass]['created']);
 
-					$data[][$this->modelClass] = array(
-            'code' => $history[$this->modelClass]['code'],
-            'rate' => $history[$this->modelClass]['rate'],
-            'credits_gived' => $history[$this->modelClass]['credits_gived'],
-						'user' => $username,
-						'created' => $date,
+					$data[] = array(
+            $this->modelClass => array(
+              'points' => $other[1],
+              'to' => $to,
+  						'created' => $date,
+            ),
+            'User' => array(
+              'pseudo' => $history['User']['pseudo']
+            )
 					);
 
 				}

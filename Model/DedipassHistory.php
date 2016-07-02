@@ -1,2 +1,4 @@
 <?php
-class DedipassHistory extends ShopAppModel {}
+class DedipassHistory extends ShopAppModel {
+  public $belongsTo = array('User');
+}

@@ -151,8 +151,8 @@ $(document).ready(function() {
     "bServerSide": true,
     "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_histories_buy')) ?>",
     "aoColumns": [
-        {mData:"ItemsBuyHistory.item"},
-        {mData:"ItemsBuyHistory.user"},
+        {mData:"Item.name"},
+        {mData:"User.pseudo"},
         {mData:"ItemsBuyHistory.created"}
     ],
   });

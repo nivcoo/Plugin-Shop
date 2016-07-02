@@ -95,8 +95,8 @@ table tr td:last-child > div.btn-group {
                     "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_starpass_histories')) ?>",
                     "aoColumns": [
                         {mData:"StarpassHistory.code"},
-                        {mData:"StarpassHistory.user"},
-                        {mData:"StarpassHistory.offer"},
+                        {mData:"User.pseudo"},
+                        {mData:"Starpass.name"},
                         {mData:"StarpassHistory.credits_gived"},
                         {mData:"StarpassHistory.created"}
                     ],
@@ -180,8 +180,8 @@ table tr td:last-child > div.btn-group {
                     "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_paypal_histories')) ?>",
                     "aoColumns": [
                         {mData:"PaypalHistory.payment_id"},
-                        {mData:"PaypalHistory.user"},
-                        {mData:"PaypalHistory.offer"},
+                        {mData:"User.pseudo"},
+                        {mData:"Paypal.name"},
                         {mData:"PaypalHistory.payment_amount"},
                         {mData:"PaypalHistory.credits_gived"},
                         {mData:"PaypalHistory.created"}
@@ -273,12 +273,12 @@ table tr td:last-child > div.btn-group {
                     "bServerSide": true,
                     "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_paysafecard_histories')) ?>",
                     "aoColumns": [
-                        {mData:"PaysafecardHistories.code"},
-                        {mData:"PaysafecardHistories.user"},
-                        {mData:"PaysafecardHistories.author"},
-                        {mData:"PaysafecardHistories.amount"},
-                        {mData:"PaysafecardHistories.credits_gived"},
-                        {mData:"PaysafecardHistories.created"}
+                        {mData:"PaysafecardHistory.code"},
+                        {mData:"User.pseudo"},
+                        {mData:"Author.pseudo"},
+                        {mData:"PaysafecardHistory.amount"},
+                        {mData:"PaysafecardHistory.credits_gived"},
+                        {mData:"PaysafecardHistory.created"}
                     ],
                   });
                 });
@@ -345,7 +345,7 @@ table tr td:last-child > div.btn-group {
                     "aoColumns": [
                         {mData:"DedipassHistory.code"},
                         {mData:"DedipassHistory.rate"},
-                        {mData:"DedipassHistory.user"},
+                        {mData:"User.pseudo"},
                         {mData:"DedipassHistory.credits_gived"},
                         {mData:"DedipassHistory.created"}
                     ],
@@ -359,7 +359,7 @@ table tr td:last-child > div.btn-group {
 
                 <h3><?= $Lang->get('SHOP__USER_POINTS_TRANSFER_HISTORIES', array('{MONEY_NAME}' => $Configuration->getMoneyName())) ?></h3>
 
-                <table class="table table-bordered dataTable">
+                <table class="table table-bordered dataTable" id="histories_points_transfer">
                   <thead>
                   <tr>
                     <th>Pseudo</th>
@@ -369,19 +369,30 @@ table tr td:last-child > div.btn-group {
                   </tr>
                 </thead>
                 <tbody>
-                  <?php foreach ($History->get('SHOP', false, false, 'SEND_MONEY') as $value => $v) { ?>
-                  <?php
-                  $other = explode('|', $v['History']['other']);
-                  ?>
-                    <tr>
-                      <td><?= $v['History']['author'] ?></td>
-                      <td><?= $other[1] ?></td>
-                      <td><?= $other[0] ?></td>
-                      <td><?= $Lang->date($v['History']['created']) ?></td>
-                    </tr>
-                  <?php } ?>
                 </tbody>
               </table>
+              <script type="text/javascript">
+              $(document).ready(function() {
+                $('#histories_points_transfer').DataTable({
+                  "paging": true,
+                  "lengthChange": false,
+                  "searching": false,
+                  "ordering": false,
+                  "info": false,
+                  "autoWidth": false,
+                  'searching': true,
+                  "bProcessing": true,
+                  "bServerSide": true,
+                  "sAjaxSource": "<?= $this->Html->url(array('action' => 'get_points_transfer')) ?>",
+                  "aoColumns": [
+                      {mData:"User.pseudo"},
+                      {mData:"History.points"},
+                      {mData:"History.to"},
+                      {mData:"History.created"}
+                  ],
+                });
+              });
+              </script>
               </div>
             </div>
           </div>

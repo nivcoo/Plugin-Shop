@@ -689,25 +689,11 @@ class ShopController extends ShopAppController {
 					$categories[$v['Category']['id']]['name'] = $v['Category']['name'];
 				}
 
-				$this->loadModel('Shop.ItemsBuyHistory');
-				$histories_buy = $this->ItemsBuyHistory->find('all', array('order' => 'id DESC'));
-
-				$usersToFind = array();
-				foreach ($histories_buy as $key => $value) {
-					$usersToFind[] = $value['ItemsBuyHistory']['user_id'];
-				}
-
 				$this->loadModel('Shop.ItemsConfig');
 				$findConfig = $this->ItemsConfig->find('first');
 				$config = (!empty($findConfig)) ? $findConfig['ItemsConfig'] : array();
 
-				$search_users = $this->User->find('all', array('conditions' => array('id' => $usersToFind)));
-				$users = array();
-				foreach ($search_users as $key => $value) {
-					$users[$value['User']['id']] = $value['User']['pseudo'];
-				}
-
-				$this->set(compact('categories', 'search_categories', 'search_items', 'histories_buy', 'config', 'items', 'users'));
+				$this->set(compact('categories', 'search_categories', 'search_items', 'config', 'items'));
 
 			} else {
 				$this->redirect('/');
@@ -726,29 +712,13 @@ class ShopController extends ShopAppController {
 				$this->modelClass = 'ItemsBuyHistory';
 				$this->DataTable->initialize($this);
 				$this->paginate = array(
-			  'fields' => array('ItemsBuyHistory.item_id','ItemsBuyHistory.user_id','ItemsBuyHistory.created'),
+			  	'fields' => array('ItemsBuyHistory.created','Item.name','User.pseudo'),
+					'order' => 'ItemsBuyHistory.id DESC',
+					'recursive' => 1
 				);
         $this->DataTable->mDataProp = true;
 
 				$response = $this->DataTable->getResponse();
-
-				$histories = $response['aaData'];
-				foreach ($histories as $history) {
-
-					$username = $this->User->getFromUser('pseudo', $history['ItemsBuyHistory']['user_id']);
-					$item = $this->Item->find('first', array('conditions' => array('id' => $history['ItemsBuyHistory']['item_id'])));
-					$item = $item['Item']['name'];
-					$date = 'Le '.$this->Lang->date($history['ItemsBuyHistory']['created']);
-
-					$data[]['ItemsBuyHistory'] = array(
-						'user' => $username,
-						'item' => $item,
-						'created' => $date,
-					);
-
-				}
-
-				$response['aaData'] = $data;
 
 				$this->response->body(json_encode($response));
 
