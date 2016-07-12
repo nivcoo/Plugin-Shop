@@ -22,16 +22,16 @@
 
       foreach ($send_money as $transfer) {
 
+        $transfer = $transfer['History'];
+
         // On set les données
         $points = explode('|', $transfer['other'])[1];
-        $user_id = explode('|', $transfer['other'])[0];
+        $user_name = explode('|', $transfer['other'])[0];
         $author_id = $transfer['user_id'];
         $created = $transfer['created'];
 
-        // Si on a pas un user_id, on le cherche en fonction du pseudo
-        if(intval($user_id) != $user_id) {
-          $user_id = $userModel->getFromUser('id', $user_id);
-        }
+        // on cherche l'user_id en fonction du pseudo
+        $user_id = $userModel->getFromUser('id', $user_name);
 
         // on le set
         $shop__points_transfer_histories->create();
