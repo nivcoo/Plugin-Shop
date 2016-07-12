@@ -206,6 +206,7 @@ class ShopAppSchema extends CakeSchema {
 		'reduction' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 3, 'unsigned' => false),
 		'effective_on' => array('type' => 'text', 'null' => false, 'default' => null, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
 		'limit_per_user' => array('type' => 'integer', 'null' => true, 'default' => '0', 'length' => 10, 'unsigned' => false),
+		'start_date' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'end_date' => array('type' => 'datetime', 'null' => false, 'default' => '2100-01-01 00:00:01'),
 		'created' => array('type' => 'datetime', 'null' => false, 'default' => null),
 		'affich' => array('type' => 'integer', 'null' => false, 'default' => '1', 'length' => 1, 'unsigned' => false),
