@@ -216,6 +216,7 @@ class PaymentController extends ShopAppController {
       if($this->isConnected) {
         if($this->request->is('ajax')) {
           if(!empty($this->request->data['to']) AND !empty($this->request->data['how'])) {
+            $this->request->data['to'] = trim($this->request->data['to']);
             if($this->User->exist($this->request->data['to'])) {
               if(strtolower($this->User->getKey('pseudo')) != strtolower($this->request->data['to']) && $this->User->getKey('id') != $this->request->data['to']) {
                 $how = floatval($this->request->data['how']);
