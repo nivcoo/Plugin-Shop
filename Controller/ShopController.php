@@ -565,8 +565,11 @@ class ShopController extends ShopAppController {
 									}
 
 								// On enlève les crédits à l'utilisateur
-									$new_sold = $this->User->getKey('money') - $total_price;
-									$this->User->setKey('money', $new_sold);
+									$this->User->cacheQueries = false;
+									$money = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
+									$new_sold = $money - $total_price;
+									$this->User->id = $this->User->getKey('id');
+									$save = $this->User->saveField('money', $new_sold);
 
 								// On lui donne éventuellement skin/cape
 								if($give_skin) {

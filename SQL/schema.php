@@ -1,4 +1,4 @@
-<?php 
+<?php
 class ShopAppSchema extends CakeSchema {
 
 	public $file = 'schema.php';
@@ -34,7 +34,7 @@ class ShopAppSchema extends CakeSchema {
 		'user_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
 		'code' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 8, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
 		'rate' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 30, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
-		'credits_gived' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 5, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
+		'credits_gived' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 10, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
 		'created' => array('type' => 'datetime', 'null' => false, 'default' => null),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1)
@@ -102,7 +102,7 @@ class ShopAppSchema extends CakeSchema {
 		'user_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
 		'offer_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
 		'payment_amount' => array('type' => 'string', 'null' => false, 'length' => 20, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
-		'credits_gived' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 5, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
+		'credits_gived' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 10, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
 		'created' => array('type' => 'datetime', 'null' => false, 'default' => null),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1)
@@ -127,7 +127,7 @@ class ShopAppSchema extends CakeSchema {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => true, 'key' => 'primary'),
 		'code' => array('type' => 'string', 'null' => false, 'length' => 20, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
 		'amount' => array('type' => 'string', 'null' => false, 'length' => 3, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
-		'credits_gived' => array('type' => 'string', 'null' => false, 'length' => 5, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
+		'credits_gived' => array('type' => 'string', 'null' => false, 'length' => 10, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
 		'user_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
 		'created' => array('type' => 'datetime', 'null' => false, 'default' => null),
 		'author_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
@@ -178,7 +178,7 @@ class ShopAppSchema extends CakeSchema {
 		'code' => array('type' => 'string', 'null' => false, 'length' => 40, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
 		'user_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
 		'offer_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
-		'credits_gived' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 5, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
+		'credits_gived' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 10, 'collate' => 'latin1_swedish_ci', 'charset' => 'latin1'),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1)

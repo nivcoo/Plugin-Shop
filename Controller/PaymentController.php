@@ -232,9 +232,20 @@ class PaymentController extends ShopAppController {
                       return $event->result;
                     }
 
-                    $this->User->setKey('money', $money_user);
+                    /*$this->User->setKey('money', $money_user);
                     $to_money = $this->User->getFromUser('money', $to) + $how;
-                    $this->User->setToUser('money', $to_money, $to);
+                    $this->User->setToUser('money', $to_money, $to);*/
+
+                    $this->User->cacheQueries = false;
+  									$money = $this->User->find('first', array('conditions' => array('id' => $to)))['User']['money'];
+  									$new_sold = $money + $how;
+  									$this->User->id = $to;
+        						$save = $this->User->saveField('money', $new_sold);
+
+                    $money = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
+  									$new_sold = $money - $how;
+  									$this->User->id = $this->User->getKey('id');
+        						$save = $this->User->saveField('money', $new_sold);
 
                     $this->loadModel('Shop.PointsTransferHistory');
                     $this->PointsTransferHistory->create();
@@ -973,11 +984,11 @@ class PaymentController extends ShopAppController {
   										$this->response->statusCode(200);
 
   									} else {
-  										throw new InternalErrorException('PayPal : Receiver email invalid');
+  										throw new InternalErrorException('PayPal : Payment already credited');
   									}
 
   								} else {
-                    throw new InternalErrorException('PayPal : Payment already credited');
+                    throw new InternalErrorException('PayPal : Receiver email invalid');
                   }
 
   							} else {
