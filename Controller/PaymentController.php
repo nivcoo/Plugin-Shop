@@ -225,6 +225,16 @@ class PaymentController extends ShopAppController {
                   if($money_user >= 0) {
 
                     $to = $this->User->getFromUser('id', $this->request->data['to']);
+                    $this->loadModel('Shop.PointsTransferHistory');
+                    $findCooldown = $this->PointsTransferHistory->find('first', array('conditions' => array(
+                      'or' => array(
+                        'user_id' => array($to, $this->User->getKey('id')),
+                        'author_id' => array($to, $this->User->getKey('id'))
+                      ),
+                      'created > DATE_SUB(NOW(), INTERVAL 5 SECOND)'
+                    )));
+                    if (!empty($findCooldown))
+                      return $this->response->body(json_encode(array('statut' => false, 'msg' => 'Vous devez attendre un certain moment avant de pouvoir faire un transfert.')));
 
                     $event = new CakeEvent('beforeSendPoints', $this, array('user' => $this->User->getAllFromCurrentUser(), 'new_user_sold' => $money_user, 'to' => $to, 'how' => $how));
                     $this->getEventManager()->dispatch($event);
@@ -232,22 +242,22 @@ class PaymentController extends ShopAppController {
                       return $event->result;
                     }
 
-                    /*$this->User->setKey('money', $money_user);
-                    $to_money = $this->User->getFromUser('money', $to) + $how;
-                    $this->User->setToUser('money', $to_money, $to);*/
-
                     $this->User->cacheQueries = false;
-  									$money = $this->User->find('first', array('conditions' => array('id' => $to)))['User']['money'];
-  									$new_sold = $money + $how;
-  									$this->User->id = $to;
-        						$save = $this->User->saveField('money', $new_sold);
 
-                    $money = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
-  									$new_sold = $money - $how;
-  									$this->User->id = $this->User->getKey('id');
-        						$save = $this->User->saveField('money', $new_sold);
+                    // calcul
+  		              $moneyTo = $this->User->find('first', array('conditions' => array('id' => $to)))['User']['money'];
+  		              $soldTo = $moneyTo + $how;
+                    $moneyFrom = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
+                    $soldFrom = $moneyFrom - $how;
+                    if ($soldFrom < 0)
+                      return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__BUY_ERROR_NO_ENOUGH_MONEY'))));
 
-                    $this->loadModel('Shop.PointsTransferHistory');
+                    // set
+  		              $this->User->id = $to;
+        	          $save = $this->User->saveField('money', $soldTo);
+            		    $this->User->id = $this->User->getKey('id');
+                  	$save = $this->User->saveField('money', $soldFrom);
+
                     $this->PointsTransferHistory->create();
                     $this->PointsTransferHistory->set(array(
                       'user_id' => $to,
