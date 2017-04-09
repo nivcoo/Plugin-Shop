@@ -524,7 +524,10 @@ class ShopController extends ShopAppController {
 
 
             // On va vérifier que l'utilisateur a assez d'argent
-            if($this->User->getKey('money') >= $total_price) {
+            $this->User->cacheQueries = false;
+            $money = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
+            $new_sold = $money - $total_price;
+            if($new_sold >= 0) {
 
               // On vas voir si tous les serveurs sont ouverts (ceux necessaires aux articles achetés)
                 if(!empty($servers)) {
@@ -562,9 +565,6 @@ class ShopController extends ShopAppController {
                   }
 
                 // On enlève les crédits à l'utilisateur
-                  $this->User->cacheQueries = false;
-                  $money = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
-                  $new_sold = $money - $total_price;
                   $this->User->id = $this->User->getKey('id');
                   $save = $this->User->saveField('money', $new_sold);
 

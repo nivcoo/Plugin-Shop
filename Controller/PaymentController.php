@@ -221,8 +221,10 @@ class PaymentController extends ShopAppController {
               if(strtolower($this->User->getKey('pseudo')) != strtolower($this->request->data['to']) && $this->User->getKey('id') != $this->request->data['to']) {
                 $how = floatval($this->request->data['how']);
                 if($how > 0) {
-                  $money_user = $this->User->getKey('money') - $how;
-                  if($money_user >= 0) {
+                  $this->User->cacheQueries = false;
+                  $money_user = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
+                  $new_sold_user = $money_user - $how;
+                  if($new_sold_user >= 0) {
 
                     $to = $this->User->getFromUser('id', $this->request->data['to']);
 
@@ -232,20 +234,13 @@ class PaymentController extends ShopAppController {
                       return $event->result;
                     }
 
-                    /*$this->User->setKey('money', $money_user);
-                    $to_money = $this->User->getFromUser('money', $to) + $how;
-                    $this->User->setToUser('money', $to_money, $to);*/
-
-                    $this->User->cacheQueries = false;
   									$money = $this->User->find('first', array('conditions' => array('id' => $to)))['User']['money'];
   									$new_sold = $money + $how;
   									$this->User->id = $to;
         						$save = $this->User->saveField('money', $new_sold);
 
-                    $money = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
-  									$new_sold = $money - $how;
   									$this->User->id = $this->User->getKey('id');
-        						$save = $this->User->saveField('money', $new_sold);
+        						$save = $this->User->saveField('money', $new_sold_user);
 
                     $this->loadModel('Shop.PointsTransferHistory');
                     $this->PointsTransferHistory->create();
