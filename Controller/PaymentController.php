@@ -227,6 +227,16 @@ class PaymentController extends ShopAppController {
                   if($new_sold_user >= 0) {
 
                     $to = $this->User->getFromUser('id', $this->request->data['to']);
+                    $this->loadModel('Shop.PointsTransferHistory');
+                    $findCooldown = $this->PointsTransferHistory->find('first', array('conditions' => array(
+                      'or' => array(
+                        'user_id' => array($to, $this->User->getKey('id')),
+                        'author_id' => array($to, $this->User->getKey('id'))
+                      ),
+                      'created > DATE_SUB(NOW(), INTERVAL 5 SECOND)'
+                    )));
+                    if (!empty($findCooldown))
+                      return $this->response->body(json_encode(array('statut' => false, 'msg' => 'Vous devez attendre un certain moment avant de pouvoir faire un transfert.')));
 
                     $event = new CakeEvent('beforeSendPoints', $this, array('user' => $this->User->getAllFromCurrentUser(), 'new_user_sold' => $money_user, 'to' => $to, 'how' => $how));
                     $this->getEventManager()->dispatch($event);
@@ -242,7 +252,6 @@ class PaymentController extends ShopAppController {
   									$this->User->id = $this->User->getKey('id');
         						$save = $this->User->saveField('money', $new_sold_user);
 
-                    $this->loadModel('Shop.PointsTransferHistory');
                     $this->PointsTransferHistory->create();
                     $this->PointsTransferHistory->set(array(
                       'user_id' => $to,

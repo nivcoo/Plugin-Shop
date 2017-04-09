@@ -872,7 +872,7 @@ class ShopController extends ShopAppController {
           if(empty($this->request->data['category'])) {
             $this->request->data['category'] = $this->request->data['category_default'];
           }
-          if(!empty($this->request->data['id']) AND !empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND !empty($this->request->data['price']) AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
+          if(!empty($this->request->data['id']) AND !empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND strlen($this->request->data['price']) > 0 AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
             $this->loadModel('Shop.Category');
             $this->request->data['category'] = $this->Category->find('all', array('conditions' => array('name' => $this->request->data['category'])));
             $this->request->data['category'] = $this->request->data['category'][0]['Category']['id'];
@@ -985,7 +985,7 @@ class ShopController extends ShopAppController {
       if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
         if($this->request->is('post')) {
 
-          if(!empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND !empty($this->request->data['price']) AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
+          if(!empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND strlen($this->request->data['price']) > 0 AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
             $this->loadModel('Shop.Category');
             $this->request->data['category'] = $this->Category->find('all', array('conditions' => array('name' => $this->request->data['category'])));
             $this->request->data['category'] = $this->request->data['category'][0]['Category']['id'];
