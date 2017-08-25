@@ -80,7 +80,7 @@
               <label><?= $Lang->get('SERVER__TITLE') ?></label>
               <select class="form-control" name="servers" multiple>
                 <?php foreach ($servers as $key => $value) { ?>
-                    <option value="<?= $key ?>"<?= (in_array($key, $selected_server)) ? ' selected' : '' ?>><?= $value ?></option>
+                    <option value="<?= $key ?>"<?= (isset($selected_server) && in_array($key, $selected_server)) ? ' selected' : '' ?>><?= $value ?></option>
                 <?php } ?>
               </select>
             </div>

@@ -85,9 +85,11 @@ class ShopController extends ShopAppController {
           $search_item[0]['Item']['servers'] = unserialize($search_item[0]['Item']['servers']);
           $servers = '';
           $i = 0;
-          foreach ($search_item[0]['Item']['servers'] as $key => $value) {
+          foreach ($search_item[0]['Item']['servers'] as $serverId) {
             $i++;
-            $servers = $servers.$servers_list[$value];
+            if (isset($servers_list) && !isset($servers_list[$serverId]))
+                continue;
+            $servers = $servers . $servers_list[$serverId];
             if($i < count($search_item[0]['Item']['servers'])) {
               $servers = $servers.', ';
             }
@@ -481,8 +483,8 @@ class ShopController extends ShopAppController {
                     if($items[$i]['need_connect']) {
                       foreach ($items[$i]['servers'] as $k => $server_id) {
 
-                        $call = $this->Server->call(array('isConnected' => $this->User->getKey('pseudo')), true, $server_id);
-                        if($call['isConnected'] != 'true') {
+                        $call = $this->Server->call(array('IS_CONNECTED' => array($this->User->getKey('pseudo'))), $server_id);
+                        if(!$call || !$call['IS_CONNECTED']) {
                           $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_NOT_CONNECTED', array('{ITEM_NAME}' => $items[$i]['name'])))));
                           return;
                         }
@@ -618,31 +620,8 @@ class ShopController extends ShopAppController {
                       }
 
                     // On s'occupe des commandes à faire après
-                      if($value['timedCommand']) {
-
-                        // Get le timestamp du server
-                          $serverTimestamp = $this->Server->call('getServerTimestamp')['getServerTimestamp'];
-
-                        // On calcul le time
-                          $time = ($value['timedCommand_time'] * 60000) + $serverTimestamp; // minutes*60000 = miliseconds + timestamp de base
-
-                        // On prépare les commandes
-                          $commands = str_replace('{PLAYER}', $this->User->getKey('pseudo'), $value['timedCommand_cmd']);
-                          $commands = explode('[{+}]', $commands);
-
-                        // On parcours les commandes & on les executes
-                          foreach ($commands as $k => $value) {
-                            if(empty($value['servers'])) {
-                               $this->Server->call(array('performTimedCommand' => $time.':!:'.$value), true);
-                            } else {
-                              foreach ($value['servers'] as $k => $server_id) {
-                                $this->Server->call(array('performTimedCommand' => $time.':!:'.$value), true, $server_id);
-                              }
-                            }
-                          }
-
-                      }
-
+                      if ($value['timedCommand'])
+                          $this->Server->scheduleCommands($value['timedCommand_cmd'], $value['timedCommand_time'], $value['servers']);
                   }
 
                 //On le met dans l'historique
@@ -809,15 +788,12 @@ class ShopController extends ShopAppController {
             $servers = $this->Server->findSelectableServers(true);
             $this->set(compact('servers'));
 
+            $selected_server = array();
             if(!empty($item['servers'])) {
               $item['servers'] = unserialize($item['servers']);
-              foreach ($item['servers'] as $key => $value) {
-                if(isset($servers[$value])) {
+              foreach ($item['servers'] as $key => $value)
+                if (isset($servers[$value]))
                   $selected_server[] = $value;
-                }
-              }
-            } else {
-              $selected_server = array();
             }
             $this->set(compact('selected_server'));
 

@@ -27,7 +27,7 @@
 		}
 	],
 	"author":"Eywek",
-	"version":"0.5.4",
+	"version":"1.0.0",
 	"apiID":1,
 	"useEvents":true,
 	"permissions" : {
@@ -38,6 +38,6 @@
 		}
 	},
 	"requirements" : {
-		"CMS" : ">= 1.1.0"
+		"CMS" : "^1.3.0"
 	}
 }
