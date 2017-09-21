@@ -1,31 +1,32 @@
 {
 	"name":"Boutique",
-	"slug":"shop",
-	"nav":true,
-	"admin":true,
-	"admin_group_menu":"customisation",
-	"admin_name":"Boutique",
-	"admin_icon":"shopping-cart",
-	"admin_menus": [
-		{
-			"name": "Gérer les articles",
-			"icon": "shopping-basket",
-			"url": "/admin/shop",
-			"permission": "SHOP__ADMIN_MANAGE_ITEMS"
-		},
-		{
-			"name": "Gérer les promotions",
-			"icon": "percent",
-			"url": "/admin/shop/shop/vouchers",
-			"permission": "SHOP__ADMIN_MANAGE_VOUCHERS"
-		},
-		{
-			"name": "Gérer les paiements",
-			"icon": "credit-card",
-			"url": "/admin/shop/payment",
-			"permission": "SHOP__ADMIN_MANAGE_PAYMENT"
+	"admin_menus": {
+		"GLOBAL__CUSTOMIZE": {
+			"Boutique": {
+				"icon": "shopping-cart",
+				"menu": {
+					"Gérer les articles": {
+						"icon": "shopping-basket",
+						"permission": "SHOP__ADMIN_MANAGE_ITEMS",
+						"route": "/admin/shop"
+					},
+					"Gérer les promotions": {
+						"icon": "percent",
+						"permission": "SHOP__ADMIN_MANAGE_VOUCHERS",
+						"route": "/admin/shop/shop/vouchers"
+					},
+					"Gérer les paiements": {
+						"icon": "credit-card",
+						"permission": "SHOP__ADMIN_MANAGE_PAYMENT",
+						"route": "/admin/shop/payment"
+					}
+				}
+			}
 		}
-	],
+	},
+	"navbar_routes": {
+		"Boutique": "/shop"
+	},
 	"author":"Eywek",
 	"version":"1.0.0",
 	"apiID":1,
