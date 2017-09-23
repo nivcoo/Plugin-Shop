@@ -26,16 +26,16 @@ class DiscountVoucherComponent extends Object {
 
   private $controller;
 
-  function shutdown(&$controller) {
+  function shutdown($controller) {
   }
 
-  function beforeRender(&$controller) {
+  function beforeRender($controller) {
   }
 
   function beforeRedirect() {
   }
 
-  function initialize(&$controller) {
+  function initialize($controller) {
     // Verification des réductions actuelles
     // suppression si la date de fin est passé
 
@@ -52,7 +52,7 @@ class DiscountVoucherComponent extends Object {
     }
   }
 
-  function startup(&$controller) {
+  function startup($controller) {
   }
 
   function getItemNameById($id) {
