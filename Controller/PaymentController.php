@@ -42,7 +42,7 @@ class PaymentController extends ShopAppController {
         // Les PaySafeCards c'est différents
 
           $this->loadModel('Shop.Paysafecard');
-          $findPaysafecardsStatus = $this->Paysafecard->find('first', array('conditions' => array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '1990/00/00 15:00:00')));
+          $findPaysafecardsStatus = $this->Paysafecard->find('first', array('conditions' => array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '2000-01-01 15:00:00')));
     			$paysafecardsStatus = (empty($findPaysafecardsStatus)) ? true : false;
 
           $usersToFind = array();
@@ -295,7 +295,7 @@ class PaymentController extends ShopAppController {
   		if($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_PAYMENT')) {
   			$this->loadModel('Shop.Paysafecard');
 
-  			$paysafecard_enabled = $this->Paysafecard->find('all', array('conditions' => array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '1990/00/00 15:00:00')));
+  			$paysafecard_enabled = $this->Paysafecard->find('all', array('conditions' => array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '2000-01-01 15:00:00')));
   			if(!empty($paysafecard_enabled)) {
   				$this->Paysafecard->delete($paysafecard_enabled[0]['Paysafecard']['id']);
 
@@ -305,7 +305,7 @@ class PaymentController extends ShopAppController {
   				$this->redirect(array('action' => 'index'));
   			} else {
   				$this->Paysafecard->read(null, $paysafecard_enabled[0]['Paysafecard']['id']);
-  				$this->Paysafecard->set(array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '1990/00/00 15:00:00'));
+  				$this->Paysafecard->set(array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '2000-01-01 15:00:00'));
   				$this->Paysafecard->save();
 
   				$this->History->set('DISABLE_PAYSAFECARD', 'shop');
