@@ -96,7 +96,11 @@
   "SHOP__USER_POINTS_TRANSFER_HOW_MANY": "Combien ?",
   "SHOP__USER_POINTS_TRANSFER_ERROR_EMPTY": "Vous ne pouvez pas ne rien envoyer",
   "SHOP__USER_POINTS_TRANSFER_ERROR_YOURSELF":"Vous ne pouvez pas transférer des crédits à vous-même",
+  "SHOP__USER_POINTS_TRANSFER_ERROR_DISABLED": "Le transfert de points est désactivé.",
+  "SHOP__USER_POINTS_TRANSFER_ERROR_WAIT": "Vous devez attendre un certain moment avant de pouvoir faire un transfert.",
   "SHOP__USER_POINTS_TRANSFER_SUCCESS": "L'argent \u00e0 bien \u00e9t\u00e9 envoy\u00e9 !",
+  "SHOP__TRANSFER_ENABLE_SUCCESS": "Vous avez bien activé le transfert de points !",
+  "SHOP__TRANSFER_DISABLE_SUCCESS": "Vous avez bien désactivé le transfert de points !",
 
   "SHOP__ITEM":"Article",
   "SHOP__ITEMS": "Articles",

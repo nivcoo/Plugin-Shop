@@ -357,7 +357,12 @@ table tr td:last-child > div.btn-group {
 
               <div class="tab-pane" id="tab_points_transfer">
 
-                <h3><?= $Lang->get('SHOP__USER_POINTS_TRANSFER_HISTORIES', array('{MONEY_NAME}' => $Configuration->getMoneyName())) ?></h3>
+                <h3>
+                    <?= $Lang->get('SHOP__USER_POINTS_TRANSFER_HISTORIES', array('{MONEY_NAME}' => $Configuration->getMoneyName())) ?>
+                    <a href="<?= $this->Html->url(array('action' => 'toggle_transfer')) ?>" class="btn btn-<?= ($transferStatus) ? 'danger' : 'success' ?> pull-right"><?= ($transferStatus) ? $Lang->get('GLOBAL__DISABLE') : $Lang->get('GLOBAL__ENABLE') ?></a>
+                </h3>
+
+                <br>
 
                 <table class="table table-bordered dataTable" id="histories_points_transfer">
                   <thead>
