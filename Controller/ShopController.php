@@ -483,7 +483,7 @@ class ShopController extends ShopAppController
                                 if ($items[$i]['need_connect']) {
                                     foreach ($items[$i]['servers'] as $k => $server_id) {
 
-                                        if ($this->Server->userIsConnected($this->User->getKey('pseudo'), $server_id)) {
+                                        if (!$this->Server->userIsConnected($this->User->getKey('pseudo'), $server_id)) {
                                             $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_NOT_CONNECTED', array('{ITEM_NAME}' => $items[$i]['name'])))));
                                             return;
                                         }
