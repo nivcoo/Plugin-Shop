@@ -607,7 +607,7 @@ class ShopController extends ShopAppController
 
                                     foreach ($value['servers'] as $k => $server_id) {
 
-                                        if (!in_array($value['id'], $items_broadcasted)) {
+                                        if (!in_array($value['id'], $items_broadcasted) && isset($value['broadcast'])) {
                                             $value['commands'] .= '[{+}]' . $value['broadcast'];
                                             $items_broadcasted[] = $value['id'];
                                         }
@@ -1002,7 +1002,7 @@ class ShopController extends ShopAppController
                         'display' => $this->request->data['display'],
                         'multiple_buy' => $this->request->data['multiple_buy'],
                         'broadcast_global' => $this->request->data['broadcast_global'],
-                        'cart' => $this->request->data['broadcast_global'],
+                        'cart' => $this->request->data['cart'],
                         'prerequisites_type' => $this->request->data['prerequisites_type'],
                         'prerequisites' => $prerequisites,
                         'reductional_items' => $reductional_items,
