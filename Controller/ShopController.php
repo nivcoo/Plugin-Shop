@@ -291,7 +291,199 @@ class ShopController extends ShopAppController
     * ======== Achat d'un article depuis le modal ===========
     */
 
+
     function buy_ajax()
+    {
+        if (!$this->request->is('ajax'))
+            throw new BadRequestException();
+        if (!$this->Permissions->can('CAN_BUY'))
+            return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('USER__ERROR_MUST_BE_LOGGED')]);
+        if (empty($this->request->data['items']))
+            return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SHOP__BUY_ERROR_EMPTY')]);
+
+        // Remove duplicata
+        $itemsList = [];
+        foreach ($this->request->data['items'] as $item) {
+            $item['quantity'] = intval((isset($item['quantity']) ? $item['quantity'] : 0));
+            if (isset($items[$item['item_id']]))
+                $itemsList[$item['item_id']]['quantity'] += $item['quantity'];
+            else
+                $itemsList[$item['item_id']] = $item;
+        }
+
+        // Models
+        $this->loadModel('Shop.ItemsConfig');
+        $this->loadModel('Shop.Item');
+        $this->loadModel('Shop.ItemsBuyHistory');
+        $this->loadModel('Shop.VouchersHistory');
+
+        // Vars
+        $totalPrice = 0;
+        $giveSkin = 0;
+        $giveCape = 0;
+        $voucher = (isset($this->request->data['code']) && !empty($this->request->data['code'])) ? $this->request->data['code'] : NULL;
+        $voucherUsedCount = 0;
+        $voucherReduction = 0;
+        $histories = [];
+
+        $config = $this->ItemsConfig->find('first');
+        if (empty($config))
+            $config = ['broadcast_global' => ''];
+        else
+            $config = $config['ItemsConfig'];
+
+        // Handle items
+        $items = [];
+        foreach ($itemsList as $itemData) {
+            // Find item on database
+            $item = $this->Item->find('first', ['conditions' => ['id' => $itemData['item_id']]]);
+            if (empty($item))
+                continue;
+            $item = $item['Item'];
+
+            // Check if can buy multiple
+            if ($itemData['quantity'] > 1 && !$item['multiple_buy'])
+                return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_MULTIPLE', ['{ITEM_NAME}' => $item['name']])]);
+            // Check if can buy in cart
+            if (count($items) > 1 && !$item['cart'])
+                return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_ADDED_TO_CART', ['{ITEM_NAME}' => $item['name']])]);
+            // Check buy limit
+            if ($item['buy_limit'] > 0) {
+                $countPurchases = $this->ItemsBuyHistory->find('count', ['conditions' => ['item_id' => $item['id'], 'user_id' => $this->User->getKey('id')]]);
+                if ($countPurchases >= $item['buy_limit'])
+                    return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_LIMIT', ['{ITEM_NAME}' => $item['name'], '{LIMIT}' => $item['buy_limit']])]);
+            }
+            // Check wait time
+            if ($item['wait_time']) {
+                $lastPurchase = $this->ItemsBuyHistory->find('first', ['fields' => 'created', 'order' => 'id DESC', 'conditions' => ['item_id' => $item['id'], 'user_id' => $this->User->getKey('id')]]);
+                if (!empty($lastPurchase) && strtotime('+' . $item['wait_time'], strtotime($lastPurchase['ItemsBuyHistory']['created'])) > time()) {
+                    list($time, $unity) = explode(' ', $item['wait_time']);
+                    return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_WAIT_TIME', ['{ITEM_NAME}' => $item['name'], '{LIMIT}' => $item['buy_limit'], '{WAIT_TIME}' => $time . ' ' . $this->Lang->get('GLOBAL__DATE_R_' . strtoupper($unity))])]);
+                }
+            }
+            // Check prerequisites
+            $prerequisites = $this->Item->checkPrerequisites($item, $this->User->getKey('id'));
+            if ($prerequisites !== TRUE) {
+                return $this->sendJSON([
+                    'statut' => false,
+                    'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_PREREQUISITES_' . $prerequisites['error'], array('{ITEMS}' => $prerequisites['items_list']))
+                ]);
+            }
+            // Check if server online and user online if needed
+            if (is_array(($item['servers'] = unserialize($item['servers'])))) {
+                foreach ($item['servers'] as $serverId)
+                    if (!$this->Server->online($serverId))
+                        return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SERVER__MUST_BE_ON')]);
+                if ($item['need_connect']) {
+                    foreach ($item['servers'] as $serverId)
+                        if (!$this->Server->userIsConnected($this->User->getKey('pseudo'), $serverId))
+                            return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SHOP__ITEM_CANT_BUY_NOT_CONNECTED', ['{ITEM_NAME}' => $item['name']])]);
+                }
+            }
+
+            // Add skin or cape give
+            if ($item['give_skin'])
+                $giveSkin = true;
+            if ($item['give_cape'])
+                $giveCape = true;
+
+            // Broadcast global
+            if ($item['broadcast_global']) {
+                $item['commands'] = "{$item['commands']}[{+}]" . strtr($config['broadcast_global'], [
+                    '{PLAYER}' => $this->User->getKey('pseudo'),
+                    '{QUANTITY}' => $itemData['quantity'],
+                    '{ITEM_NAME}' => $item['name'],
+                    '{SERVERNAME}' => implode(', ', array_map(function ($server) {
+                        return $server['Server']['name'];
+                    }, ClassRegistry::init('Server')->find('all', ['conditions' => ['id' => $item['servers']]])))
+                ]);
+            }
+
+            // Voucher
+            if (!empty($voucher)) {
+                $getVoucherPrice = $this->DiscountVoucher->getNewPrice($item['id'], $voucher);
+
+                if ($getVoucherPrice['status']) {
+                    $voucherUsedCount++;
+                    $voucherReduction += $item['price'] - $getVoucherPrice['price'];
+                    $item['price'] = $getVoucherPrice['price'];
+                }
+            }
+
+            // Reductionnal price
+            $reduction = $this->Item->getReductionWithReductionalItems($item, $this->User->getKey('id'));
+            $item['price'] -= $reduction;
+
+            // Add to items (for quantity)
+            for ($i = 1; $i <= $itemData['quantity']; $i++) {
+                $items[] = $item;
+                // Add to total price
+                $totalPrice += floatval($item['price']);
+            }
+
+            // Histories
+            $histories[] = array(
+                'user_id' => $this->User->getKey('id'),
+                'item_id' => $item['id']
+            );
+        }
+
+        // Check if not empty
+        if (empty($items))
+            $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SHOP__BUY_ERROR_EMPTY')]);
+
+        // Check price
+        if ($totalPrice < 0)
+            $totalPrice = 0;
+        if (($userMoney = floatval($this->User->getKey('money'))) < $totalPrice)
+            return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('SHOP__BUY_ERROR_NO_ENOUGH_MONEY')]);
+
+        // Event
+        $event = new CakeEvent('onBuy', $this, array('items' => $items, 'total_price' => $totalPrice, 'user' => $this->User->getAllFromCurrentUser()));
+        $this->getEventManager()->dispatch($event);
+        if ($event->isStopped()) {
+            return $event->result;
+        }
+
+        // Voucher set as used
+        if ($voucherUsedCount > 0) {
+            $this->DiscountVoucher->set_used($this->User->getKey('id'), $voucher, $voucherUsedCount);
+
+            $this->VouchersHistory->create();
+            $this->VouchersHistory->set(array(
+                'code' => $voucher,
+                'user_id' => $this->User->getKey('id'),
+                'reduction' => $voucherReduction
+            ));
+            $this->VouchersHistory->save();
+        }
+
+        // Remove money
+        $this->User->id = $this->User->getKey('id');
+        $this->User->saveField('money', str_replace(',', '.', strval(round($userMoney - $totalPrice, 2))));
+
+        // Add to history
+        $this->ItemsBuyHistory->saveMany($histories);
+
+        // Skin/Cape
+        if ($giveSkin)
+            $this->User->setKey('skin', 1);
+        if ($giveCape)
+            $this->User->setKey('cape', 1);
+
+        // Commands
+        foreach ($items as $item) {
+            foreach ($item['servers'] as $serverId)
+                $this->Server->commands($item['commands'], $serverId);
+            if ($item['timedCommand'])
+                $this->Server->scheduleCommands($item['timedCommand_cmd'], $item['timedCommand_time'], $item['servers']);
+        }
+
+        // Success msg
+        return $this->sendJSON(['statut' => true, 'msg' => $this->Lang->get('SHOP__BUY_SUCCESS')]);
+    }
+
+    function buy_ajax_old()
     {
         $this->autoRender = false;
         $this->response->type('json');
