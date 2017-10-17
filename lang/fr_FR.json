@@ -46,9 +46,12 @@
   "SHOP__VOUCHER_ADD_SUCCESS": "La promotion a bien \u00e9t\u00e9 ajout\u00e9e !",
   "SHOP__VOUCHER_ADD_ERROR_CODE_INVALID":"Votre code est invalide ! (Peut être alphanumérique seulement, le # est autorisé, maximum 20 caractères)",
   "SHOP__VOUCHER_DELETE_SUCCESS": "La promotion a bien \u00e9t\u00e9 supprim\u00e9e !",
-  "SHOP__VOUCHER_LIMIT":"Limite d'utilisation par utilisateur",
+  "SHOP__VOUCHER_LIMIT":"Limite d'utilisation",
   "SHOP__VOUCHER_LIMIT_SHORT":"Limite",
   "SHOP__VOUCHER_LIMIT_DESC":"Mettez 0 pour aucune limite",
+  "SHOP__VOUCHER_LIMIT_TYPE": "Type de limite",
+  "SHOP__VOUCHER_LIMIT_TYPE_USER": "Par utilisateur",
+  "SHOP__VOUCHER_LIMIT_TYPE_GLOBAL": "Globale",
   "SHOP__VOUCHER_CODE": "Code",
   "SHOP__VOUCHER_REDUCTION":"Réduction en {MONEY_NAME}",
 

@@ -204,7 +204,7 @@
 
             <div class="form-group">
               <div class="checkbox">
-                <input id="reductional_items_checkbox" type="checkbox">
+                <input name="reductional_items_checkbox" id="reductional_items_checkbox" type="checkbox">
                 <label><?= $Lang->get('SHOP__ITEM_CHECKBOX_REDUCTIONAL_ITEMS') ?></label>
               </div>
             </div>

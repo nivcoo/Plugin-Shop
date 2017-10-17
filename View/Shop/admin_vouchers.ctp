@@ -30,7 +30,7 @@ $this->DiscountVoucher = new DiscountVoucherComponent;
                     <td><?= $Lang->date($value['Voucher']['start_date']) ?></td>
                     <td><?= $Lang->date($value['Voucher']['end_date']) ?></td>
                     <td><?= $Lang->date($value['Voucher']['created']) ?></td>
-                    <td><?= $value['Voucher']['limit_per_user'] ?></td>
+                    <td><?= $value['Voucher']['limit'] ?></td>
                     <td>
                       <?php
                         if($value['Voucher']['affich'] == 1) {
