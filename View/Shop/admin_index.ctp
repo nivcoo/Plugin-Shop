@@ -13,13 +13,13 @@
               <input name="broadcast_global" class="form-control" type="text"<?= (isset($config['broadcast_global'])) ? ' value="'.$config['broadcast_global'].'"' : '' ?>>
             </div>
 
-            <div class="form-group">
+            <!--<div class="form-group">
               <div class="checkbox">
                 <input name="disabled-sort_by_server" type="checkbox"<?= (isset($config['sort_by_server']) && $config['sort_by_server']) ? ' checked=""' : '' ?> disabled>
                 <label><?= $Lang->get('SHOP__CONFIG_SORT_BY_SERVER') ?></label>
               </div>
               <small><?= $Lang->get('GLOBAL__TEMPORALY_DISABLED') ?></small>
-            </div>
+            </div>-->
 
             <div class="form-group">
               <button class="btn btn-primary" type="submit"><?= $Lang->get('GLOBAL__SUBMIT') ?></button>

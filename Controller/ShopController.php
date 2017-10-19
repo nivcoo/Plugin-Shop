@@ -386,18 +386,6 @@ class ShopController extends ShopAppController
             if ($item['give_cape'])
                 $giveCape = true;
 
-            // Broadcast global
-            if ($item['broadcast_global']) {
-                $item['commands'] = "{$item['commands']}[{+}]" . strtr($config['broadcast_global'], [
-                    '{PLAYER}' => $this->User->getKey('pseudo'),
-                    '{QUANTITY}' => $itemData['quantity'],
-                    '{ITEM_NAME}' => $item['name'],
-                    '{SERVERNAME}' => implode(', ', array_map(function ($server) {
-                        return $server['Server']['name'];
-                    }, ClassRegistry::init('Server')->find('all', ['conditions' => ['id' => $item['servers']]])))
-                ]);
-            }
-
             // Voucher
             if (!empty($voucher)) {
                 $getVoucherPrice = $this->DiscountVoucher->getNewPrice($item['id'], $voucher);
@@ -415,6 +403,16 @@ class ShopController extends ShopAppController
 
             // Add to items (for quantity)
             for ($i = 1; $i <= $itemData['quantity']; $i++) {
+                if ($i == $itemData['quantity'] && $item['broadcast_global']) { // Broadcast global only on last (avoid multiple global message)
+                    $item['commands'] = "{$item['commands']}[{+}]" . strtr($config['broadcast_global'], [
+                        '{PLAYER}' => $this->User->getKey('pseudo'),
+                        '{QUANTITY}' => $itemData['quantity'],
+                        '{ITEM_NAME}' => $item['name'],
+                        '{SERVERNAME}' => implode(', ', array_map(function ($server) {
+                            return $server['Server']['name'];
+                        }, ClassRegistry::init('Server')->find('all', ['conditions' => ['id' => $item['servers']]])))
+                    ]);
+                }
                 $items[] = $item;
                 // Add to total price
                 $totalPrice += floatval($item['price']);
