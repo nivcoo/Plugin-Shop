@@ -43,7 +43,7 @@ class ShopController extends ShopAppController
         $dedipass = (!empty($findDedipassConfig) && isset($findDedipassConfig['DedipassConfig']['status']) && $findDedipassConfig['DedipassConfig']['status']) ? true : false;
 
         $this->loadModel('Shop.Paysafecard');
-        $paysafecard_enabled = $this->Paysafecard->find('all', array('conditions' => array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '1990/00/00 15:00:00')));
+        $paysafecard_enabled = $this->Paysafecard->find('all', array('conditions' => array('amount' => '0', 'code' => 'disable', 'user_id' => 0, 'created' => '2000-01-01 15:00:00')));
         if (!empty($paysafecard_enabled)) {
             $paysafecard_enabled = false;
         } else {
