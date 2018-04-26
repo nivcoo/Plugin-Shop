@@ -24,7 +24,7 @@
   "SHOP__VOUCHERS_HISTORIES":"Historique des utilisations de codes promotionnels",
   "SHOP__VOUCHER_END_DATE": "Date de fin",
   "SHOP__VOUCHER_START_DATE":"Date de début",
-  "SHOP__VOUCHER_START_DATE_EXPLAIN":"Si vous configurer une date de début autre que maintenant, votre promotion pourra être pré-affichée sur la boutique si l'option 'Affiché' est coché, mais vos utilisateurs ne pourront pas l'utiliser.",
+  "SHOP__VOUCHER_START_DATE_EXPLAIN":"Si vous configurez une date de début autre que maintenant, votre promotion pourra être pré-affichée sur la boutique si l'option 'Affiché' est coché, mais vos utilisateurs ne pourront pas l'utiliser.",
   "SHOP__VOUCHER_VALUE_LABEL": "R\u00e9duction",
   "SHOP__VOUCHER_VALUE_INPUT":"En {MONEY_NAME} ou en pourcentage",
   "SHOP__VOUCHER_DISPLAYED": "Affiché",
