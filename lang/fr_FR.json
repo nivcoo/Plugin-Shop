@@ -81,7 +81,7 @@
   "SHOP__DEDIPASS_TOGGLE_DISABLE_SUCCESS":"Vous avez bien désactivé Dédipass comme mode de paiement !",
   "SHOP__DEDIPASS_PUBLICKEY":"Clé publique (appelé <i>data-dedipass</i> dans la partie installation de Dédipass)",
   "SHOP__DEDIPASS_HISTORIES":"Historique des transactions Dédipass",
-  "SHOP__DEDIPASS_PAYMENT_ERROR_NOT_CONNECTED":"Vous n'étiez pas connecté, veuillez vous connecter et recommencez l'opération (Code précédement rentré : {CODE}).",
+  "SHOP__DEDIPASS_PAYMENT_ERROR_NOT_CONNECTED":"Vous n'étiez pas connecté, veuillez vous connecter et recommencez l'opération (Code précédemment rentré : {CODE}).",
   "SHOP__DEDIPASS_PAYMENT_ERROR_INVAID_CODE":"Le code entré est invalide.",
   "SHOP__DEDIPASS_PAYMENT_ERROR_EMPTY_CODE":"Veuillez entrer un code.",
   "SHOP__DEDIPASS_PAYMENT_ERROR_EMPTY_RATE":"Veuillez choisir une offre",
