@@ -81,7 +81,7 @@
   "SHOP__DEDIPASS_TOGGLE_DISABLE_SUCCESS":"Vous avez bien désactivé Dédipass comme mode de paiement !",
   "SHOP__DEDIPASS_PUBLICKEY":"Clé publique (appelé <i>data-dedipass</i> dans la partie installation de Dédipass)",
   "SHOP__DEDIPASS_HISTORIES":"Historique des transactions Dédipass",
-  "SHOP__DEDIPASS_PAYMENT_ERROR_NOT_CONNECTED":"Vous n'étiez pas connecté, veuillez vous connecter et recommencez l'opération (Code précédement rentré : {CODE}).",
+  "SHOP__DEDIPASS_PAYMENT_ERROR_NOT_CONNECTED":"Vous n'étiez pas connecté, veuillez vous connecter et recommencez l'opération (Code précédemment rentré : {CODE}).",
   "SHOP__DEDIPASS_PAYMENT_ERROR_INVAID_CODE":"Le code entré est invalide.",
   "SHOP__DEDIPASS_PAYMENT_ERROR_EMPTY_CODE":"Veuillez entrer un code.",
   "SHOP__DEDIPASS_PAYMENT_ERROR_EMPTY_RATE":"Veuillez choisir une offre",
@@ -196,7 +196,7 @@
   "SHOP__STARPASS_OFFER_EDIT_SUCCESS": "Offre StarPass modifi\u00e9e avec succ\u00e8s !",
   "SHOP__STARPASS_PAYMENT": "Cr\u00e9diter son compte avec StarPass",
   "SHOP__STARPASS_PAYMENT_SUCCESS": "La transaction StarPass s'est bien d\u00e9roul\u00e9e ! Vous avez re\u00e7u vos cr\u00e9dits boutique.",
-  "SHOP__STARPASS_PAYMENT_ERROR":"Le code que vous avez entré est faux. Veuillez rééssayez.",
+  "SHOP__STARPASS_PAYMENT_ERROR":"Le code que vous avez entré est faux. Veuillez réessayez.",
 
   "SHOP__DASHBOARD_GRAPH_ERROR": "Vous devez avoir plus de 5 articles diff\u00e9rents vendus pour acc\u00e8der au graphique",
   "SHOP__ADMIN_PART_2": "Administrer les cr\u00e9dits",
@@ -236,6 +236,5 @@
   "HISTORY__ACTION_EDIT_PAYPAL_OFFER":"Modification d'une offre PayPal",
   "HISTORY__ACTION_EDIT_STARPASS_OFFER":"Modification d'une offre StarPass",
   "HISTORY__ACTION_ENABLE_PAYSAFECARD":"Activation du mode de paiement PaySafeCard",
-  "HISTORY__ACTION_DISABLE_PAYSAFECARD":"Désactivation du mode de paiement PaySafeCard",
-  "HISTORY__ACTION_ADD_PAYSAFECARD":"Ajout d'une PaySafeCard"
+  "HISTORY__ACTION_DISABLE_PAYSAFECARD":"Désactivation du mode de paiement PaySafeCard"
 }
