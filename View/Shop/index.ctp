@@ -1,4 +1,4 @@
-<?= $this->Html->css('shop-homepage.css') ?>
+<?= $this->Html->css('Shop.shop-homepage.css') ?>
 <?= $this->Html->css('Shop.jquery.bootstrap-touchspin.css') ?>
 <div class="container plugin-shop">
   <div class="row">
