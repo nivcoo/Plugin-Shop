@@ -236,5 +236,5 @@
   "HISTORY__ACTION_EDIT_PAYPAL_OFFER":"Modification d'une offre PayPal",
   "HISTORY__ACTION_EDIT_STARPASS_OFFER":"Modification d'une offre StarPass",
   "HISTORY__ACTION_ENABLE_PAYSAFECARD":"Activation du mode de paiement PaySafeCard",
-  "HISTORY__ACTION_DISABLE_PAYSAFECARD":"Désactivation du mode de paiement PaySafeCard",
+  "HISTORY__ACTION_DISABLE_PAYSAFECARD":"Désactivation du mode de paiement PaySafeCard"
 }
