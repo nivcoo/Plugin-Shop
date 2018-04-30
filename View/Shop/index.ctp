@@ -1,6 +1,6 @@
 <?= $this->Html->css('shop-homepage.css') ?>
 <?= $this->Html->css('Shop.jquery.bootstrap-touchspin.css') ?>
-<div class="container">
+<div class="container plugin-shop">
   <div class="row">
     <div class="col-md-3">
       <p class="lead"><?= ($isConnected) ? $money.' '.$Configuration->getMoneyName() : $Lang->get('SHOP__TITLE'); ?></p>
