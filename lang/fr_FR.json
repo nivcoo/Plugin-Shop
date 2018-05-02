@@ -3,6 +3,8 @@
   "SHOP__GLOBAL_AMOUNT": "Montant",
 
   "SHOP__CONFIG": "Configuration",
+  "SHOP__CONFIG_GOAL_TITLE": "Objectif du mois",
+  "SHOP__CONFIG_GOAL_DESC": "Laisser vide pour enlever",
   "SHOP__CONFIG_SORT_BY_SERVER": "Classer les articles et catégories par serveur",
   "SHOP__CONFIG_BROADCAST_GLOBAL": "Commande global effectuée à chaque achat",
   "SHOP__CONFIG_EXPLAIN_TITLE":"Explications",

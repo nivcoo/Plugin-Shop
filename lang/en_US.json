@@ -3,6 +3,8 @@
 		"SHOP__GLOBAL_AMOUNT": "Amount",
 
 		"SHOP__CONFIG": "Configuration",
+		"SHOP__CONFIG_GOAL_TITLE": "Goal of the month",
+		"SHOP__CONFIG_GOAL_DESC": "Leave empty to remove",
 		"SHOP__CONFIG_SORT_BY_SERVER": "Sort articles and categories by server",
 		"SHOP__CONFIG_BROADCAST_GLOBAL": "Global order made with each purchase",
 		"SHOP__CONFIG_EXPLAIN_TITLE": "Rationale",

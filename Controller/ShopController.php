@@ -16,6 +16,7 @@ class ShopController extends ShopAppController
         if ($category) {
             $this->set(compact('category'));
         }
+		
         $this->layout = $this->Configuration->getKey('layout'); // On charge le thème configuré
         $this->loadModel('Shop.Item'); // le model des articles
         $this->loadModel('Shop.Category'); // le model des catégories
@@ -27,6 +28,28 @@ class ShopController extends ShopAppController
                 )
             )
         )); // on cherche tous les items et on envoie à la vue
+		$this->loadModel('Shop.ItemsBuyHistory');
+		$histories_buy = $this->ItemsBuyHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+		$histories = $this->Item->find('all');
+		$vanow = 0;
+		foreach ($histories_buy as $value){
+			foreach ($histories as $val){
+				if ($val['Item']['id'] == $value['ItemsBuyHistory']['item_id']){
+					$i++;
+					$vanow[$i]= $val['Item']['price'];
+					$vanow += $val['Item']['price'];
+				}
+			}
+		}
+		$this->loadModel('Shop.ItemsConfig');
+		$vagoal = $this->ItemsConfig->find('all');
+		$vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
+		if ($vanow > $vagoal){
+			$vanow = $vagoal;
+		}
+		$vamax = $vagoal;
+		$vawidth = round((str_replace(",", '.', $vanow*100/$vamax)));
+
         $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
 
         $search_first_category = $this->Category->find('first'); //
@@ -61,9 +84,8 @@ class ShopController extends ShopAppController
         $singular_money = $this->Configuration->getMoneyName(false);
         $plural_money = $this->Configuration->getMoneyName();
 
-        $this->set(compact('dedipass', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
+        $this->set(compact('dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
     }
-
 
     /*
     * ======== Affichage d'un article dans le modal ===========

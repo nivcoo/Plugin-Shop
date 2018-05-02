@@ -14,6 +14,16 @@
             <?php } ?>
         </div>
         <?php if($isConnected AND $Permissions->can('CREDIT_ACCOUNT')) { ?>
+          <?php if (!empty($vagoal)) {?>
+            <hr>
+            <h4><?= $Lang->get('SHOP__CONFIG_GOAL_TITLE') ?></h4>
+            <div class="progress">
+              <div class="progress-bar-info text-center" role="progressbar" style="width:<?= $vawidth ?>%">
+                <b><?= $vawidth ?>%</b>
+              </div>
+            </div>
+            <hr>
+          <?php } ?>
             <a href="#" data-toggle="modal" data-target="#addmoney" class="btn btn-success btn-block pull-right"><?= $Lang->get('SHOP__ADD_MONEY') ?></a>
         <?php } ?>
         <?php if($isConnected) { ?>
