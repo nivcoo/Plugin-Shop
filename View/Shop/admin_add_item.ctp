@@ -165,7 +165,7 @@
 
             <div class="form-group">
               <div class="checkbox">
-                <input name="display" type="checkbox">
+                <input name="display" type="checkbox" checked="checked">
                 <label><?= $Lang->get('SHOP__ITEM_CHECKBOX_DISPLAY') ?></label>
               </div>
             </div>
