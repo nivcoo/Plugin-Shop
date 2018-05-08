@@ -583,7 +583,10 @@ class ShopController extends ShopAppController
                 } else {
                     $this->ItemsConfig->read(null, 1);
                 }
-                $this->ItemsConfig->set($this->request->data);
+                $this->ItemsConfig->set(array(
+                        'goal' => $this->request->data['goal'],
+			'broadcast_global' => $this->request->data['broadcast_global']
+                    ));
                 $this->ItemsConfig->save();
 
                 $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__CONFIG_SAVE_SUCCESS'))));
