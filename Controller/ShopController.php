@@ -776,7 +776,31 @@ class ShopController extends ShopAppController
             $this->redirect('/');
         }
     }
+    public function admin_edit_category()
+    {
+        $this->autoRender = false;
+        $this->response->type('json');
+        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_CATEGORIES')) {
+            if ($this->request->is('post')) {
+                if (!empty($this->request->data['name'])) {
 
+                    $this->loadModel('Shop.Category');
+                    $this->Category->read(null, $this->request->data['id']);
+                    $this->Category->set(array(
+                        'name' => $this->request->data['name'],
+                    ));
+                    $this->Category->save();
+                    $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__CATEGORY_EDIT_SUCCESS'))));
+                } else {
+                    $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
+                }
+            } else {
+                $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST'))));
+            }
+        } else {
+            throw new ForbiddenException();
+        }
+    }
 
     /*
     * ======== Ajout d'un article (Traitement AJAX) ===========
