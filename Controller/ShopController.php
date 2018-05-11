@@ -28,28 +28,35 @@ class ShopController extends ShopAppController
                 )
             )
         )); // on cherche tous les items et on envoie à la vue
-		$this->loadModel('Shop.ItemsBuyHistory');
-		$histories_buy = $this->ItemsBuyHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-		$histories = $this->Item->find('all');
-		$vanow = 0;
-		foreach ($histories_buy as $value){
-			foreach ($histories as $val){
-				if ($val['Item']['id'] == $value['ItemsBuyHistory']['item_id']){
-					$i++;
-					$vanow[$i]= $val['Item']['price'];
-					$vanow += $val['Item']['price'];
-				}
-			}
-		}
-		$this->loadModel('Shop.ItemsConfig');
-		$vagoal = $this->ItemsConfig->find('all');
-		$vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
-		if ($vanow > $vagoal){
-			$vanow = $vagoal;
-		}
-		$vamax = $vagoal;
-		$vawidth = round((str_replace(",", '.', $vanow*100/$vamax)));
-
+	$vanow = 0;
+	$this->loadModel('Shop.DedipassHistory');
+	$this->loadModel('Shop.PaypalHistory');
+	$this->loadModel('Shop.StarpassHistory');
+	$this->loadModel('Shop.PaysafecardHistory');
+	$histories_dedi = $this->DedipassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_paypal = $this->PaypalHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_pay = $this->PaysafecardHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_star = $this->StarpassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	foreach ($histories_dedi as $value){
+		$vanow +=  floatval($value["DedipassHistory"]["credits_gived"]);
+	}
+	foreach ($histories_paypal as $value){
+		$vanow +=  floatval($value["PaypalHistory"]["payment_amount"]);
+	}
+	foreach ($histories_pay as $value){
+		$vanow +=  floatval($value["PaysafecardHistory"]["credits_gived"]);
+	}
+	foreach ($histories_star as $value){
+		$vanow +=  floatval($value["StarpassHistory"]["credits_gived"]);
+	}
+	$this->loadModel('Shop.ItemsConfig');
+	$vagoal = $this->ItemsConfig->find('all');
+	$vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
+	if ($vanow > $vagoal){
+		$vanow = $vagoal;
+	}
+	$vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
+		
         $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
 
         $search_first_category = $this->Category->find('first'); //
