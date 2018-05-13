@@ -99,10 +99,15 @@
               <tbody>
                 <?php foreach ($search_categories as $value => $v) { ?>
                   <tr>
-                    <td><?= $v["Category"]["name"] ?></td>
-                    <td class="right">
-                      <a onClick="confirmDel('<?= $this->Html->url(array('controller' => 'shop', 'action' => 'delete/category/'.$v["Category"]["id"], 'admin' => true)) ?>')" class="btn btn-danger"><?= $Lang->get('GLOBAL__DELETE') ?></button>
+                    <td>
+                      <form action="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'edit_categories')) ?>" method="post" data-ajax="true">
+                        <input class="form-control transparent-input" name="name" type="text" value="<?=  $v["Category"]["name"] ?>">
+                        <input type="hidden" name="id" value="<?= $v["Category"]["id"] ?>">
                     </td>
+                    <td class="right">
+                      <button class="btn btn-primary" type="submit"><?= $Lang->get('GLOBAL__SUBMIT') ?></button>
+                      <a onClick="confirmDel('<?= $this->Html->url(array('controller' => 'shop', 'action' => 'delete/category/'.$v["Category"]["id"], 'admin' => true)) ?>')" class="btn btn-danger"><?= $Lang->get('GLOBAL__DELETE') ?></a>
+                    </form></td>
                   </tr>
                 <?php } ?>
               </tbody>

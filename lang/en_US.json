@@ -153,6 +153,7 @@
 		"SHOP__CATEGORY": "Category",
 		"SHOP__CATEGORY_ADD": "Add a category",
 		"SHOP__CATEGORY_ADD_SUCCESS": "Category added successfully!",
+		"SHOP__CATEGORY_EDIT_SUCCESS": "Category successfully modified!",
 		"SHOP__CATEGORY_DELETE_SUCCESS": "Category Successfully Deleted!",
 
 		"SHOP__BUY": "Buy",

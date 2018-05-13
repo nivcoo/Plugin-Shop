@@ -153,6 +153,7 @@
   "SHOP__CATEGORY": "Cat\u00e9gorie",
   "SHOP__CATEGORY_ADD": "Ajouter une cat\u00e9gorie",
   "SHOP__CATEGORY_ADD_SUCCESS": "Cat\u00e9gorie ajout\u00e9e avec succ\u00e8s !",
+  "SHOP__CATEGORY_EDIT_SUCCESS": "Cat\u00e9gorie modifi\u00e9 avec succ\u00e8s !",
   "SHOP__CATEGORY_DELETE_SUCCESS": "Cat\u00e9gorie supprim\u00e9e avec succ\u00e8s !",
 
   "SHOP__BUY": "Acheter",
