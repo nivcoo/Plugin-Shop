@@ -16,6 +16,7 @@ class ShopController extends ShopAppController
         if ($category) {
             $this->set(compact('category'));
         }
+		
         $this->layout = $this->Configuration->getKey('layout'); // On charge le thème configuré
         $this->loadModel('Shop.Item'); // le model des articles
         $this->loadModel('Shop.Category'); // le model des catégories
@@ -27,6 +28,35 @@ class ShopController extends ShopAppController
                 )
             )
         )); // on cherche tous les items et on envoie à la vue
+	$vanow = 0;
+	$this->loadModel('Shop.DedipassHistory');
+	$this->loadModel('Shop.PaypalHistory');
+	$this->loadModel('Shop.StarpassHistory');
+	$this->loadModel('Shop.PaysafecardHistory');
+	$histories_dedi = $this->DedipassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_paypal = $this->PaypalHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_pay = $this->PaysafecardHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_star = $this->StarpassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	foreach ($histories_dedi as $value){
+		$vanow +=  floatval($value["DedipassHistory"]["credits_gived"]);
+	}
+	foreach ($histories_paypal as $value){
+		$vanow +=  floatval($value["PaypalHistory"]["payment_amount"]);
+	}
+	foreach ($histories_pay as $value){
+		$vanow +=  floatval($value["PaysafecardHistory"]["credits_gived"]);
+	}
+	foreach ($histories_star as $value){
+		$vanow +=  floatval($value["StarpassHistory"]["credits_gived"]);
+	}
+	$this->loadModel('Shop.ItemsConfig');
+	$vagoal = $this->ItemsConfig->find('all');
+	$vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
+	if ($vanow > $vagoal){
+		$vanow = $vagoal;
+	}
+	$vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
+		
         $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
 
         $search_first_category = $this->Category->find('first'); //
@@ -61,9 +91,8 @@ class ShopController extends ShopAppController
         $singular_money = $this->Configuration->getMoneyName(false);
         $plural_money = $this->Configuration->getMoneyName();
 
-        $this->set(compact('dedipass', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
+        $this->set(compact('dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
     }
-
 
     /*
     * ======== Affichage d'un article dans le modal ===========
@@ -561,7 +590,10 @@ class ShopController extends ShopAppController
                 } else {
                     $this->ItemsConfig->read(null, 1);
                 }
-                $this->ItemsConfig->set($this->request->data);
+                $this->ItemsConfig->set(array(
+                        'goal' => $this->request->data['goal'],
+			'broadcast_global' => $this->request->data['broadcast_global']
+                    ));
                 $this->ItemsConfig->save();
 
                 $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__CONFIG_SAVE_SUCCESS'))));
