@@ -28,7 +28,7 @@
 		"Boutique": "/shop"
 	},
 	"author":"Eywek",
-	"version":"1.2.9",
+	"version":"1.2.10",
 	"apiID":1,
 	"useEvents":true,
 	"permissions" : {
