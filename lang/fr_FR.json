@@ -109,6 +109,10 @@
   "SHOP__TRANSFER_ENABLE_SUCCESS": "Vous avez bien activé le transfert de points !",
   "SHOP__TRANSFER_DISABLE_SUCCESS": "Vous avez bien désactivé le transfert de points !",
 
+  "SHOP__GIFTALL": "Effectuez un cadeau à tout le monde",
+  "SHOP__GIFTALL_VALUE": "Nombre de point(s) boutique à donner à tous les utilisateurs du site",
+  "SHOP__GIFTALL_SUCCESS": "Votre cadeau a bien été effectué",
+
   "SHOP__ITEM":"Article",
   "SHOP__ITEMS": "Articles",
   "SHOP__ITEM_ADD_COMMAND":"Ajouter une commande",

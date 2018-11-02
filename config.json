@@ -19,6 +19,11 @@
 					"icon": "credit-card",
 					"permission": "SHOP__ADMIN_MANAGE_PAYMENT",
 					"route": "/admin/shop/payment"
+				},
+				"Cadeaux": {
+					"icon": "gift",
+					"permission": "SHOP__ADMIN_MANAGE_ITEMS",
+					"route": "/admin/shop/giftall"
 				}
 			}
 		}
