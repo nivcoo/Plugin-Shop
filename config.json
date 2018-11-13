@@ -32,7 +32,7 @@
 		"Boutique": "/shop"
 	},
 	"author":"Eywek",
-	"version":"1.2.12",
+	"version":"1.2.13",
 	"useEvents":true,
 	"permissions" : {
 		"available" : ["CREDIT_ACCOUNT", "CAN_BUY", "SHOP__ADMIN_MANAGE_ITEMS", "SHOP__ADMIN_MANAGE_VOUCHERS", "SHOP__ADMIN_MANAGE_PAYMENT", "SHOP__ADMIN_GIFTALL"],
