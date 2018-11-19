@@ -1,6 +1,8 @@
 <?php
 
-class DiscountVoucherComponent extends Object
+App::uses('CakeObject', 'Core');
+
+class DiscountVoucherComponent extends CakeObject
 {
 
     static private $items;
