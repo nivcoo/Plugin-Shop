@@ -527,6 +527,7 @@ class ShopController extends ShopAppController
             $this->loadModel('Server');
             $search_items = $this->Item->find('all', array('order' => 'order'));
             $items = array();
+            $item_server = array();
             foreach ($search_items as $key => $value) {
                 if (!$this->Category->find('first', array('conditions' => array('id' => $value['Item']['category'])))) {
                     $search_items_other = $this->Item->find('all', array('conditions' => array('category' => $value['Item']['category'])));
