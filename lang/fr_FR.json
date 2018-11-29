@@ -156,6 +156,7 @@
   "SHOP__ITEM_BUY_LIMIT_PLACEHOLDER":"Mettez 0 pour aucune limite",
   "SHOP__ITEM_WAIT_TIME":"Intervalle de temps nécessaire entre chaque achats",
   "SHOP__ITEM_CANT_BUY_WAIT_TIME":"Vous ne pouvez pas acheter l'article <i>{ITEM_NAME}</i> maintenant ! Chaque achat doivent être espacé de {WAIT_TIME}.",
+  "SHOP__ITEMS_AVAILABLE_OTHER":"Articles non répertoriés",
 
   "SHOP__CATEGORIES": "Cat\u00e9gories",
   "SHOP__CATEGORY": "Cat\u00e9gorie",
@@ -163,6 +164,7 @@
   "SHOP__CATEGORY_ADD_SUCCESS": "Cat\u00e9gorie ajout\u00e9e avec succ\u00e8s !",
   "SHOP__CATEGORY_EDIT_SUCCESS": "Cat\u00e9gorie modifi\u00e9 avec succ\u00e8s !",
   "SHOP__CATEGORY_DELETE_SUCCESS": "Cat\u00e9gorie supprim\u00e9e avec succ\u00e8s !",
+  "SHOP__CATEGORY_NUMBER": "Nombre d'article lié à la catégorie",
 
   "SHOP__BUY": "Acheter",
   "SHOP__BUY_CART":"Voir mon panier",
@@ -219,6 +221,10 @@
   "PERMISSIONS__SHOP__ADMIN_MANAGE_ITEMS":"Gérer les articles de la boutique (Ajouter, éditer, supprimer)",
   "PERMISSIONS__SHOP__ADMIN_MANAGE_VOUCHERS":"Gérer les codes promotionnels de la boutique (Ajouter, supprimer)",
   "PERMISSIONS__SHOP__ADMIN_MANAGE_PAYMENT":"Gérer les paiements de la boutique (Ajouter, éditer, supprimer, valider les PSC...)",
+  "PERMISSIONS__VOTE__ADMIN_VIEW_TOP":"Accéder à la page du top vote",
+  "PERMISSIONS__SHOP__ADMIN_GIFTALL":"Gérer les cadeaux (don de points)",
+  "PERMISSIONS__SHOP__ADMIN_MANAGE_CATEGORIES":"Gérer les catégories de la boutique (Ajouter, éditer, supprimer)",
+  
 
   "NOTIFICATION__NEW_VOUCHER":"Un nouveau code promotionnel est disponible !",
   "NOTIFICATION__NEW_PSC":"Une nouvelle PaySafeCard doit être validée !",
