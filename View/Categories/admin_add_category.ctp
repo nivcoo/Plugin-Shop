@@ -18,7 +18,7 @@
             <input type="hidden" name="data[_Token][key]" value="<?= $csrfToken ?>">
 
             <div class="pull-right">
-              <a href="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'index', 'admin' => true)) ?>" class="btn btn-default"><?= $Lang->get('GLOBAL__CANCEL') ?></a>
+              <a href="<?= $this->Html->url(array('controller' => 'categories', 'action' => 'index', 'admin' => true)) ?>" class="btn btn-default"><?= $Lang->get('GLOBAL__CANCEL') ?></a>
               <button class="btn btn-primary" type="submit"><?= $Lang->get('GLOBAL__SUBMIT') ?></button>
             </div>
           </form>

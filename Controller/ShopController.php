@@ -523,13 +523,23 @@ class ShopController extends ShopAppController
             $this->layout = 'admin';
 
             $this->loadModel('Shop.Item');
+            $this->loadModel('Shop.Category');
+            $this->loadModel('Server');
             $search_items = $this->Item->find('all', array('order' => 'order'));
             $items = array();
             foreach ($search_items as $key => $value) {
+                if (!$this->Category->find('first', array('conditions' => array('id' => $value['Item']['category'])))) {
+                    $search_items_other = $this->Item->find('all', array('conditions' => array('category' => $value['Item']['category'])));
+
+                    $search_server = $this->Server->find('all', array('conditions' => array('id' => unserialize($value['Item']['servers']))));
+                    foreach ($search_server as $v) {
+                        $item_server[$value['Item']['id']] .= $v['Server']['name'];
+                        $item_server[$value['Item']['id']] .= ', ';
+                    }
+                }
                 $items[$value['Item']['id']] = $value['Item']['name'];
             }
 
-            $this->loadModel('Shop.Category');
             $search_categories = $this->Category->find('all');
             foreach ($search_categories as $v) {
                 $categories[$v['Category']['id']]['name'] = $v['Category']['name'];
@@ -539,7 +549,7 @@ class ShopController extends ShopAppController
             $findConfig = $this->ItemsConfig->find('first');
             $config = (!empty($findConfig)) ? $findConfig['ItemsConfig'] : array();
 
-            $this->set(compact('categories', 'search_categories', 'search_items', 'config', 'items'));
+            $this->set(compact('categories', 'search_categories', 'search_items', 'config', 'items', 'search_items_other', 'item_server'));
 
         } else {
             $this->redirect('/');
@@ -829,7 +839,26 @@ class ShopController extends ShopAppController
     /*
     * ======== Ajout d'un article (affichage) ===========
     */
+    
+    public function admin_test_item()
+    {
+        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
+            $this->set('title_for_layout', $this->Lang->get('SHOP__ITEM_ADD'));
+            $this->layout = 'admin';
+            
+            $this->loadModel('Server');
+            foreach ($this->request->data['server'] as $serverId)
+                $this->Server->commands($this->request->data['commands'], $serverId);
+            
+            $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__ITEM_ADD_SUCCESS'))));
+            $this->set(compact('servers'));
+
+        } else {
+            $this->redirect('/');
+        }
+    }
+    
     public function admin_add_item()
     {
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
@@ -860,32 +889,7 @@ class ShopController extends ShopAppController
             $this->redirect('/');
         }
     }
-    public function admin_edit_category()
-    {
-        $this->autoRender = false;
-        $this->response->type('json');
-        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_CATEGORIES')) {
-            if ($this->request->is('post')) {
-                if (!empty($this->request->data['name'])) {
-
-                    $this->loadModel('Shop.Category');
-                    $this->Category->read(null, $this->request->data['id']);
-                    $this->Category->set(array(
-                        'name' => $this->request->data['name'],
-                    ));
-                    $this->Category->save();
-                    $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__CATEGORY_EDIT_SUCCESS'))));
-                } else {
-                    $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
-                }
-            } else {
-                $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST'))));
-            }
-        } else {
-            throw new ForbiddenException();
-        }
-    }
-
+    
     /*
     * ======== Ajout d'un article (Traitement AJAX) ===========
     */
@@ -963,44 +967,6 @@ class ShopController extends ShopAppController
         }
     }
 
-
-    /*
-    * ======== Ajout d'une catégorie (affichage & traitement POST) ===========
-    */
-
-    public function admin_add_category()
-    {
-        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
-
-            $this->layout = 'admin';
-            $this->set('title_for_layout', $this->Lang->get('SHOP__CATEGORY_ADD'));
-            if ($this->request->is('post')) {
-                if (!empty($this->request->data['name'])) {
-                    $this->loadModel('Shop.Category');
-
-                    $event = new CakeEvent('beforeAddCategory', $this, array('category' => $this->request->data['name'], 'user' => $this->User->getAllFromCurrentUser()));
-                    $this->getEventManager()->dispatch($event);
-                    if ($event->isStopped()) {
-                        return $event->result;
-                    }
-
-                    $this->Category->read(null, null);
-                    $this->Category->set(array(
-                        'name' => $this->request->data['name'],
-                    ));
-                    $this->History->set('ADD_CATEGORY', 'shop');
-                    $this->Category->save();
-                    $this->Session->setFlash($this->Lang->get('SHOP__CATEGORY_ADD_SUCCESS'), 'default.success');
-                    $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
-                } else {
-                    $this->Session->setFlash($this->Lang->get('ERROR__FILL_ALL_FIELDS'), 'default.error');
-                }
-            }
-        } else {
-            $this->redirect('/');
-        }
-    }
-
     /*
     * ======== Suppression d'une catégorie/article/paypal/starpass (traitement) ===========
     */
@@ -1043,10 +1009,10 @@ class ShopController extends ShopAppController
                         $this->Category->delete($id);
                         $this->History->set('DELETE_CATEGORY', 'shop');
                         $this->Session->setFlash($this->Lang->get('SHOP__CATEGORY_DELETE_SUCCESS'), 'default.success');
-                        $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                        $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
                     } else {
                         $this->Session->setFlash($this->Lang->get('UNKNONW_ID'), 'default.error');
-                        $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                        $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
                     }
                 } elseif ($type == "paypal") {
                     $this->loadModel('Shop.Paypal');
