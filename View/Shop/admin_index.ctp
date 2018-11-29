@@ -58,37 +58,29 @@
           <div class="box-header with-border">
             <h3 class="box-title"><?= $Lang->get('SHOP__ITEMS_AVAILABLE') ?> &nbsp;&nbsp;<a href="<?php if(!empty($search_categories)) { ?><?= $this->Html->url(array('controller' => 'shop', 'action' => 'add_item', 'admin' => true)) ?><?php } ?>" class="btn btn-success<?php if(empty($search_categories)) { echo ' disabled'; } ?>"><?= $Lang->get('GLOBAL__ADD') ?></a></h3>
           </div>
-		  <div class="box-header with-border">
-            <h3 class="box-title"><?= $Lang->get('SHOP__CATEGORIES') ?> &nbsp;&nbsp;<a href="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'add_category', 'admin' => true)) ?>" class="btn btn-success"><?= $Lang->get('GLOBAL__ADD') ?></a></h3>
-          </div>
           <div class="box-body">
 
             <table class="table table-bordered">
               <thead>
                 <tr>
-                  <th><?= $Lang->get('GLOBAL__NAME') ?></th>
+                  <th><?= $Lang->get('SHOP__CATEGORY') ?></th>
                   <th><?= $Lang->get('SHOP__ITEMS_AVAILABLE') ?></th>
                   <th><?= $Lang->get('SHOP__ITEM_PRICE') ?></th>
                   <th class="right"><?= $Lang->get('GLOBAL__ACTIONS') ?></th>
                 </tr>
               </thead>
               <tbody id="sortable">
-                <?php foreach ($search_categories as $value => $v) {?>
+                <?php if(!empty($search_categories)) foreach ($search_categories as $value => $v) {?>
                   <tr class="item fixed">
                     <th>
-                      <form action="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'edit_category')) ?>" method="post" data-ajax="true">
-                        <input class="form-control transparent-input" name="name" type="text" value="<?=  $v["Category"]["name"] ?>">
-                        <input type="hidden" name="id" value="<?= $v["Category"]["id"] ?>">
+                        <?= $v["Category"]["name"] ?>
                     </th>
                     <th></th>
                     <th></th>
-                    <th class="right">
-                      <button class="btn btn-primary" type="submit"><?= $Lang->get('GLOBAL__SUBMIT') ?></button>
-                      <a onClick="confirmDel('<?= $this->Html->url(array('controller' => 'shop', 'action' => 'delete/category/'.$v["Category"]["id"], 'admin' => true)) ?>')" class="btn btn-danger"><?= $Lang->get('GLOBAL__DELETE') ?></a>
-                    </form></th>		
+                    <th></th>		
                   </tr>
-                  <?php $i=0; foreach ($search_items as $val => $va) { $i++; 
-                    if ($categories[$va["Item"]["category"]]['name'] == $v["Category"]["name"]) {
+                  <?php  $i=0; if(!empty($search_items)) foreach ($search_items as $val => $va) { $i++; 
+                    if ($va['Item']['category'] == $v["Category"]["id"]) {
                   ?>
                       <tr class="item" style="cursor:move;" id="<?= $va["Item"]["name"] ?>-<?= $i ?>">
                         <td></td>
@@ -106,6 +98,44 @@
             <br>
 		  <div class="ajax-msg"></div>
 		  <button id="save" class="btn btn-success pull-right active" disabled="disabled"><?= $Lang->get('SHOP__SAVE_SUCCESS') ?></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="box">
+          <div class="box-header with-border">
+            <h3 class="box-title"><?= $Lang->get('SHOP__ITEMS_AVAILABLE_OTHER') ?></h3>
+          </div>
+          <div class="box-body">
+
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th><?= $Lang->get('SHOP__ITEMS_AVAILABLE') ?></th>
+                  <th><?= $Lang->get('SERVER__TITLE') ?></th>
+                  <th><?= $Lang->get('SHOP__ITEM_PRICE') ?></th>
+                  <th class="right"><?= $Lang->get('GLOBAL__ACTIONS') ?></th>
+                </tr>
+              </thead>
+              <tbody>
+                  <?php if(!empty($search_items_other)) foreach ($search_items_other as $val => $va) { 
+                  ?>
+                      <tr>
+                        <td><?= $va["Item"]["name"] ?></td>
+                        <td><?= $item_server[$va['Item']['id']] ?></td>
+                        <td><?= $va["Item"]["price"] ?> <?= $Configuration->getMoneyName() ?></td>
+                        <td class="right">
+                          <a href="<?= $this->Html->url(array('controller' => 'shop', 'action' => 'edit/'.$va["Item"]["id"], 'admin' => true)) ?>" class="btn btn-info"><?= $Lang->get('GLOBAL__EDIT') ?></a>
+                          <a onClick="confirmDel('<?= $this->Html->url(array('controller' => 'shop', 'action' => 'delete/item/'.$va["Item"]["id"], 'admin' => true)) ?>')" class="btn btn-danger"><?= $Lang->get('GLOBAL__DELETE') ?></a>
+                        </td>
+                      </tr>
+                  <?php } ?>
+              </tbody>
+            </table>
+            <br>
+		  <div class="ajax-msg"></div>
           </div>
         </div>
       </div>
