@@ -841,25 +841,6 @@ class ShopController extends ShopAppController
     * ======== Ajout d'un article (affichage) ===========
     */
     
-    public function admin_test_item()
-    {
-        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
-
-            $this->set('title_for_layout', $this->Lang->get('SHOP__ITEM_ADD'));
-            $this->layout = 'admin';
-            
-            $this->loadModel('Server');
-            foreach ($this->request->data['server'] as $serverId)
-                $this->Server->commands($this->request->data['commands'], $serverId);
-            
-            $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__ITEM_ADD_SUCCESS'))));
-            $this->set(compact('servers'));
-
-        } else {
-            $this->redirect('/');
-        }
-    }
-    
     public function admin_add_item()
     {
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
