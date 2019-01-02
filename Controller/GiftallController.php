@@ -15,7 +15,7 @@ class GiftallController extends ShopAppController
 					
 					$db = ConnectionManager::getDataSource('default');
 					$number = $db->value($number, 'integer');
-					$db->query("UPDATE Users SET money = money + $number");
+					$db->query("UPDATE users SET money = money + $number");
 					
 					$this->History->set("GIFTALL_$number", "shop");
 					
