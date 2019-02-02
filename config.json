@@ -1,26 +1,31 @@
 {
 	"name":"Boutique",
 	"admin_menus": {
-		"Boutique": {
+		"SHOP__TITLE": {
 			"icon": "shopping-cart",
 			"index": "3",
 			"menu": {
-				"Gérer les articles": {
+                "SHOP__MENU_CATEGORIES": {
+					"icon": "list-alt",
+					"permission": "SHOP__ADMIN_MANAGE_CATEGORIES",
+					"route": "/admin/shop/categories"
+				},
+				"SHOP__MENU_ITEMS": {
 					"icon": "shopping-basket",
 					"permission": "SHOP__ADMIN_MANAGE_ITEMS",
 					"route": "/admin/shop"
 				},
-				"Gérer les promotions": {
+				"SHOP__MENU_VOUCHERS": {
 					"icon": "percent",
 					"permission": "SHOP__ADMIN_MANAGE_VOUCHERS",
 					"route": "/admin/shop/shop/vouchers"
 				},
-				"Gérer les paiements": {
+				"SHOP__MENU_PAYMENTS": {
 					"icon": "credit-card",
 					"permission": "SHOP__ADMIN_MANAGE_PAYMENT",
 					"route": "/admin/shop/payment"
 				},
-				"Cadeaux": {
+				"SHOP__MENU_GIFT": {
 					"icon": "gift",
 					"permission": "SHOP__ADMIN_MANAGE_ITEMS",
 					"route": "/admin/shop/giftall"
@@ -35,7 +40,7 @@
 	"version":"1.2.13",
 	"useEvents":true,
 	"permissions" : {
-		"available" : ["CREDIT_ACCOUNT", "CAN_BUY", "SHOP__ADMIN_MANAGE_ITEMS", "SHOP__ADMIN_MANAGE_VOUCHERS", "SHOP__ADMIN_MANAGE_PAYMENT", "SHOP__ADMIN_GIFTALL"],
+		"available" : ["CREDIT_ACCOUNT", "CAN_BUY", "SHOP__ADMIN_MANAGE_ITEMS", "SHOP__ADMIN_MANAGE_CATEGORIES", "SHOP__ADMIN_MANAGE_VOUCHERS", "SHOP__ADMIN_MANAGE_PAYMENT", "SHOP__ADMIN_GIFTALL"],
 		"default" : {
 			"0" : ["CREDIT_ACCOUNT", "CAN_BUY"],
 			"2" : ["CREDIT_ACCOUNT", "CAN_BUY"]

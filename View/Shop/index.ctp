@@ -5,13 +5,21 @@
     <div class="col-md-3">
       <p class="lead"><?= ($isConnected) ? $money.' '.$Configuration->getMoneyName() : $Lang->get('SHOP__TITLE'); ?></p>
         <div class="list-group">
-            <?php
-            $i = 0;
-            foreach ($search_categories as $k => $v) {
-              $i++;
-            ?>
-                <a href="<?= $this->Html->url(array('controller' => 'c/'.$v['Category']['id'], 'plugin' => 'shop')) ?>" class="list-group-item<?= (isset($category) AND $v['Category']['id'] == $category OR !isset($category) AND $i == 1) ? ' active' : ''; ?>"><?= before_display($v['Category']['name']) ?></a>
-            <?php } ?>
+            <ul class="nav">
+                <?php foreach ($search_sections as $v) { ?>
+                    <li class="dropdown" style="padding-bottom: 0px;padding-top: 0px;">
+                        <a style="padding-left: 15px;" href="#" class="dropdown-toggle list-group-item" data-toggle="dropdown" role="button" aria-expanded="false"><?= before_display($v['Section']['name']) ?> <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                        <?php foreach ($search_categories_section[$v['Section']['id']] as $va) { ?>
+                            <li><a href="<?= $this->Html->url(array('controller' => 'c/'.$va['Category']['id'], 'plugin' => 'shop')) ?>"><?= before_display($va['Category']['name']) ?></a></li>
+                        <?php } ?>
+                        </ul>
+                    </li>
+                <?php } ?>
+                <?php foreach ($search_categories_without_section as $v) { ?>
+                    <a href="<?= $this->Html->url(array('controller' => 'c/'.$v['Category']['id'], 'plugin' => 'shop')) ?>" class="list-group-item<?= (isset($category) AND $v['Category']['id'] == $category OR !isset($category) AND $i == 1) ? ' active' : ''; ?>"><?= before_display($v['Category']['name']) ?></a>
+                <?php } ?>
+            </ul>
         </div>
         <?php if($isConnected AND $Permissions->can('CREDIT_ACCOUNT')) { ?>
           <?php if (!empty($vagoal)) {?>
@@ -39,7 +47,7 @@
           <?php
           $col = 4;
           $i = 0;
-          foreach ($search_items as $k => $v) {
+		foreach ($search_items as $k => $v) {
             if(!isset($category) AND $v['Item']['category'] == $search_first_category OR isset($category) AND $v['Item']['category'] == $category) {
               $i++;
               $newRow = ( ( $i % ( (12 / $col) ) ) == 0);

@@ -1,6 +1,5 @@
 <?php
 
-
 class ShopController extends ShopAppController
 {
 
@@ -17,12 +16,12 @@ class ShopController extends ShopAppController
         if ($category) {
             $this->set(compact('category'));
         }
-		
+
         $this->layout = $this->Configuration->getKey('layout'); // On charge le thème configuré
         $this->loadModel('Shop.Item'); // le model des articles
         $this->loadModel('Shop.Category'); // le model des catégories
         $search_items = $this->Item->find('all', array(
-			'order' => 'order',
+            'order' => 'order',
             'conditions' => array(
                 'OR' => array(
                     'display IS NULL',
@@ -30,38 +29,43 @@ class ShopController extends ShopAppController
                 )
             )
         )); // on cherche tous les items et on envoie à la vue
-	$vanow = 0;
-	$this->loadModel('Shop.DedipassHistory');
-	$this->loadModel('Shop.PaypalHistory');
-	$this->loadModel('Shop.StarpassHistory');
-	$this->loadModel('Shop.PaysafecardHistory');
-	$histories_dedi = $this->DedipassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-	$histories_paypal = $this->PaypalHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-	$histories_pay = $this->PaysafecardHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-	$histories_star = $this->StarpassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-	foreach ($histories_dedi as $value){
-		$vanow +=  floatval($value["DedipassHistory"]["credits_gived"]);
-	}
-	foreach ($histories_paypal as $value){
-		$vanow +=  floatval($value["PaypalHistory"]["payment_amount"]);
-	}
-	foreach ($histories_pay as $value){
-		$vanow +=  floatval($value["PaysafecardHistory"]["credits_gived"]);
-	}
-	foreach ($histories_star as $value){
-		$vanow +=  floatval($value["StarpassHistory"]["credits_gived"]);
-	}
-	$this->loadModel('Shop.ItemsConfig');
-	$vagoal = $this->ItemsConfig->find('all');
-	$vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
-	if ($vanow > $vagoal){
-		$vanow = $vagoal;
-	}
-	if ($vagoal != 0){
-		$vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
-	}
-		
-        $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
+        $vanow = 0;
+        $this->loadModel('Shop.DedipassHistory');
+        $this->loadModel('Shop.PaypalHistory');
+        $this->loadModel('Shop.StarpassHistory');
+        $this->loadModel('Shop.PaysafecardHistory');
+        $histories_dedi = $this->DedipassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_paypal = $this->PaypalHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_pay = $this->PaysafecardHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_star = $this->StarpassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        foreach ($histories_dedi as $value) {
+            $vanow += floatval($value["DedipassHistory"]["credits_gived"]);
+        }
+        foreach ($histories_paypal as $value) {
+            $vanow += floatval($value["PaypalHistory"]["payment_amount"]);
+        }
+        foreach ($histories_pay as $value) {
+            $vanow += floatval($value["PaysafecardHistory"]["credits_gived"]);
+        }
+        foreach ($histories_star as $value) {
+            $vanow += floatval($value["StarpassHistory"]["credits_gived"]);
+        }
+        $this->loadModel('Shop.ItemsConfig');
+        $vagoal = $this->ItemsConfig->find('all');
+        $vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
+        if ($vanow > $vagoal) {
+            $vanow = $vagoal;
+        }
+        if ($vagoal != 0) {
+            $vawidth = round((str_replace(",", '.', $vanow * 100 / $vagoal)));
+        }
+        $this->loadModel('Shop.Section');
+        $search_sections = $this->Section->find('all');
+        $search_categories_without_section = $this->Category->find('all', array('conditions' => array('section' => 0), 'order' => 'order'));
+        if (!empty($search_sections)) foreach ($search_sections as $v) {
+            $search_categories_section[$v['Section']['id']] = $this->Category->find('all', array('conditions' => array('section_id' => $v['Section']['id'], 'section' => 1), 'order' => 'order'));
+            $search_categories = $this->Category->find('all');
+        }
 
         $search_first_category = $this->Category->find('first'); //
         $search_first_category = @$search_first_category['Category']['id']; //
@@ -95,7 +99,7 @@ class ShopController extends ShopAppController
         $singular_money = $this->Configuration->getMoneyName(false);
         $plural_money = $this->Configuration->getMoneyName();
 
-        $this->set(compact('dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
+        $this->set(compact('dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_categories_without_section', 'search_categories_section', 'search_sections', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
     }
 
     /*
@@ -438,13 +442,13 @@ class ShopController extends ShopAppController
             for ($i = 1; $i <= $itemData['quantity']; $i++) {
                 if ($i == $itemData['quantity'] && $item['broadcast_global']) { // Broadcast global only on last (avoid multiple global message)
                     $item['commands'] = "{$item['commands']}[{+}]" . strtr($config['broadcast_global'], [
-                        '{PLAYER}' => $this->User->getKey('pseudo'),
-                        '{QUANTITY}' => $itemData['quantity'],
-                        '{ITEM_NAME}' => $item['name'],
-                        '{SERVERNAME}' => implode(', ', array_map(function ($server) {
-                            return $server['Server']['name'];
-                        }, ClassRegistry::init('Server')->find('all', ['conditions' => ['id' => $item['servers']]])))
-                    ]);
+                            '{PLAYER}' => $this->User->getKey('pseudo'),
+                            '{QUANTITY}' => $itemData['quantity'],
+                            '{ITEM_NAME}' => $item['name'],
+                            '{SERVERNAME}' => implode(', ', array_map(function ($server) {
+                                return $server['Server']['name'];
+                            }, ClassRegistry::init('Server')->find('all', ['conditions' => ['id' => $item['servers']]])))
+                        ]);
                 }
                 $items[] = $item;
                 // Add to total price
@@ -524,23 +528,41 @@ class ShopController extends ShopAppController
             $this->layout = 'admin';
 
             $this->loadModel('Shop.Item');
+            $this->loadModel('Shop.Category');
+            $this->loadModel('Server');
             $search_items = $this->Item->find('all', array('order' => 'order'));
             $items = array();
-            foreach ($search_items as $key => $value) {
-                $items[$value['Item']['id']] = $value['Item']['name'];
+            if (!empty($search_items)) foreach ($search_items as $key => $v) {
+                if (!$this->Category->find('first', array('conditions' => array('id' => $v['Item']['category'])))) {
+                    $search_items_other = $this->Item->find('all', array('conditions' => array('category' => $v['Item']['category'])));
+                }
+                $search_server = $this->Server->find('all', array('conditions' => array('id' => unserialize($v['Item']['servers']))));
+                $item_server[$v['Item']['id']] = implode(', ', array_map(function ($server) {
+                    return $server['Server']['name'];
+                }, $search_server));
+                $items[$v['Item']['id']] = $v['Item']['name'];
+            }
+            $this->loadModel('Shop.Section');
+            $search_sections = $this->Section->find('all');
+            $search_categories = $this->Category->find('all');
+            if (!empty($search_categories)) foreach ($search_categories as $v) {
+                $search_items[$v['Category']['id']] = $this->Item->find('all', array('conditions' => array('category' => $v['Category']['id']), 'order' => 'order'));
+
+            }
+            if (!empty($search_sections)) foreach ($search_sections as $v) {
+                $search_categories["section-id-" . $v['Section']['id']] = $this->Category->find('all', array('conditions' => array('section' => 1, 'section_id' => $v['Section']['id']), 'order' => 'order'));
+            }
+            $search_categories_without_section = $this->Category->find('all', array('conditions' => array('section' => 0), 'order' => 'order'));
+            if (!empty($search_categories_without_section)) foreach ($search_categories_without_section as $v) {
+                $search_items[$v['Category']['id']] = $this->Item->find('all', array('conditions' => array('category' => $v['Category']['id']), 'order' => 'order'));
             }
 
-            $this->loadModel('Shop.Category');
-            $search_categories = $this->Category->find('all');
-            foreach ($search_categories as $v) {
-                $categories[$v['Category']['id']]['name'] = $v['Category']['name'];
-            }
 
             $this->loadModel('Shop.ItemsConfig');
             $findConfig = $this->ItemsConfig->find('first');
             $config = (!empty($findConfig)) ? $findConfig['ItemsConfig'] : array();
 
-            $this->set(compact('categories', 'search_categories', 'search_items', 'config', 'items'));
+            $this->set(compact('categories', 'search_categories', 'search_items', 'config', 'items', 'search_items_other', 'item_server', 'search_sections', 'search_categories_without_section'));
 
         } else {
             $this->redirect('/');
@@ -579,10 +601,11 @@ class ShopController extends ShopAppController
     /*
     * ======== Page principale du panel admin ===========
     */
-	public function admin_save_ajax()
+    public function admin_save_ajax()
     {
         $this->autoRender = false;
-        if ($this->isConnected AND $this->Permissions->can('MANAGE_NAV')) {
+        $this->response->type('json');
+        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
             if ($this->request->is('post')) {
                 if (!empty($this->request->data)) {
@@ -600,7 +623,7 @@ class ShopController extends ShopAppController
                     $data = $data1;
                     $this->loadModel('Shop.Item');
                     foreach ($data as $key => $value) {
-                        $find = $this->Item->find('first', array('conditions' => array('name' => $key)));
+                        $find = $this->Item->find('first', array('conditions' => array('id' => $key)));
                         if (!empty($find)) {
                             $id = $find['Item']['id'];
                             $this->Item->read(null, $id);
@@ -613,21 +636,21 @@ class ShopController extends ShopAppController
                         }
                     }
                     if (empty($error)) {
-						return $this->sendJSON(['statut' => true, 'msg' => $this->Lang->get('SHOP__SAVE_SUCCESS')]);
-					} else{
-                        return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS')]);
+                        return $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__SAVE_SUCCESS'))));
+                    } else {
+                        return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
                     }
                 } else {
-					return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS')]);
+                    return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
                 }
             } else {
-				return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST')]);
-
+                return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST'))));
             }
         } else {
             $this->redirect('/');
         }
     }
+
     public function admin_config_items()
     {
         $this->autoRender = false;
@@ -644,9 +667,9 @@ class ShopController extends ShopAppController
                     $this->ItemsConfig->read(null, 1);
                 }
                 $this->ItemsConfig->set(array(
-                        'goal' => $this->request->data['goal'],
-			'broadcast_global' => $this->request->data['broadcast_global']
-                    ));
+                    'goal' => $this->request->data['goal'],
+                    'broadcast_global' => $this->request->data['broadcast_global']
+                ));
                 $this->ItemsConfig->save();
 
                 $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__CONFIG_SAVE_SUCCESS'))));
@@ -677,17 +700,15 @@ class ShopController extends ShopAppController
                 if (!empty($item)) {
                     $item = $item[0]['Item'];
                     $this->loadModel('Shop.Category');
-                    $item['category'] = $this->Category->find('all', array('conditions' => array('id' => $item['category'])));
-                    $item['category'] = $item['category'][0]['Category']['name'];
+                    $this->loadModel('Shop.Section');
+                    $item['category'] = $this->Category->find('first', array('conditions' => array('id' => $item['category'])));
+                    $item['category'] = $item['category']['Category']['id'];
 
-                    $search_categories = $this->Category->find('all', array('fields' => 'name'));
-                    $categories = array();
+                    $search_categories = $this->Category->find('all', array('order' => 'section_id'));
                     foreach ($search_categories as $v) {
-                        if ($v['Category']['name'] != $item['category']) {
-                            $categories[$v['Category']['name']] = $v['Category']['name'];
-                        }
+                        $section[$v['Category']['section_id']] = $this->Section->find('first', array('conditions' => array('id' => $v['Category']['section_id'])));
                     }
-                    $this->set(compact('categories'));
+                    $this->set(compact('section', 'search_categories'));
 
                     $search_items = $this->Item->find('all', array('fields' => array('name', 'id')));
                     $items_available = array();
@@ -763,8 +784,6 @@ class ShopController extends ShopAppController
                 }
                 if (!empty($this->request->data['id']) AND !empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND strlen($this->request->data['price']) > 0 AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
                     $this->loadModel('Shop.Category');
-                    $this->request->data['category'] = $this->Category->find('all', array('conditions' => array('name' => $this->request->data['category'])));
-                    $this->request->data['category'] = $this->request->data['category'][0]['Category']['id'];
                     $this->request->data['timedCommand'] = ($this->request->data['timedCommand'] == 'true') ? 1 : 0;
                     if (!$this->request->data['timedCommand']) {
                         $this->request->data['timedCommand_cmd'] = NULL;
@@ -838,12 +857,12 @@ class ShopController extends ShopAppController
             $this->set('title_for_layout', $this->Lang->get('SHOP__ITEM_ADD'));
             $this->layout = 'admin';
             $this->loadModel('Shop.Category');
-            $search_categories = $this->Category->find('all', array('fields' => 'name'));
-            $categories = array();
+            $this->loadModel('Shop.Section');
+            $search_categories = $this->Category->find('all', array('order' => 'section_id'));
             foreach ($search_categories as $v) {
-                $categories[$v['Category']['name']] = $v['Category']['name'];
+                $section[$v['Category']['section_id']] = $this->Section->find('first', array('conditions' => array('id' => $v['Category']['section_id'])));
             }
-            $this->set(compact('categories'));
+            $this->set(compact('section', 'search_categories'));
 
             $this->loadModel('Shop.Item');
             $search_items = $this->Item->find('all', array('fields' => array('name', 'id')));
@@ -861,31 +880,6 @@ class ShopController extends ShopAppController
             $this->redirect('/');
         }
     }
-    public function admin_edit_category()
-    {
-        $this->autoRender = false;
-        $this->response->type('json');
-        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_CATEGORIES')) {
-            if ($this->request->is('post')) {
-                if (!empty($this->request->data['name'])) {
-
-                    $this->loadModel('Shop.Category');
-                    $this->Category->read(null, $this->request->data['id']);
-                    $this->Category->set(array(
-                        'name' => $this->request->data['name'],
-                    ));
-                    $this->Category->save();
-                    $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__CATEGORY_EDIT_SUCCESS'))));
-                } else {
-                    $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
-                }
-            } else {
-                $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST'))));
-            }
-        } else {
-            throw new ForbiddenException();
-        }
-    }
 
     /*
     * ======== Ajout d'un article (Traitement AJAX) ===========
@@ -900,8 +894,6 @@ class ShopController extends ShopAppController
 
                 if (!empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND strlen($this->request->data['price']) > 0 AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
                     $this->loadModel('Shop.Category');
-                    $this->request->data['category'] = $this->Category->find('all', array('conditions' => array('name' => $this->request->data['category'])));
-                    $this->request->data['category'] = $this->request->data['category'][0]['Category']['id'];
                     $this->request->data['timedCommand'] = ($this->request->data['timedCommand'] == 'true') ? 1 : 0;
                     if (!$this->request->data['timedCommand']) {
                         $this->request->data['timedCommand_cmd'] = NULL;
@@ -964,41 +956,67 @@ class ShopController extends ShopAppController
         }
     }
 
-
     /*
-    * ======== Ajout d'une catégorie (affichage & traitement POST) ===========
-    */
+   * ======== Duplication d'un article (Traitement AJAX) ===========
+   */
 
-    public function admin_add_category()
+    public function admin_duplicate($id = false)
     {
+        $this->autoRender = false;
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
+            if ($id != false) {
+                $this->loadModel('Shop.Item');
+                $this->request->data = $this->Item->find('first', array('conditions' => array('id' => $id)))['Item'];
 
-            $this->layout = 'admin';
-            $this->set('title_for_layout', $this->Lang->get('SHOP__CATEGORY_ADD'));
-            if ($this->request->is('post')) {
-                if (!empty($this->request->data['name'])) {
+                if (!empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND strlen($this->request->data['price']) > 0 AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands'])) {
                     $this->loadModel('Shop.Category');
 
-                    $event = new CakeEvent('beforeAddCategory', $this, array('category' => $this->request->data['name'], 'user' => $this->User->getAllFromCurrentUser()));
+                    $event = new CakeEvent('beforeAddItem', $this, array('data' => $this->request->data, 'user' => $this->User->getAllFromCurrentUser()));
                     $this->getEventManager()->dispatch($event);
                     if ($event->isStopped()) {
                         return $event->result;
                     }
 
-                    $this->Category->read(null, null);
-                    $this->Category->set(array(
+                    $this->Item->read(null, null);
+                    $this->Item->set(array(
                         'name' => $this->request->data['name'],
+                        'description' => $this->request->data['description'],
+                        'category' => $this->request->data['category'],
+                        'price' => $this->request->data['price'],
+                        'servers' => $this->request->data['servers'],
+                        'commands' => $this->request->data['commands'],
+                        'img_url' => $this->request->data['img_url'],
+                        'timedCommand' => $this->request->data['timedCommand'],
+                        'timedCommand_cmd' => $this->request->data['timedCommand_cmd'],
+                        'timedCommand_time' => $this->request->data['timedCommand_time'],
+                        'display_server' => $this->request->data['display_server'],
+                        'need_connect' => $this->request->data['need_connect'],
+                        'display' => $this->request->data['display'],
+                        'multiple_buy' => $this->request->data['multiple_buy'],
+                        'broadcast_global' => $this->request->data['broadcast_global'],
+                        'cart' => $this->request->data['cart'],
+                        'prerequisites_type' => $this->request->data['prerequisites_type'],
+                        'prerequisites' => $this->request->data['prerequisites'],
+                        'reductional_items' => $this->request->data['reductional_items'],
+                        'give_skin' => $this->request->data['give_skin'],
+                        'give_cape' => $this->request->data['give_cape'],
+                        'buy_limit' => $this->request->data['buy_limit'],
+                        'wait_time' => $this->request->data['wait_time']
                     ));
-                    $this->History->set('ADD_CATEGORY', 'shop');
-                    $this->Category->save();
-                    $this->Session->setFlash($this->Lang->get('SHOP__CATEGORY_ADD_SUCCESS'), 'default.success');
+                    $this->Item->save();
+                    $this->History->set('ADD_ITEM', 'shop');
+                    $this->Session->setFlash($this->Lang->get('SHOP__ITEM_DUPLICATE_SUCCESS'), 'default.success');
                     $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
                 } else {
                     $this->Session->setFlash($this->Lang->get('ERROR__FILL_ALL_FIELDS'), 'default.error');
+                    $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
                 }
+
+            } else {
+                $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
             }
         } else {
-            $this->redirect('/');
+            throw new ForbiddenException();
         }
     }
 
@@ -1044,10 +1062,29 @@ class ShopController extends ShopAppController
                         $this->Category->delete($id);
                         $this->History->set('DELETE_CATEGORY', 'shop');
                         $this->Session->setFlash($this->Lang->get('SHOP__CATEGORY_DELETE_SUCCESS'), 'default.success');
-                        $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                        $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
                     } else {
                         $this->Session->setFlash($this->Lang->get('UNKNONW_ID'), 'default.error');
-                        $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                        $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
+                    }
+                } elseif ($type == "section") {
+                    $this->loadModel('Shop.Section');
+                    $find = $this->Section->find('all', array('conditions' => array('id' => $id)));
+                    if (!empty($find)) {
+
+                        $event = new CakeEvent('beforeDeleteCategory', $this, array('section_id' => $id, 'user' => $this->User->getAllFromCurrentUser()));
+                        $this->getEventManager()->dispatch($event);
+                        if ($event->isStopped()) {
+                            return $event->result;
+                        }
+
+                        $this->Section->delete($id);
+                        $this->History->set('DELETE_SECTION', 'shop');
+                        $this->Session->setFlash($this->Lang->get('SHOP__SECTION_DELETE_SUCCESS'), 'default.success');
+                        $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
+                    } else {
+                        $this->Session->setFlash($this->Lang->get('UNKNONW_ID'), 'default.error');
+                        $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
                     }
                 } elseif ($type == "paypal") {
                     $this->loadModel('Shop.Paypal');

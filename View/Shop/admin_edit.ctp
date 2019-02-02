@@ -36,9 +36,8 @@
             <div class="form-group">
               <label><?= $Lang->get('SHOP__CATEGORY') ?></label>
               <select class="form-control" name="category">
-                <option value="" selected><?= $item['category'] ?></option>
-                <?php foreach ($categories as $key => $value) { ?>
-                    <option value="<?= $key ?>"><?= $value ?></option>
+                <?php foreach ($search_categories as $v) { ?>
+                    <option value="<?= $v['Category']['id'] ?>" <?= ($item['category'] == $v['Category']['id']) ? 'selected' : '' ?>>[<?= $section[$v['Category']['section_id']]['Section']['name'] ?>] - <?= $v['Category']['name'] ?></option>
                 <?php } ?>
               </select>
             </div>
