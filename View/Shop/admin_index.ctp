@@ -111,7 +111,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <?php if (!empty($search_categories)) foreach ($search_categories as $v) { ?>
+                    <?php $i = 0; if (!empty($search_categories)) foreach ($search_categories as $v) { ?>
                         <div class="tab-pane" id="category_<?= $v['Category']['id'] ?>">
                             <table class="table table-bordered">
                                 <thead>
@@ -147,7 +147,7 @@
                                                class="btn btn-danger"><?= $Lang->get('GLOBAL__DELETE') ?></a>
                                         </td>
                                     </tr>
-                                <?php } ?>
+                                <?php $i++; } ?>
                                 </tbody>
                             </table>
                             <div class="ajax-msg"></div>
