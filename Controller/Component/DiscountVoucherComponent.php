@@ -1,5 +1,5 @@
 <?php
-
+App::uses('CakeObject', 'Core');
 class DiscountVoucherComponent extends CakeObject
 {
 
