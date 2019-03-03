@@ -75,7 +75,7 @@
                         </li>
                     <?php } ?>
                     <?php if (!empty($search_categories_without_section)) foreach ($search_categories_without_section as $value) {
-                        $i++; ?>
+                         ?>
                         <li><a href="#category_<?= $value['Category']['id'] ?>" data-toggle="tab"
                                aria-expanded="true"><?= $value['Category']['name'] ?></a></li>
                     <?php } ?>
@@ -111,7 +111,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <?php $i = 0; if (!empty($search_categories)) foreach ($search_categories as $v) { ?>
+                    <?php if (!empty($search_categories)) foreach ($search_categories as $v) { ?>
                         <div class="tab-pane" id="category_<?= $v['Category']['id'] ?>">
                             <table class="table table-bordered">
                                 <thead>
@@ -147,7 +147,7 @@
                                                class="btn btn-danger"><?= $Lang->get('GLOBAL__DELETE') ?></a>
                                         </td>
                                     </tr>
-                                <?php $i++; } ?>
+                                <?php } ?>
                                 </tbody>
                             </table>
                             <div class="ajax-msg"></div>

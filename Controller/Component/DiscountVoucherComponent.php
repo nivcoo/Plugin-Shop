@@ -1,6 +1,7 @@
 <?php
 
-class DiscountVoucherComponent extends Object
+App::uses('CakeObject', 'Core');
+class DiscountVoucherComponent extends CakeObject
 {
 
     static private $items;
@@ -178,7 +179,7 @@ class DiscountVoucherComponent extends Object
         return false;
     }
 
-    function getNewPrice($item_id, $code)
+    function getNewPrice($item_id, $itemPrice, $code)
     { // donne le nouveau prix de l'item si il est concerné par une réduction
         $this->Voucher = ClassRegistry::init('Shop.Voucher');
         $findVoucher = $this->Voucher->find('first', array('conditions' => array('code' => $code)));
@@ -196,7 +197,6 @@ class DiscountVoucherComponent extends Object
                     return array('status' => false, 'error' => 3); // on trouve pas l'article
                 }
 
-                $itemPrice = $findItem['Item']['price'];
                 $itemCategoryID = $findItem['Item']['category'];
 
                 // On prépare le prix si pas de modifications

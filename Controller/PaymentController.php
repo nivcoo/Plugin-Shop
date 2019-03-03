@@ -472,12 +472,12 @@ class PaymentController extends ShopAppController
                     $this->History->set('INVALID_PAYSAFECARD', 'shop');
 
                     $this->Session->setFlash($this->Lang->get('SHOP__PAYSAFECARD_INVALID_SUCCESS'), 'default.success');
-                    $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                    $this->redirect(array('action' => 'index', 'admin' => true));
                 } else {
-                    $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                    $this->redirect(array('action' => 'index', 'admin' => true));
                 }
             } else {
-                $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                $this->redirect(array('action' => 'index', 'admin' => true));
             }
         } else {
             $this->redirect('/');
@@ -512,6 +512,7 @@ class PaymentController extends ShopAppController
                                         'code' => $codes,
                                         'user_id' => $this->User->getKey('id')
                                     ));
+
                                     $this->Paysafecard->save();
 
                                     $this->loadModel('Notification');
@@ -611,10 +612,10 @@ class PaymentController extends ShopAppController
                     $this->set(compact('id'));
                     $this->set('paypal', $search[0]['Paypal']);
                 } else {
-                    $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                    $this->redirect(array('action' => 'index', 'admin' => true));
                 }
             } else {
-                $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                $this->redirect(array('action' => 'index', 'admin' => true));
             }
         } else {
             $this->redirect('/');
@@ -732,10 +733,10 @@ class PaymentController extends ShopAppController
                     $this->set(compact('id'));
                     $this->set('starpass', $search[0]['Starpass']);
                 } else {
-                    $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                    $this->redirect(array('action' => 'index', 'admin' => true));
                 }
             } else {
-                $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                $this->redirect(array('action' => 'index', 'admin' => true));
             }
         } else {
             $this->redirect('/');
@@ -893,13 +894,13 @@ class PaymentController extends ShopAppController
                     $this->StarpassHistory->save();
 
                     $this->Session->setFlash($this->Lang->get('SHOP__STARPASS_PAYMENT_SUCCESS'), 'default.success');
-                    $this->redirect(array('controller' => 'shop', 'action' => 'index'));
+                    $this->redirect(array('action' => 'index', 'admin' => true));
                 }
             } else {
-                $this->redirect(array('controller' => 'shop', 'action' => 'index'));
+                $this->redirect(array('action' => 'index', 'admin' => true));
             }
         } else {
-            $this->redirect(array('controller' => 'shop', 'action' => 'index'));
+            $this->redirect(array('action' => 'index', 'admin' => true));
         }
     }
 
@@ -1201,7 +1202,7 @@ class PaymentController extends ShopAppController
                         $this->DedipassHistory->save();
 
                         $this->Session->setFlash($this->Lang->get('SHOP__DEDIPASS_PAYMENT_SUCCESS', array('{MONEY}' => $virtual_currency, '{MONEY_NAME}' => $this->Configuration->getMoneyName())), 'default.success');
-                        $this->redirect(array('controller' => 'shop', 'action' => 'index'));
+                        $this->redirect(array('action' => 'index', 'admin' => true));
 
                     } else {
                         $this->Session->setFlash($this->Lang->get('SHOP__DEDIPASS_PAYMENT_ERROR_INVAID_CODE'), 'default.error');
@@ -1210,7 +1211,7 @@ class PaymentController extends ShopAppController
 
                 } else {
                     $this->Session->setFlash($this->Lang->get('SHOP__DEDIPASS_PAYMENT_ERROR_NOT_CONNECTED', array('{CODE}' => $code)), 'default.error');
-                    $this->redirect(array('controller' => 'shop', 'action' => 'index'));
+                    $this->redirect(array('action' => 'index', 'admin' => true));
                 }
             }
         }

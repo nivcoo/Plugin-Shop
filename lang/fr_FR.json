@@ -24,6 +24,7 @@
   "SHOP__CONFIG_VARIABLES":"Variables diponibles",
   "SHOP__CONFIG_VARIABLE_ITEM":"Nom de l'article acheté",
   "SHOP__CONFIG_VARIABLE_QUANTITY":"Quantité de l'article acheté",
+  "NOT_4_CHARACTER": "Une case ne contient pas 4 caractères",
   "SHOP__CONFIG_VARIABLE_PLAYER":"Joueur ayant acheté l'article",
   "SHOP__CONFIG_VARIABLE_SERVERNAME":"Nom du serveur où l'article a été acheté (Affiché sous une liste avec des virgules si il y en a plus d'un)",
   "SHOP__CONFIG_SAVE_SUCCESS":"La configuration a bien été sauvegardée !",

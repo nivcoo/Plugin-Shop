@@ -29,6 +29,12 @@ class ShopController extends ShopAppController
                 )
             )
         )); // on cherche tous les items et on envoie à la vue
+        $a = 0;
+        foreach ($search_items as $v) {
+            $reduction = $this->Item->getReductionWithReductionalItems($v['Item'], $this->User->getKey('id'));
+            $price_with_reduction[$v['Item']['id']] = $v['Item']['price'] - $reduction;
+            $a++;
+        }
         $vanow = 0;
         $this->loadModel('Shop.DedipassHistory');
         $this->loadModel('Shop.PaypalHistory');
@@ -99,7 +105,7 @@ class ShopController extends ShopAppController
         $singular_money = $this->Configuration->getMoneyName(false);
         $plural_money = $this->Configuration->getMoneyName();
 
-        $this->set(compact('dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_categories_without_section', 'search_categories_section', 'search_sections', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
+        $this->set(compact('dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_categories_without_section', 'search_categories_section', 'search_sections', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money', 'price_with_reduction'));
     }
 
     /*
@@ -148,7 +154,7 @@ class ShopController extends ShopAppController
                 $reductional_items_list_display = array();
                 // on parcours tous les articles pour voir si ils ont été achetés
                 $reductional_items = true; // de base on dis que c'est okay
-                $reduction = 0; // 0 de réduction
+                $reduction = 0; //  0 de réduction
                 foreach ($reductional_items_list as $key => $value) {
 
                     $findItem = $this->Item->find('first', array('conditions' => array('id' => $value)));
@@ -157,28 +163,37 @@ class ShopController extends ShopAppController
                         break;
                     }
 
-                    $findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
-                    if (empty($findHistory)) {
+                    $reduction = $this->Item->getReductionWithReductionalItems($search_item[0]['Item'], $this->User->getKey('id'));
+                    if (floatval($reduction) == "0") {
                         $reductional_items = false;
                         break;
                     }
 
-                    $reduction = +$findItem['Item']['price'];
+                    $findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
+                    if (empty($findHistory)) {
+                        break;
+                    }
+
+
                     $reductional_items_list_display[] = $findItem['Item']['name'];
 
                     unset($findItem);
 
+
                 }
+                $item_price -= $reduction;
 
                 if ($reductional_items) {
-                    $item_price = $item_price - $reduction;
 
                     $reduction = $reduction . ' ' . $this->Configuration->getMoneyName();
                     $reductional_items_list = '<i>' . implode('</i>, <i>', $reductional_items_list_display) . '</i>';
+
                     $reductional_items_list = $this->Lang->get('SHOP__ITEM_REDUCTIONAL_ITEMS_LIST', array('{ITEMS_LIST}' => $reductional_items_list, '{REDUCTION}' => $reduction));
 
                 }
+
             }
+
 
             $add_to_cart = (!empty($search_item[0]['Item']['cart']) && $search_item[0]['Item']['cart']) ? true : false;
 
@@ -209,7 +224,7 @@ class ShopController extends ShopAppController
 
             $vars = array(
                 '{ITEM_NAME}' => $search_item['0']['Item']['name'],
-                '{ITEM_DESCRIPTION}' => nl2br($search_item['0']['Item']['description']),
+                '{ITEM_DESCRIPTION}' => $search_item['0']['Item']['description'],
                 '{ITEM_SERVERS}' => $servers,
                 '{ITEM_PRICE}' => $item_price,
                 '{SITE_MONEY}' => $money,
@@ -287,27 +302,29 @@ class ShopController extends ShopAppController
                     $total_price += $findItem['Item']['price'] * $quantity;
 
                     $i = 0;
-                    while ($i < $quantity) {
-
-                        $getVoucherPrice = $this->DiscountVoucher->getNewPrice($findItem['Item']['id'], $code);
-
-                        if ($getVoucherPrice['status']) {
-                            $new_price = $new_price + $getVoucherPrice['price'];
-                        } else {
-                            $new_price = $new_price + $findItem['Item']['price']; // erreur
-                        }
-
-                        $i++;
-                    }
-
 
                     /*
                         On gère les réductions de prix
                     */
-                    $reduction = $this->Item->getReductionWithReductionalItems($findItem['Item'], $this->User->getKey('id'));
-                    // on effectue la reduction
-                    $new_price = $new_price - $reduction * $quantity;
 
+                    $reduction = $this->Item->getReductionWithReductionalItems($findItem['Item'], $this->User->getKey('id'));
+                    while ($i < $quantity) {
+
+                        /*
+                            On gère le nouveau prix
+                        */
+                        $new_price = $total_price - $reduction;
+
+
+                        $getVoucherPrice = $this->DiscountVoucher->getNewPrice($findItem['Item']['id'], $new_price, $code);
+
+
+                        if ($getVoucherPrice['status']) {
+                            $new_price = $getVoucherPrice['price'];
+                        }
+
+                        $i++;
+                    }
                     if ($new_price < 0) {
                         $new_price = 0;
                     }
@@ -424,8 +441,12 @@ class ShopController extends ShopAppController
                 $giveCape = true;
 
             // Voucher
+            // Reductionnal price
+            $reduction = $this->Item->getReductionWithReductionalItems($item, $this->User->getKey('id'));
+            $item['price'] -= $reduction;
+
             if (!empty($voucher)) {
-                $getVoucherPrice = $this->DiscountVoucher->getNewPrice($item['id'], $voucher);
+                $getVoucherPrice = $this->DiscountVoucher->getNewPrice($item['id'], $item['price'], $voucher);
 
                 if ($getVoucherPrice['status']) {
                     $voucherUsedCount++;
@@ -434,9 +455,6 @@ class ShopController extends ShopAppController
                 }
             }
 
-            // Reductionnal price
-            $reduction = $this->Item->getReductionWithReductionalItems($item, $this->User->getKey('id'));
-            $item['price'] -= $reduction;
 
             // Add to items (for quantity)
             for ($i = 1; $i <= $itemData['quantity']; $i++) {
