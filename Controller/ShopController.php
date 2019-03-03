@@ -867,7 +867,7 @@ class ShopController extends ShopAppController
     /*
     * ======== Ajout d'un article (affichage) ===========
     */
-
+    
     public function admin_add_item()
     {
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
@@ -898,7 +898,6 @@ class ShopController extends ShopAppController
             $this->redirect('/');
         }
     }
-
     /*
     * ======== Ajout d'un article (Traitement AJAX) ===========
     */
@@ -1037,7 +1036,6 @@ class ShopController extends ShopAppController
             throw new ForbiddenException();
         }
     }
-
     /*
     * ======== Suppression d'une catégorie/article/paypal/starpass (traitement) ===========
     */
@@ -1084,6 +1082,7 @@ class ShopController extends ShopAppController
                     } else {
                         $this->Session->setFlash($this->Lang->get('UNKNONW_ID'), 'default.error');
                         $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
+
                     }
                 } elseif ($type == "section") {
                     $this->loadModel('Shop.Section');

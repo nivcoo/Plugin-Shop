@@ -1,5 +1,6 @@
 {
     "SHOP__TITLE": "Shop",
+
     "SHOP__GLOBAL_AMOUNT": "Amount",
     
     "SHOP__MENU_CATEGORIES": "Manage categories",
@@ -276,4 +277,5 @@
     "HISTORY__ACTION_ENABLE_PAYSAFECARD": "Activation of the PaySafeCard payment method",
     "HISTORY__ACTION_DISABLE_PAYSAFECARD": "Disabling the PaySafeCard payment method",
     "HISTORY__ACTION_ADD_PAYSAFECARD": "Adding a PaySafeCard"
+
 }

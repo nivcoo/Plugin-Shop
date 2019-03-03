@@ -5,7 +5,7 @@
 			"icon": "shopping-cart",
 			"index": "3",
 			"menu": {
-                "SHOP__MENU_CATEGORIES": {
+          "SHOP__MENU_CATEGORIES": {
 					"icon": "list-alt",
 					"permission": "SHOP__ADMIN_MANAGE_CATEGORIES",
 					"route": "/admin/shop/categories"
@@ -37,7 +37,7 @@
 		"Boutique": "/shop"
 	},
 	"author":"Eywek",
-	"version":"1.2.13",
+	"version":"1.2.14",
 	"useEvents":true,
 	"permissions" : {
 		"available" : ["CREDIT_ACCOUNT", "CAN_BUY", "SHOP__ADMIN_MANAGE_ITEMS", "SHOP__ADMIN_MANAGE_CATEGORIES", "SHOP__ADMIN_MANAGE_VOUCHERS", "SHOP__ADMIN_MANAGE_PAYMENT", "SHOP__ADMIN_GIFTALL"],

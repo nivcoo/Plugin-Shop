@@ -8,6 +8,7 @@ class CategoriesController extends ShopAppController
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
             $this->set('title_for_layout', $this->Lang->get('SHOP__TITLE'));
             $this->layout = 'admin';
+
             $this->loadModel('Shop.Section');
             $search_sections = $this->Section->find('all');
             $this->loadModel('Shop.Category');
@@ -41,6 +42,7 @@ class CategoriesController extends ShopAppController
         }
     }
     
+
     public function admin_edit($id = false)
     {
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_CATEGORIES')) {
@@ -91,6 +93,7 @@ class CategoriesController extends ShopAppController
             if ($this->request->is('post')) {
                 if (!empty($this->request->data['name'])) {
 
+
                     $this->loadModel('Shop.Section');
                     $this->Section->read(null, $this->request->data['id']);
                     $this->Section->set(array(
@@ -109,6 +112,7 @@ class CategoriesController extends ShopAppController
         }
     }
     
+
     public function admin_save_ajax()
     {
         $this->autoRender = false;
@@ -165,6 +169,7 @@ class CategoriesController extends ShopAppController
     
     public function admin_add_category()
     {
+
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_CATEGORIES')) {
 
             $this->layout = 'admin';

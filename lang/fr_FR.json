@@ -177,6 +177,7 @@
   "SHOP__CATEGORY_EDIT_SUCCESS": "Cat\u00e9gorie modifi\u00e9 avec succ\u00e8s !",
   "SHOP__CATEGORY_DELETE_SUCCESS": "Cat\u00e9gorie supprim\u00e9e avec succ\u00e8s !",
   "SHOP__CATEGORY_NUMBER": "Nombre d'article lié à la catégorie",
+
   "SHOP__CATEGORIES_OTHER": "Catégories non répertoriés",
   "SHOP__CATEGORY_EDIT_MESSAGE": "Si vous n'avez aucune section veuillez d'abord en créer une ici :",
   "SHOP__CATEGORIES_TIP": "Si la fonction est disponible sur le thème, les catégories placées en non répertoriés ne seront pas visibles sur la page de la boutique. Il faut donc les attribuer à une section. Et les catégories qui ne seront pas liées à une section ne seront pas sous forme de menus déroulants.",
@@ -249,7 +250,6 @@
   "PERMISSIONS__VOTE__ADMIN_VIEW_TOP":"Accéder à la page du top vote",
   "PERMISSIONS__SHOP__ADMIN_GIFTALL":"Gérer les cadeaux (don de points)",
   "PERMISSIONS__SHOP__ADMIN_MANAGE_CATEGORIES":"Gérer les catégories de la boutique (Ajouter, éditer, supprimer)",
-
 
   "NOTIFICATION__NEW_VOUCHER":"Un nouveau code promotionnel est disponible !",
   "NOTIFICATION__NEW_PSC":"Une nouvelle PaySafeCard doit être validée !",
