@@ -1,6 +1,6 @@
 <?php
 
-class DiscountVoucherComponent extends Object
+class DiscountVoucherComponent extends CakeObject
 {
 
     static private $items;
