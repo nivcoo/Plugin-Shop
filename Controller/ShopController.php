@@ -59,6 +59,24 @@ class ShopController extends ShopAppController
 	if ($vagoal != 0){
 		$vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
 	}
+	    
+	$best_donator_price = array();
+
+        foreach($histories_dedi as $get) {
+            $best_donator_price[$get["DedipassHistory"]["user_id"]] += $get["DedipassHistory"]["credits_gived"];
+        }
+        foreach($histories_paypal as $get) {
+            $best_donator_price[$get["PaypalHistory"]["user_id"]] += $get["PaypalHistory"]["credits_gived"];
+        }
+        foreach($histories_pay as $get) {
+            $best_donator_price[$get["PaysafecardHistory"]["user_id"]] += $get["PaysafecardHistory"]["credits_gived"];
+        }
+        foreach($histories_star as $get) {
+            $best_donator_price[$get["StarpassHistory"]["user_id"]] += $get["StarpassHistory"]["credits_gived"];
+        }
+        $best_donator_id = array_search(max($best_donator_price),$best_donator_price);
+        $best_donator = $this->User->find('first', ['conditions' => ['id' => $best_donator_id]]);
+        $best_donator = $best_donator['User'];
 		
         $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
 
