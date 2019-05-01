@@ -1,6 +1,9 @@
 <?php
-
-App::uses('CakeObject', 'Core');
+if (file_exists(ROOT . DS . 'lib' . DS . 'Cake' . DS . 'Core' . DS . 'CakeObject.php')) {
+  App::uses('CakeObject', 'Core');
+} else {
+  class CakeObject extends Object {}
+}
 class DiscountVoucherComponent extends CakeObject
 {
 

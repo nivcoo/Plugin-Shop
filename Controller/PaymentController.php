@@ -1022,6 +1022,12 @@ class PaymentController extends ShopAppController
                                 ));
                                 $this->PaypalHistory->save();
 
+                                $event = new CakeEvent('onBuyPoints', $this, array('credits' => $findOffer['Paypal']['money'], 'price' => $payment_amount, 'plateform' => 'paypal', 'user_id' => $user_id));
+                                $this->getEventManager()->dispatch($event);
+                                if ($event->isStopped()) {
+                                    return $event->result;
+                                }
+
                                 $this->loadModel('Notification');
                                 $this->Notification->setToUser($this->Lang->get('NOTIFICATION__PAYPAL_IPN_VALIDED'), $user_id);
 
@@ -1201,6 +1207,12 @@ class PaymentController extends ShopAppController
                         ));
                         $this->DedipassHistory->save();
 
+                        $event = new CakeEvent('onBuyPoints', $this, array('credits' => $virtual_currency, 'price' => $this->request->data['payout'], 'plateform' => 'dedipass', 'user_id' => $user_id));
+                        $this->getEventManager()->dispatch($event);
+                        if ($event->isStopped()) {
+                            return $event->result;
+                        }
+                        
                         $this->Session->setFlash($this->Lang->get('SHOP__DEDIPASS_PAYMENT_SUCCESS', array('{MONEY}' => $virtual_currency, '{MONEY_NAME}' => $this->Configuration->getMoneyName())), 'default.success');
                         $this->redirect(array('action' => 'index', 'admin' => true));
 

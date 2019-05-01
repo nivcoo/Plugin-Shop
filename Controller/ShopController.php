@@ -29,49 +29,57 @@ class ShopController extends ShopAppController
                 )
             )
         )); // on cherche tous les items et on envoie à la vue
-        $a = 0;
-        foreach ($search_items as $v) {
-            $reduction = $this->Item->getReductionWithReductionalItems($v['Item'], $this->User->getKey('id'));
-            $price_with_reduction[$v['Item']['id']] = $v['Item']['price'] - $reduction;
-            $a++;
+	$vanow = 0;
+	$this->loadModel('Shop.DedipassHistory');
+	$this->loadModel('Shop.PaypalHistory');
+	$this->loadModel('Shop.StarpassHistory');
+	$this->loadModel('Shop.PaysafecardHistory');
+	$histories_dedi = $this->DedipassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_paypal = $this->PaypalHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_pay = $this->PaysafecardHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	$histories_star = $this->StarpassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+	foreach ($histories_dedi as $value){
+		$vanow +=  floatval($value["DedipassHistory"]["credits_gived"]);
+	}
+	foreach ($histories_paypal as $value){
+		$vanow +=  floatval($value["PaypalHistory"]["payment_amount"]);
+	}
+	foreach ($histories_pay as $value){
+		$vanow +=  floatval($value["PaysafecardHistory"]["credits_gived"]);
+	}
+	foreach ($histories_star as $value){
+		$vanow +=  floatval($value["StarpassHistory"]["credits_gived"]);
+	}
+	$this->loadModel('Shop.ItemsConfig');
+	$vagoal = $this->ItemsConfig->find('all');
+	$vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
+	if ($vanow > $vagoal){
+		$vanow = $vagoal;
+	}
+	if ($vagoal != 0){
+		$vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
+	}
+	    
+	$best_donator_price = array();
+
+        foreach($histories_dedi as $get) {
+            $best_donator_price[$get["DedipassHistory"]["user_id"]] += $get["DedipassHistory"]["credits_gived"];
         }
-        $vanow = 0;
-        $this->loadModel('Shop.DedipassHistory');
-        $this->loadModel('Shop.PaypalHistory');
-        $this->loadModel('Shop.StarpassHistory');
-        $this->loadModel('Shop.PaysafecardHistory');
-        $histories_dedi = $this->DedipassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $histories_paypal = $this->PaypalHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $histories_pay = $this->PaysafecardHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $histories_star = $this->StarpassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        foreach ($histories_dedi as $value) {
-            $vanow += floatval($value["DedipassHistory"]["credits_gived"]);
+        foreach($histories_paypal as $get) {
+            $best_donator_price[$get["PaypalHistory"]["user_id"]] += $get["PaypalHistory"]["credits_gived"];
         }
-        foreach ($histories_paypal as $value) {
-            $vanow += floatval($value["PaypalHistory"]["payment_amount"]);
+        foreach($histories_pay as $get) {
+            $best_donator_price[$get["PaysafecardHistory"]["user_id"]] += $get["PaysafecardHistory"]["credits_gived"];
         }
-        foreach ($histories_pay as $value) {
-            $vanow += floatval($value["PaysafecardHistory"]["credits_gived"]);
+        foreach($histories_star as $get) {
+            $best_donator_price[$get["StarpassHistory"]["user_id"]] += $get["StarpassHistory"]["credits_gived"];
         }
-        foreach ($histories_star as $value) {
-            $vanow += floatval($value["StarpassHistory"]["credits_gived"]);
-        }
-        $this->loadModel('Shop.ItemsConfig');
-        $vagoal = $this->ItemsConfig->find('all');
-        $vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
-        if ($vanow > $vagoal) {
-            $vanow = $vagoal;
-        }
-        if ($vagoal != 0) {
-            $vawidth = round((str_replace(",", '.', $vanow * 100 / $vagoal)));
-        }
-        $this->loadModel('Shop.Section');
-        $search_sections = $this->Section->find('all');
-        $search_categories_without_section = $this->Category->find('all', array('conditions' => array('section' => 0), 'order' => 'order'));
-        if (!empty($search_sections)) foreach ($search_sections as $v) {
-            $search_categories_section[$v['Section']['id']] = $this->Category->find('all', array('conditions' => array('section_id' => $v['Section']['id'], 'section' => 1), 'order' => 'order'));
-            $search_categories = $this->Category->find('all');
-        }
+        $best_donator_id = array_search(max($best_donator_price),$best_donator_price);
+        $best_donator = $this->User->find('first', ['conditions' => ['id' => $best_donator_id]]);
+        $best_donator = $best_donator['User'];
+		
+        $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
+
 
         $search_first_category = $this->Category->find('first'); //
         $search_first_category = @$search_first_category['Category']['id']; //
@@ -105,7 +113,8 @@ class ShopController extends ShopAppController
         $singular_money = $this->Configuration->getMoneyName(false);
         $plural_money = $this->Configuration->getMoneyName();
 
-        $this->set(compact('dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_categories_without_section', 'search_categories_section', 'search_sections', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money', 'price_with_reduction'));
+        $this->set(compact('best_donator', 'dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
+
     }
 
     /*
