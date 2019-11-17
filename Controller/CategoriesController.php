@@ -167,16 +167,15 @@ class CategoriesController extends ShopAppController
     * ======== Ajout d'une catégorie (affichage & traitement POST) ===========
     */
     
-    public function admin_add_category()
+    public function admin_add_category($section_id = null)
     {
-
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_CATEGORIES')) {
 
             $this->layout = 'admin';
             $this->set('title_for_layout', $this->Lang->get('SHOP__CATEGORY_ADD'));
             $this->loadModel('Shop.Section');
             $search_sections = $this->Section->find('all');
-            $this->set(compact('search_sections'));
+            $this->set(compact('search_sections', 'section_id'));
             
             if ($this->request->is('post')) {
                 $section = !$this->request->data['section'] || !empty($this->request->data['section_id']);
