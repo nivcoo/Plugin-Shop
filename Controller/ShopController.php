@@ -877,7 +877,7 @@ class ShopController extends ShopAppController
     * ======== Ajout d'un article (affichage) ===========
     */
     
-    public function admin_add_item()
+    public function admin_add_item($category_id = null)
     {
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
@@ -889,7 +889,7 @@ class ShopController extends ShopAppController
             foreach ($search_categories as $v) {
                 $section[$v['Category']['section_id']] = $this->Section->find('first', array('conditions' => array('id' => $v['Category']['section_id'])));
             }
-            $this->set(compact('section', 'search_categories'));
+            $this->set(compact('section', 'search_categories', 'category_id'));
 
             $this->loadModel('Shop.Item');
             $search_items = $this->Item->find('all', array('fields' => array('name', 'id')));
