@@ -56,7 +56,6 @@
         </div>
     </div>
     <div class="row">
-
         <div class="col-md-12">
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
@@ -76,7 +75,7 @@
                         </li>
                     <?php } ?>
                     <?php if (!empty($search_categories_without_section)) foreach ($search_categories_without_section as $value) {
-                         ?>
+                        $i++; ?>
                         <li><a href="#category_<?= $value['Category']['id'] ?>" data-toggle="tab"
                                aria-expanded="true"><?= $value['Category']['name'] ?></a></li>
                     <?php } ?>
@@ -120,7 +119,7 @@
                                     <th><?= $Lang->get('SHOP__ITEMS_AVAILABLE') ?>
                                         &nbsp;&nbsp;
                                         <a style="display:inline"
-                                           href="<?php if (!empty($search_categories)) { ?><?= $this->Html->url(array('controller' => 'shop', 'action' => 'add_item', 'admin' => true)) ?><?php } ?>"
+                                           href="<?php if (!empty($search_categories)) { ?><?= $this->Html->url(array('controller' => 'shop', 'action' => 'add_item/' . $v['Category']['id'], 'admin' => true)) ?><?php } ?>"
                                            class="btn btn-sm btn-success
                                            <?php if (empty($search_categories)) {
                                                echo ' disabled';
@@ -134,7 +133,8 @@
                                 </tr>
                                 </thead>
                                 <tbody id="sortable-<?= $v['Category']['id'] ?>">
-                                <?php if (!empty($search_items)) foreach ($search_items[$v['Category']['id']] as $va) { ?>
+                                <?php $i = 0;
+                                if (!empty($search_items)) foreach ($search_items[$v['Category']['id']] as $va) { ?>
                                     <tr class="item" style="cursor:move;" id="<?= $va["Item"]["id"] ?>-<?= $i ?>">
                                         <td><?= $va["Item"]["name"] ?></td>
                                         <td><?= $item_server[$va['Item']['id']] ?></td>
@@ -148,7 +148,8 @@
                                                class="btn btn-danger"><?= $Lang->get('GLOBAL__DELETE') ?></a>
                                         </td>
                                     </tr>
-                                <?php } ?>
+                                    <?php $i++;
+                                } ?>
                                 </tbody>
                             </table>
                             <div class="ajax-msg"></div>
