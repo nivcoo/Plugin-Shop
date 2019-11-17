@@ -19,23 +19,23 @@
               <label><?= $Lang->get('SHOP__ITEM_DESCRIPTION') ?></label>
               <textarea id="editor" name="description" class="form-control"></textarea>
               <?= $this->Html->script('admin/tinymce/tinymce.min.js') ?>
-              <script type="text/javascript">
-              tinymce.init({
-                  selector: "textarea",
-                  height : 300,
-                  width : '100%',
-                  language : 'fr_FR',
-                  plugins: "textcolor code image link",
-                  toolbar: "fontselect fontsizeselect bold italic underline strikethrough link image forecolor backcolor alignleft aligncenter alignright alignjustify cut copy paste bullist numlist outdent indent blockquote code"
-               });
-              </script>
+                <script type="text/javascript">
+                    tinymce.init({
+                        selector: "textarea",
+                        height : 300,
+                        width : '100%',
+                        language : 'fr_FR',
+                        plugins: "textcolor code image link hr preview fullscreen ",
+                        toolbar: "fontselect fontsizeselect fullscreen preview bold italic underline strikethrough link image forecolor backcolor alignleft aligncenter alignright alignjustify cut copy paste bullist numlist outdent indent blockquote hr code"
+                    });
+                </script>
             </div>
 
             <div class="form-group">
               <label><?= $Lang->get('SHOP__CATEGORY') ?></label>
               <select class="form-control" name="category">
                 <?php foreach ($search_categories as $v) { ?>
-                    <option value="<?= $v['Category']['id'] ?>">[<?= $section[$v['Category']['section_id']]['Section']['name'] ?>] - <?= $v['Category']['name'] ?></option>
+                    <option <?= ($category_id == $v['Category']['id'])? "selected" : ""  ?> value="<?= $v['Category']['id'] ?>">[<?= $section[$v['Category']['section_id']]['Section']['name'] ?>] - <?= $v['Category']['name'] ?></option>
                 <?php } ?>
               </select>
             </div>
