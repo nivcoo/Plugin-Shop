@@ -17,8 +17,8 @@
             
             <div class="form-group">
                 <div class="checkbox">
-                    <input type="hidden" id="section" name="section" value="1">
-                    <input id="section_checkbox" value="true" name="section_checkbox" type="checkbox">
+                    <input type="hidden" id="section" name="section" value="<?= (!isset($section_id))? "0": "1"?>">
+                    <input <?= (!isset($section_id))? "checked": ""?> id="section_checkbox" value="true" name="section_checkbox" type="checkbox">
                     <label for="section_checkbox"><?= $Lang->get('SHOP__CATEGORY_ADD_NO') ?></label>
                 </div>
             </div>
@@ -36,12 +36,12 @@
               });
             </script>
             
-            <div class="form-group" id="section_id">
+            <div class="form-group" id="section_id" <?= (!isset($section_id))? "style='display:none'": ""?>>
               <label><?= $Lang->get('SHOP__SECTION') ?></label>
               <p><?= $Lang->get('SHOP__CATEGORY_EDIT_MESSAGE') ?> <a href="<?= $this->Html->url(array('controller' => 'categories', 'action' => 'add_section', 'admin' => true)) ?>"><?= $Lang->get('SHOP__SECTIONS') ?></a></p>
               <select class="form-control" name="section_id">
                 <?php foreach($search_sections as $v) { ?>
-                    <option value="<?= $v['Section']['id'] ?>"><?= $v['Section']['name'] ?></option>
+                    <option <?= ($section_id == $v['Section']['id'])? "selected" : ""  ?> value="<?= $v['Section']['id'] ?>"><?= $v['Section']['name'] ?></option>
                 <?php } ?>
               </select>
             </div>
