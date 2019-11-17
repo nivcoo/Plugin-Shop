@@ -20,53 +20,68 @@ class ShopController extends ShopAppController
         $this->layout = $this->Configuration->getKey('layout'); // On charge le thème configuré
         $this->loadModel('Shop.Item'); // le model des articles
         $this->loadModel('Shop.Category'); // le model des catégories
-        $search_items = $this->Item->find('all', array(
+        $search_items = $this->Item->find('all',
+          array(
             'order' => 'order',
             'conditions' => array(
                 'OR' => array(
-                    'display IS NULL',
-                    'display = 1'
-                )
-            )
-        )); // on cherche tous les items et on envoie à la vue
-	$vanow = 0;
-	$this->loadModel('Shop.DedipassHistory');
-	$this->loadModel('Shop.PaypalHistory');
-	$this->loadModel('Shop.StarpassHistory');
-	$this->loadModel('Shop.PaysafecardHistory');
-	$histories_dedi = $this->DedipassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-	$histories_paypal = $this->PaypalHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-	$histories_pay = $this->PaysafecardHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-	$histories_star = $this->StarpassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-	foreach ($histories_dedi as $value){
-		$vanow +=  floatval($value["DedipassHistory"]["credits_gived"]);
-	}
-	foreach ($histories_paypal as $value){
-		$vanow +=  floatval($value["PaypalHistory"]["payment_amount"]);
-	}
-	foreach ($histories_pay as $value){
-		$vanow +=  floatval($value["PaysafecardHistory"]["credits_gived"]);
-	}
-	foreach ($histories_star as $value){
-		$vanow +=  floatval($value["StarpassHistory"]["credits_gived"]);
-	}
-	$this->loadModel('Shop.ItemsConfig');
-	$vagoal = $this->ItemsConfig->find('all');
-	$vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
-	if ($vanow > $vagoal){
-		$vanow = $vagoal;
-	}
-	if ($vagoal != 0){
-		$vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
-	}
-	    
-	$best_donator_price = array();
+                  'display IS NULL',
+                  'display = 1'
+                  )
+              )
+            )); // on cherche tous les items et on envoie à la vue
+        $vanow = 0;
+        $this->loadModel('Shop.DedipassHistory');
+        $this->loadModel('Shop.PaypalHistory');
+        $this->loadModel('Shop.NanoHistory');
+        $this->loadModel('Shop.StarpassHistory');
+        $this->loadModel('Shop.PaysafecardHistory');
+        $histories_dedi = $this->DedipassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_paypal = $this->PaypalHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $this->loadModel('Shop.Nano');
+        try {           
+            $nano_offers = $this->Nano->find('all');
+            $histories_nano = $this->NanoHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        } catch (\Throwable $th) {
+            $this->Nano->init($this);
+        }
+        $histories_pay = $this->PaysafecardHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_star = $this->StarpassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        foreach ($histories_dedi as $value){
+          $vanow +=  floatval($value["DedipassHistory"]["credits_gived"]);
+        }
+        foreach ($histories_paypal as $value){
+          $vanow +=  floatval($value["PaypalHistory"]["payment_amount"]);
+        }
+        foreach ($histories_nano as $value){
+          $vanow +=  floatval($value["NanoHistory"]["payment_amount"]);
+        }
+        foreach ($histories_pay as $value){
+          $vanow +=  floatval($value["PaysafecardHistory"]["credits_gived"]);
+        }
+        foreach ($histories_star as $value){
+          $vanow +=  floatval($value["StarpassHistory"]["credits_gived"]);
+        }
+        $this->loadModel('Shop.ItemsConfig');
+        $vagoal = $this->ItemsConfig->find('all');
+        $vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
+        if ($vanow > $vagoal){
+          $vanow = $vagoal;
+        }
+        if ($vagoal != 0){
+          $vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
+        }
+            
+        $best_donator_price = array();
 
         foreach($histories_dedi as $get) {
             $best_donator_price[$get["DedipassHistory"]["user_id"]] += $get["DedipassHistory"]["credits_gived"];
         }
         foreach($histories_paypal as $get) {
             $best_donator_price[$get["PaypalHistory"]["user_id"]] += $get["PaypalHistory"]["credits_gived"];
+        }
+        foreach($histories_nano as $get) {
+            $best_donator_price[$get["NanoHistory"]["user_id"]] += $get["NanoHistory"]["credits_gived"];
         }
         foreach($histories_pay as $get) {
             $best_donator_price[$get["PaysafecardHistory"]["user_id"]] += $get["PaysafecardHistory"]["credits_gived"];
@@ -87,6 +102,9 @@ class ShopController extends ShopAppController
         $this->loadModel('Shop.Paypal');
         $paypal_offers = $this->Paypal->find('all');
 
+        $this->loadModel('Shop.Nano');
+        $nano_offers = $this->Nano->find('all');
+
         $this->loadModel('Shop.Starpass');
         $starpass_offers = $this->Starpass->find('all');
 
@@ -105,15 +123,14 @@ class ShopController extends ShopAppController
         $money = 0;
         if ($this->isConnected) {
             $money = $this->User->getKey('money') . ' ';
-            $money += ($this->User->getKey('money') == 1 OR $this->User->getKey('money') == 0) ? $this->Configuration->getMoneyName(false) : $this->Configuration->getMoneyName();
+            $money .= ($this->User->getKey('money') == 1 OR $this->User->getKey('money') == 0) ? $this->Configuration->getMoneyName(false) : $this->Configuration->getMoneyName();
         }
 
         $vouchers = $this->DiscountVoucher;
 
         $singular_money = $this->Configuration->getMoneyName(false);
         $plural_money = $this->Configuration->getMoneyName();
-
-        $this->set(compact('best_donator', 'dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
+        $this->set(compact('best_donator', 'dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'nano_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
 
     }
 
@@ -1131,7 +1148,26 @@ class ShopController extends ShopAppController
                         $this->Session->setFlash($this->Lang->get('UNKNONW_ID'), 'default.error');
                         $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
                     }
-                } elseif ($type == "starpass") {
+                } elseif ($type == "nano") {
+                    $this->loadModel('Shop.Nano');
+                    $find = $this->Nano->find('all', array('conditions' => array('id' => $id)));
+                    if (!empty($find)) {
+
+                        $event = new CakeEvent('beforeDeleteNanoOffer', $this, array('offer_id' => $id, 'user' => $this->User->getAllFromCurrentUser()));
+                        $this->getEventManager()->dispatch($event);
+                        if ($event->isStopped()) {
+                            return $event->result;
+                        }
+
+                        $this->Nano->delete($id);
+                        $this->History->set('DELETE_NANO_OFFER', 'shop');
+                        $this->Session->setFlash($this->Lang->get('SHOP__NANO_OFFER_DELETE_SUCCESS'), 'default.success');
+                        $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                    } else {
+                        $this->Session->setFlash($this->Lang->get('UNKNONW_ID'), 'default.error');
+                        $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                    }
+                }elseif ($type == "starpass") {
                     $this->loadModel('Shop.Starpass');
                     $find = $this->Starpass->find('all', array('conditions' => array('id' => $id)));
                     if (!empty($find)) {
