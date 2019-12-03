@@ -124,7 +124,7 @@ class ShopController extends ShopAppController
         $this->response->type('json');
         $this->autoRender = false;
         if (!isset($id)) {
-            return;
+            throw new NotFoundException();
         }
         if ($this->isConnected AND $this->Permissions->can('CAN_BUY')) { // si l'utilisateur est connecté
             $this->loadModel('Shop.Item'); // je charge le model des articles
