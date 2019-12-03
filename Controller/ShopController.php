@@ -123,153 +123,155 @@ class ShopController extends ShopAppController
     { // Permet d'afficher le contenu du modal avant l'achat (ajax)
         $this->response->type('json');
         $this->autoRender = false;
-        if (isset($id)) {
-            if ($this->isConnected AND $this->Permissions->can('CAN_BUY')) { // si l'utilisateur est connecté
-                $this->loadModel('Shop.Item'); // je charge le model des articles
-                $search_item = $this->Item->find('all', array('conditions' => array('id' => $id))); // je cherche l'article selon l'id
-                $money = ($search_item['0']['Item']['price'] == 1) ? $this->Configuration->getMoneyName(false) : $this->Configuration->getMoneyName();// je dis que la variable $money = le nom de la money au pluriel ou singulier selon le prix
-                if (!empty($search_item[0]['Item']['servers'])) {
-                    $this->loadModel('Server');
-                    $search_servers_list = $this->Server->find('all');
-                    foreach ($search_servers_list as $key => $value) {
-                        $servers_list[$value['Server']['id']] = $value['Server']['name'];
-                    }
-                    $search_item[0]['Item']['servers'] = unserialize($search_item[0]['Item']['servers']);
-                    $servers = '';
-                    $i = 0;
-                    foreach ($search_item[0]['Item']['servers'] as $serverId) {
-                        $i++;
-                        if (isset($servers_list) && !isset($servers_list[$serverId]))
-                            continue;
-                        $servers = $servers . $servers_list[$serverId];
-                        if ($i < count($search_item[0]['Item']['servers'])) {
-                            $servers = $servers . ', ';
-                        }
-                    }
-                }
-
-                $item_price = $search_item['0']['Item']['price'];
-
-                $affich_server = (!empty($search_item[0]['Item']['servers']) && $search_item[0]['Item']['display_server']) ? true : false;
-                $multiple_buy = (!empty($search_item[0]['Item']['multiple_buy']) && $search_item[0]['Item']['multiple_buy']) ? true : false;
-                $reductional_items_func = (!empty($search_item[0]['Item']['reductional_items']) && !is_bool(unserialize($search_item[0]['Item']['reductional_items']))) ? true : false;
-                $reductional_items = false;
-                if ($reductional_items_func) {
-
-                    $this->loadModel('Shop.ItemsBuyHistory');
-
-                    $reductional_items_list = unserialize($search_item[0]['Item']['reductional_items']);
-                    $reductional_items_list_display = array();
-                    // on parcours tous les articles pour voir si ils ont été achetés
-                    $reductional_items = true; // de base on dis que c'est okay
-                    $reduction = 0; // 0 de réduction
-                    foreach ($reductional_items_list as $key => $value) {
-
-                        $findItem = $this->Item->find('first', array('conditions' => array('id' => $value)));
-                        if (empty($findItem)) {
-                            $reductional_items = false;
-                            break;
-                        }
-
-                        $findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
-                        if (empty($findHistory)) {
-                            $reductional_items = false;
-                            break;
-                        }
-
-                        $reduction = +$findItem['Item']['price'];
-                        $reductional_items_list_display[] = $findItem['Item']['name'];
-
-                        unset($findItem);
-
-                    }
-
-                    if ($reductional_items) {
-                        $item_price = floor($item_price - $reduction);
-
-                        $reduction = $reduction . ' ' . $this->Configuration->getMoneyName();
-                        $reductional_items_list = '<i>' . implode('</i>, <i>', $reductional_items_list_display) . '</i>';
-                        $reductional_items_list = $this->Lang->get('SHOP__ITEM_REDUCTIONAL_ITEMS_LIST', array('{ITEMS_LIST}' => $reductional_items_list, '{REDUCTION}' => $reduction));
-
-                    }
-                }
-
-                $add_to_cart = (!empty($search_item[0]['Item']['cart']) && $search_item[0]['Item']['cart']) ? true : false;
-
-                //On récupére l'element
-                $filename_theme = APP . DS . 'View' . DS . 'Themed' . DS . $this->Configuration->getKey('theme') . DS . 'Plugin' . DS . 'Shop' . DS . 'Elements' . DS . 'modal_buy.ctp';
-                if (file_exists($filename_theme)) {
-                    $element_content = file_get_contents($filename_theme);
-                } else {
-                    $element_content = file_get_contents($this->EyPlugin->pluginsFolder . DS . 'Shop' . DS . 'View' . DS . 'Elements' . DS . 'modal_buy.ctp');
-                }
-
-                // On remplace les messages de langues
-
-                $i = 0;
-                $count = substr_count($element_content, '{LANG-');
-                while ($i < $count) {
-                    $i++;
-
-                    $element_explode_for_lang = explode('{LANG-', $element_content);
-                    $element_explode_for_lang = explode('}', $element_explode_for_lang[1])[0];
-
-                    $element_content = str_replace('{LANG-' . $element_explode_for_lang . '}', $this->Lang->get($element_explode_for_lang), $element_content);
-
-                }
-
-                // On remplace les variables
-                $servers = (!isset($servers)) ? null : $servers;
-
-                $vars = array(
-                    '{ITEM_NAME}' => $search_item['0']['Item']['name'],
-                    '{ITEM_DESCRIPTION}' => nl2br($search_item['0']['Item']['description']),
-                    '{ITEM_SERVERS}' => $servers,
-                    '{ITEM_PRICE}' => $item_price,
-                    '{SITE_MONEY}' => $money,
-                    '{ITEM_ID}' => $search_item['0']['Item']['id'],
-                    '{ITEM_IMG_URL}' => $search_item['0']['Item']['img_url']
-                );
-                $element_content = strtr($element_content, $vars);
-
-                // La condition d'affichage de serveur
-                $element_explode_for_server = explode('[IF AFFICH_SERVER]', $element_content);
-                $element_explode_for_server = explode('[/IF AFFICH_SERVER]', $element_explode_for_server[1])[0];
-
-                $search_server = '[IF AFFICH_SERVER]' . $element_explode_for_server . '[/IF AFFICH_SERVER]';
-                $element_content = ($affich_server) ? str_replace($search_server, $element_explode_for_server, $element_content) : str_replace($search_server, '', $element_content);
-
-                // La condition d'affichage de l'input achat multiple
-                $element_explode_for_multiple_buy = explode('[IF MULTIPLE_BUY]', $element_content);
-                $element_explode_for_multiple_buy = explode('[/IF MULTIPLE_BUY]', $element_explode_for_multiple_buy[1])[0];
-
-                $search_multiple_buy = '[IF MULTIPLE_BUY]' . $element_explode_for_multiple_buy . '[/IF MULTIPLE_BUY]';
-                $element_content = ($multiple_buy) ? str_replace($search_multiple_buy, $element_explode_for_multiple_buy, $element_content) : str_replace($search_multiple_buy, '', $element_content);
-
-                // La condition d'affichage de l'ajout au pnier
-                $element_explode_for_add_to_cart = explode('[IF ADD_TO_CART]', $element_content);
-                $element_explode_for_add_to_cart = explode('[/IF ADD_TO_CART]', $element_explode_for_add_to_cart[1])[0];
-
-                $search_add_to_cart = '[IF ADD_TO_CART]' . $element_explode_for_add_to_cart . '[/IF ADD_TO_CART]';
-                $element_content = ($add_to_cart) ? str_replace($search_add_to_cart, $element_explode_for_add_to_cart, $element_content) : str_replace($search_add_to_cart, '', $element_content);
-
-                // La condition d'affichage du message de réduction de prix si articles achetés
-                $element_explode_for_reductional_items = explode('[IF REDUCTIONAL_ITEMS]', $element_content);
-                $element_explode_for_reductional_items = explode('[/IF REDUCTIONAL_ITEMS]', $element_explode_for_reductional_items[1])[0];
-
-                $search_reductional_items = '[IF REDUCTIONAL_ITEMS]' . $element_explode_for_reductional_items . '[/IF REDUCTIONAL_ITEMS]';
-                $element_content = ($reductional_items) ? str_replace($search_reductional_items, $element_explode_for_reductional_items, $element_content) : str_replace($search_reductional_items, '', $element_content);
-                if ($reductional_items) {
-                    $element_content = str_replace('{REDUCTIONAL_ITEMS_LIST}', $reductional_items_list, $element_content);
-                }
-
-
-                $this->response->body(json_encode(array('statut' => true, 'html' => $element_content, 'item_infos' => array('id' => $search_item['0']['Item']['id'], 'name' => $search_item['0']['Item']['name'], 'price' => $item_price))));
-
-            } else {
-                $this->response->body(json_encode(array('statut' => false, 'html' => '<div class="alert alert-danger">' . $this->Lang->get('USER__ERROR_MUST_BE_LOGGED') . '</div>'))); // si il n'est pas connecté
-            }
+        if (!isset($id)) {
+            return;
         }
+        if ($this->isConnected AND $this->Permissions->can('CAN_BUY')) { // si l'utilisateur est connecté
+            $this->loadModel('Shop.Item'); // je charge le model des articles
+            $search_item = $this->Item->find('all', array('conditions' => array('id' => $id))); // je cherche l'article selon l'id
+            $money = ($search_item['0']['Item']['price'] == 1) ? $this->Configuration->getMoneyName(false) : $this->Configuration->getMoneyName();// je dis que la variable $money = le nom de la money au pluriel ou singulier selon le prix
+            if (!empty($search_item[0]['Item']['servers'])) {
+                $this->loadModel('Server');
+                $search_servers_list = $this->Server->find('all');
+                foreach ($search_servers_list as $key => $value) {
+                    $servers_list[$value['Server']['id']] = $value['Server']['name'];
+                }
+                $search_item[0]['Item']['servers'] = unserialize($search_item[0]['Item']['servers']);
+                $servers = '';
+                $i = 0;
+                foreach ($search_item[0]['Item']['servers'] as $serverId) {
+                    $i++;
+                    if (isset($servers_list) && !isset($servers_list[$serverId]))
+                        continue;
+                    $servers = $servers . $servers_list[$serverId];
+                    if ($i < count($search_item[0]['Item']['servers'])) {
+                        $servers = $servers . ', ';
+                    }
+                }
+            }
+
+            $item_price = $search_item['0']['Item']['price'];
+
+            $affich_server = (!empty($search_item[0]['Item']['servers']) && $search_item[0]['Item']['display_server']) ? true : false;
+            $multiple_buy = (!empty($search_item[0]['Item']['multiple_buy']) && $search_item[0]['Item']['multiple_buy']) ? true : false;
+            $reductional_items_func = (!empty($search_item[0]['Item']['reductional_items']) && !is_bool(unserialize($search_item[0]['Item']['reductional_items']))) ? true : false;
+            $reductional_items = false;
+            if ($reductional_items_func) {
+
+                $this->loadModel('Shop.ItemsBuyHistory');
+
+                $reductional_items_list = unserialize($search_item[0]['Item']['reductional_items']);
+                $reductional_items_list_display = array();
+                // on parcours tous les articles pour voir si ils ont été achetés
+                $reductional_items = true; // de base on dis que c'est okay
+                $reduction = 0; // 0 de réduction
+                foreach ($reductional_items_list as $key => $value) {
+
+                    $findItem = $this->Item->find('first', array('conditions' => array('id' => $value)));
+                    if (empty($findItem)) {
+                        $reductional_items = false;
+                        break;
+                    }
+
+                    $findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
+                    if (empty($findHistory)) {
+                        $reductional_items = false;
+                        break;
+                    }
+
+                    $reduction = +$findItem['Item']['price'];
+                    $reductional_items_list_display[] = $findItem['Item']['name'];
+
+                    unset($findItem);
+
+                }
+
+                if ($reductional_items) {
+                    $item_price = floor($item_price - $reduction);
+
+                    $reduction = $reduction . ' ' . $this->Configuration->getMoneyName();
+                    $reductional_items_list = '<i>' . implode('</i>, <i>', $reductional_items_list_display) . '</i>';
+                    $reductional_items_list = $this->Lang->get('SHOP__ITEM_REDUCTIONAL_ITEMS_LIST', array('{ITEMS_LIST}' => $reductional_items_list, '{REDUCTION}' => $reduction));
+
+                }
+            }
+
+            $add_to_cart = (!empty($search_item[0]['Item']['cart']) && $search_item[0]['Item']['cart']) ? true : false;
+
+            //On récupére l'element
+            $filename_theme = APP . DS . 'View' . DS . 'Themed' . DS . $this->Configuration->getKey('theme') . DS . 'Plugin' . DS . 'Shop' . DS . 'Elements' . DS . 'modal_buy.ctp';
+            if (file_exists($filename_theme)) {
+                $element_content = file_get_contents($filename_theme);
+            } else {
+                $element_content = file_get_contents($this->EyPlugin->pluginsFolder . DS . 'Shop' . DS . 'View' . DS . 'Elements' . DS . 'modal_buy.ctp');
+            }
+
+            // On remplace les messages de langues
+
+            $i = 0;
+            $count = substr_count($element_content, '{LANG-');
+            while ($i < $count) {
+                $i++;
+
+                $element_explode_for_lang = explode('{LANG-', $element_content);
+                $element_explode_for_lang = explode('}', $element_explode_for_lang[1])[0];
+
+                $element_content = str_replace('{LANG-' . $element_explode_for_lang . '}', $this->Lang->get($element_explode_for_lang), $element_content);
+
+            }
+
+            // On remplace les variables
+            $servers = (!isset($servers)) ? null : $servers;
+
+            $vars = array(
+                '{ITEM_NAME}' => $search_item['0']['Item']['name'],
+                '{ITEM_DESCRIPTION}' => nl2br($search_item['0']['Item']['description']),
+                '{ITEM_SERVERS}' => $servers,
+                '{ITEM_PRICE}' => $item_price,
+                '{SITE_MONEY}' => $money,
+                '{ITEM_ID}' => $search_item['0']['Item']['id'],
+                '{ITEM_IMG_URL}' => $search_item['0']['Item']['img_url']
+            );
+            $element_content = strtr($element_content, $vars);
+
+            // La condition d'affichage de serveur
+            $element_explode_for_server = explode('[IF AFFICH_SERVER]', $element_content);
+            $element_explode_for_server = explode('[/IF AFFICH_SERVER]', $element_explode_for_server[1])[0];
+
+            $search_server = '[IF AFFICH_SERVER]' . $element_explode_for_server . '[/IF AFFICH_SERVER]';
+            $element_content = ($affich_server) ? str_replace($search_server, $element_explode_for_server, $element_content) : str_replace($search_server, '', $element_content);
+
+            // La condition d'affichage de l'input achat multiple
+            $element_explode_for_multiple_buy = explode('[IF MULTIPLE_BUY]', $element_content);
+            $element_explode_for_multiple_buy = explode('[/IF MULTIPLE_BUY]', $element_explode_for_multiple_buy[1])[0];
+
+            $search_multiple_buy = '[IF MULTIPLE_BUY]' . $element_explode_for_multiple_buy . '[/IF MULTIPLE_BUY]';
+            $element_content = ($multiple_buy) ? str_replace($search_multiple_buy, $element_explode_for_multiple_buy, $element_content) : str_replace($search_multiple_buy, '', $element_content);
+
+            // La condition d'affichage de l'ajout au pnier
+            $element_explode_for_add_to_cart = explode('[IF ADD_TO_CART]', $element_content);
+            $element_explode_for_add_to_cart = explode('[/IF ADD_TO_CART]', $element_explode_for_add_to_cart[1])[0];
+
+            $search_add_to_cart = '[IF ADD_TO_CART]' . $element_explode_for_add_to_cart . '[/IF ADD_TO_CART]';
+            $element_content = ($add_to_cart) ? str_replace($search_add_to_cart, $element_explode_for_add_to_cart, $element_content) : str_replace($search_add_to_cart, '', $element_content);
+
+            // La condition d'affichage du message de réduction de prix si articles achetés
+            $element_explode_for_reductional_items = explode('[IF REDUCTIONAL_ITEMS]', $element_content);
+            $element_explode_for_reductional_items = explode('[/IF REDUCTIONAL_ITEMS]', $element_explode_for_reductional_items[1])[0];
+
+            $search_reductional_items = '[IF REDUCTIONAL_ITEMS]' . $element_explode_for_reductional_items . '[/IF REDUCTIONAL_ITEMS]';
+            $element_content = ($reductional_items) ? str_replace($search_reductional_items, $element_explode_for_reductional_items, $element_content) : str_replace($search_reductional_items, '', $element_content);
+            if ($reductional_items) {
+                $element_content = str_replace('{REDUCTIONAL_ITEMS_LIST}', $reductional_items_list, $element_content);
+            }
+
+
+            $this->response->body(json_encode(array('statut' => true, 'html' => $element_content, 'item_infos' => array('id' => $search_item['0']['Item']['id'], 'name' => $search_item['0']['Item']['name'], 'price' => $item_price))));
+
+        } else {
+            $this->response->body(json_encode(array('statut' => false, 'html' => '<div class="alert alert-danger">' . $this->Lang->get('USER__ERROR_MUST_BE_LOGGED') . '</div>'))); // si il n'est pas connecté
+        }
+
     }
 
 
