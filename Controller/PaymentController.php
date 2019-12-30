@@ -1075,7 +1075,7 @@ class PaymentController extends ShopAppController
             // On assigne les variables
             $item_name = $this->request->data['item_name'];
             $item_number = $this->request->data['item_number'];
-            $payment_status = $this->request->data['payment_status'];
+            $payment_status = strtoupper($this->request->data['payment_status']);
             $payment_amount = $this->request->data['mc_gross'];
             $payment_currency = $this->request->data['mc_currency'];
             $txn_id = $this->request->data['txn_id'];
@@ -1139,7 +1139,7 @@ class PaymentController extends ShopAppController
 
             // On effectue les autres vérifications
 
-            if ($payment_status == "Completed") { //Le paiment est complété
+            if ($payment_status == "COMPLETED") { //Le paiment est complété
 
                 if ($payment_currency == "EUR") { //Le paiement est bien en euros
 
@@ -1188,11 +1188,9 @@ class PaymentController extends ShopAppController
                                 $this->loadModel('Notification');
                                 $this->Notification->setToUser($this->Lang->get('NOTIFICATION__PAYPAL_IPN_VALIDED'), $user_id);
 
-                                $this->response->statusCode(200);
-
-                            } else {
+                            } else
                                 throw new InternalErrorException('PayPal : Payment already credited');
-                            }
+                            return $this->response->statusCode(200);
 
                         } else {
                             throw new InternalErrorException('PayPal : Receiver email invalid');
