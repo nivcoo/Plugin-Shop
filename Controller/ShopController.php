@@ -137,10 +137,13 @@ class ShopController extends ShopAppController
     * ======== Affichage d'un article dans le modal ===========
     */
 
-    function ajax_get($id)
+    function ajax_get($id = null)
     { // Permet d'afficher le contenu du modal avant l'achat (ajax)
         $this->response->type('json');
         $this->autoRender = false;
+        if (!isset($id)) {
+            throw new NotFoundException();
+        }
         if ($this->isConnected AND $this->Permissions->can('CAN_BUY')) { // si l'utilisateur est connecté
             $this->loadModel('Shop.Item'); // je charge le model des articles
             $search_item = $this->Item->find('all', array('conditions' => array('id' => $id))); // je cherche l'article selon l'id
@@ -286,6 +289,7 @@ class ShopController extends ShopAppController
         } else {
             $this->response->body(json_encode(array('statut' => false, 'html' => '<div class="alert alert-danger">' . $this->Lang->get('USER__ERROR_MUST_BE_LOGGED') . '</div>'))); // si il n'est pas connecté
         }
+
     }
 
 
