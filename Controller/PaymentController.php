@@ -277,7 +277,7 @@ class PaymentController extends ShopAppController
                     if ($this->User->exist($this->request->data['to'])) {
                         if (strtolower($this->User->getKey('pseudo')) != strtolower($this->request->data['to']) && $this->User->getKey('id') != $this->request->data['to']) {
                             $how = floatval($this->request->data['how']);
-                            if ($how > 0) {
+                            if ($how >= 1) { // Avoid to transfer 0.000000009 (-> 9.0E-9)
                                 $this->User->cacheQueries = false;
                                 $money_user = $this->User->find('first', array('conditions' => array('id' => $this->User->getKey('id'))))['User']['money'];
                                 $new_sold_user = $money_user - $how;
