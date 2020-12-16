@@ -30,68 +30,90 @@ class ShopController extends ShopAppController
                   )
               )
             )); // on cherche tous les items et on envoie à la vue
-        $vanow = 0;
         $this->loadModel('Shop.DedipassHistory');
         $this->loadModel('Shop.PaypalHistory');
-        $this->loadModel('Shop.NanoHistory');
         $this->loadModel('Shop.StarpassHistory');
         $this->loadModel('Shop.PaysafecardHistory');
-        $histories_dedi = $this->DedipassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $histories_paypal = $this->PaypalHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $this->loadModel('Shop.Nano');
-        try {           
-            $nano_offers = $this->Nano->find('all');
-            $histories_nano = $this->NanoHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        } catch (\Throwable $th) {
-            $this->Nano->init($this);
+
+        $histories_dedi = $this->DedipassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_paypal = $this->PaypalHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_pay = $this->PaysafecardHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_star = $this->StarpassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+
+        $best_donator_price = [];
+
+        foreach ($histories_dedi as $value) {
+            $money = $value["DedipassHistory"]["credits_gived"];
+            $goal_money += floatval($money);
+            $id = $value["DedipassHistory"]["user_id"];
+            if (!isset($best_donator_price[$id]))
+                $best_donator_price[$id] = 0;
+            $best_donator_price[$id] += $money;
         }
-        $histories_pay = $this->PaysafecardHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $histories_star = $this->StarpassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        foreach ($histories_dedi as $value){
-          $vanow +=  floatval($value["DedipassHistory"]["credits_gived"]);
+        foreach ($histories_paypal as $value) {
+            $money = $value["PaypalHistory"]["payment_amount"];
+            $goal_money += floatval($money);
+
+            $id = $value["PaypalHistory"]["user_id"];
+            if (!isset($best_donator_price[$id]))
+                $best_donator_price[$id] = 0;
+            $best_donator_price[$id] += $money;
         }
-        foreach ($histories_paypal as $value){
-          $vanow +=  floatval($value["PaypalHistory"]["payment_amount"]);
+        foreach ($histories_pay as $value) {
+            $money = $value["PaysafecardHistory"]["credits_gived"];
+            $goal_money += floatval($money);
+            $id = $value["PaysafecardHistory"]["user_id"];
+            if (!isset($best_donator_price[$id]))
+                $best_donator_price[$id] = 0;
+            $best_donator_price[$id] += $money;
         }
-        foreach ($histories_nano as $value){
-          $vanow +=  floatval($value["NanoHistory"]["payment_amount"]);
-        }
-        foreach ($histories_pay as $value){
-          $vanow +=  floatval($value["PaysafecardHistory"]["credits_gived"]);
-        }
-        foreach ($histories_star as $value){
-          $vanow +=  floatval($value["StarpassHistory"]["credits_gived"]);
+
+        foreach ($histories_star as $value) {
+            $money = $value["StarpassHistory"]["credits_gived"];
+            $goal_money += floatval($money);
+            $id = $value["StarpassHistory"]["user_id"];
+            if (!isset($best_donator_price[$id]))
+                $best_donator_price[$id] = 0;
+            $best_donator_price[$id] += $money;
         }
         $this->loadModel('Shop.ItemsConfig');
-        $vagoal = $this->ItemsConfig->find('all');
-        $vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
-        if ($vanow > $vagoal){
-          $vanow = $vagoal;
+        $goal_money_max = $this->ItemsConfig->find('first')["ItemsConfig"]["goal"];
+        if ($goal_money > $goal_money_max) {
+            $goal_money = $goal_money_max;
         }
-        if ($vagoal != 0){
-          $vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
+        if ($goal_money_max != 0) {
+            $goal_bar_with = round((str_replace(",", '.', $goal_money * 100 / $goal_money_max)));
         }
-            
-        $best_donator_price = array();
 
-        foreach($histories_dedi as $get) {
-            $best_donator_price[$get["DedipassHistory"]["user_id"]] += $get["DedipassHistory"]["credits_gived"];
+        $best_donator_exclude = array_diff_key($best_donator_price, [3 => 0, 1606 => 0]);
+
+
+        $i = 0;
+        foreach ($best_donator_exclude as $key => $value) {
+            if ($i == 3)
+                break;
+            $best_donator_id = array_search(max($best_donator_exclude), $best_donator_exclude);
+            $best_donator[] = $this->User->find('first', ['conditions' => ['id' => $best_donator_id]]);
+
+            $best_donator_exclude = array_diff_key($best_donator_exclude, [$best_donator_id => $best_donator_exclude[$best_donator_id]]);
+            $i++;
         }
-        foreach($histories_paypal as $get) {
-            $best_donator_price[$get["PaypalHistory"]["user_id"]] += $get["PaypalHistory"]["credits_gived"];
+
+
+        //$best_donator_id = array_search(max($best_donator_exclude), $best_donator_exclude);
+        //$best_donator = $this->User->find('all', ['conditions' => ['id' => $best_donator_id], 'limit' => 5]);
+        //$best_donator = $best_donator;
+
+
+        $this->loadModel('Shop.Section');
+        $search_sections = $this->Section->find('all');
+        $search_categories_without_section = $this->Category->find('all', array('conditions' => array('section' => 0), 'order' => 'order'));
+        $search_categories_section = [];
+        $search_categories = [];
+        if (!empty($search_sections)) foreach ($search_sections as $v) {
+            $search_categories_section[$v['Section']['id']] = $this->Category->find('all', array('conditions' => array('section_id' => $v['Section']['id'], 'section' => 1), 'order' => 'order'));
+            $search_categories = $this->Category->find('all');
         }
-        foreach($histories_nano as $get) {
-            $best_donator_price[$get["NanoHistory"]["user_id"]] += $get["NanoHistory"]["credits_gived"];
-        }
-        foreach($histories_pay as $get) {
-            $best_donator_price[$get["PaysafecardHistory"]["user_id"]] += $get["PaysafecardHistory"]["credits_gived"];
-        }
-        foreach($histories_star as $get) {
-            $best_donator_price[$get["StarpassHistory"]["user_id"]] += $get["StarpassHistory"]["credits_gived"];
-        }
-        $best_donator_id = array_search(max($best_donator_price),$best_donator_price);
-        $best_donator = $this->User->find('first', ['conditions' => ['id' => $best_donator_id]]);
-        $best_donator = $best_donator['User'];
 		
         $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
 
@@ -130,7 +152,7 @@ class ShopController extends ShopAppController
 
         $singular_money = $this->Configuration->getMoneyName(false);
         $plural_money = $this->Configuration->getMoneyName();
-        $this->set(compact('best_donator', 'dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'nano_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
+        $this->set(compact('best_donator', 'dedipass', 'goal_money_max', 'goal_bar_with', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'nano_offers', 'search_first_category', 'search_categories', 'search_categories_without_section', 'search_categories_section', 'search_sections', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
 
     }
 

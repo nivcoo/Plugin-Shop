@@ -92,8 +92,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <?php if (!empty($search_items_other)) foreach ($search_items_other as $val => $va) {
-                                ?>
+                            <?php if (!empty($search_items_other)) foreach ($search_items_other as $val => $va) { ?>
                                 <tr>
                                     <td><?= $va["Item"]["name"] ?></td>
                                     <td><?= $item_server[$va['Item']['id']] ?></td>
@@ -210,6 +209,7 @@
                         <tr>
                             <th><?= $Lang->get('SHOP__ITEM') ?></th>
                             <th>Pseudo</th>
+                            <th>UUID</th>
                             <th><?= $Lang->get('GLOBAL__CREATED') ?></th>
                         </tr>
                         </thead>
@@ -239,6 +239,7 @@
             "aoColumns": [
                 {mData: "Item.name"},
                 {mData: "User.pseudo"},
+                {mData: "User.UUID"},
                 {mData: "ItemsBuyHistory.created"}
             ],
         });

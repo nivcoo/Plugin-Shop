@@ -22,12 +22,12 @@
             </ul>
         </div>
         <?php if($isConnected AND $Permissions->can('CREDIT_ACCOUNT')) { ?>
-          <?php if (!empty($vagoal)) {?>
+          <?php if (!empty($goal_money_max)) {?>
             <hr>
             <h4><?= $Lang->get('SHOP__CONFIG_GOAL_TITLE') ?></h4>
             <div class="progress">
-              <div class="progress-bar-info text-center" role="progressbar" style="width:<?= $vawidth ?>%">
-                <b><?= $vawidth ?>%</b>
+              <div class="progress-bar-info text-center" role="progressbar" style="width:<?= $goal_bar_with ?>%">
+                <b><?= $goal_bar_with ?>%</b>
               </div>
             </div>
             <hr>
