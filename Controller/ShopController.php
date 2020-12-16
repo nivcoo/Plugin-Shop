@@ -652,7 +652,7 @@ class ShopController extends ShopAppController
             $this->modelClass = 'ItemsBuyHistory';
             $this->DataTable->initialize($this);
             $this->paginate = array(
-                'fields' => array('ItemsBuyHistory.created', 'Item.name', 'User.pseudo'),
+                'fields' => array('ItemsBuyHistory.created', 'Item.name', 'User.pseudo', 'User.UUID'),
                 'order' => 'ItemsBuyHistory.id DESC',
                 'recursive' => 1
             );
