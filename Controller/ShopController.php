@@ -675,12 +675,12 @@ class ShopController extends ShopAppController
     {
         $this->autoRender = false;
         $this->response->type('json');
-        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
+        if ($this->isConnected and $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
             if ($this->request->is('post')) {
                 if (!empty($this->request->data)) {
-                    $data = $this->request->data['shop_item_order'];
-                    $data = explode('&', $data);
+                    $data = htmlspecialchars($this->request->data['shop_item_order']);
+                    $data = explode('&amp;', $data);
                     $i = 1;
                     foreach ($data as $key => $value) {
                         $data2[] = explode('=', $value);
@@ -694,22 +694,17 @@ class ShopController extends ShopAppController
                     $this->loadModel('Shop.Item');
                     foreach ($data as $key => $value) {
                         $find = $this->Item->find('first', array('conditions' => array('id' => $key)));
-                        if (!empty($find)) {
-                            $id = $find['Item']['id'];
-                            $this->Item->read(null, $id);
-                            $this->Item->set(array(
-                                'order' => $value,
-                            ));
-                            $this->Item->save();
-                        } else {
-                            $error = 1;
-                        }
+                        if (empty($find))
+                            return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST'))));
+                        $id = $find['Item']['id'];
+                        $this->Item->read(null, $id);
+                        $this->Item->set(array(
+                            'order' => $value,
+                        ));
+                        $this->Item->save();
                     }
-                    if (empty($error)) {
-                        return $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__SAVE_SUCCESS'))));
-                    } else {
-                        return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
-                    }
+
+                    return $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__SAVE_SUCCESS'))));
                 } else {
                     return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
                 }

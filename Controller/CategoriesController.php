@@ -8,7 +8,6 @@ class CategoriesController extends ShopAppController
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
             $this->set('title_for_layout', $this->Lang->get('SHOP__TITLE'));
             $this->layout = 'admin';
-
             $this->loadModel('Shop.Section');
             $search_sections = $this->Section->find('all');
             $this->loadModel('Shop.Category');
@@ -41,7 +40,7 @@ class CategoriesController extends ShopAppController
             $this->redirect('/');
         }
     }
-    
+
 
     public function admin_edit($id = false)
     {
@@ -55,16 +54,16 @@ class CategoriesController extends ShopAppController
             $this->loadModel('Shop.Item');
             $search_sections = $this->Section->find('all');
             if (!empty($search_categories)) foreach ($search_categories as $v) {
-                    $categories_count[$v['Category']['id']] = $this->Item->find('count', array('conditions' => array('category' => $v['Category']['id'])));
+                $categories_count[$v['Category']['id']] = $this->Item->find('count', array('conditions' => array('category' => $v['Category']['id'])));
             }
             $this->set(compact('category', 'search_sections'));
-            
+
             if ($this->request->is('post')) {
-                $section = !$this->request->data['section'] || !empty($this->request->data['section_id']);
+                $section = $this->request->data['section'] || !empty($this->request->data['section_id']);
                 if (!empty($this->request->data['name']) AND $section) {
-                    
+
                     if (!$this->request->data['section']) $this->request->data['section_id'] = 0;
-                    
+
                     $this->Category->read(null, $id);
                     $this->Category->set(array(
                         'name' => $this->request->data['name'],
@@ -75,7 +74,7 @@ class CategoriesController extends ShopAppController
                     $this->Category->save();
                     $this->Session->setFlash($this->Lang->get('SHOP__CATEGORY_EDIT_SUCCESS'), 'default.success');
                     $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
-                    
+
                 } else {
                     $this->Session->setFlash($this->Lang->get('ERROR__FILL_ALL_FIELDS'), 'default.error');
                 }
@@ -92,8 +91,6 @@ class CategoriesController extends ShopAppController
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_CATEGORIES')) {
             if ($this->request->is('post')) {
                 if (!empty($this->request->data['name'])) {
-
-
                     $this->loadModel('Shop.Section');
                     $this->Section->read(null, $this->request->data['id']);
                     $this->Section->set(array(
@@ -166,7 +163,7 @@ class CategoriesController extends ShopAppController
     /*
     * ======== Ajout d'une catégorie (affichage & traitement POST) ===========
     */
-    
+
     public function admin_add_category($section_id = null)
     {
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_CATEGORIES')) {
@@ -176,14 +173,14 @@ class CategoriesController extends ShopAppController
             $this->loadModel('Shop.Section');
             $search_sections = $this->Section->find('all');
             $this->set(compact('search_sections', 'section_id'));
-            
+
             if ($this->request->is('post')) {
-                $section = !$this->request->data['section'] || !empty($this->request->data['section_id']);
+                $section = $this->request->data['section'] || !empty($this->request->data['section_id']);
                 if (!empty($this->request->data['name']) AND $section) {
-                    
+
                     $this->loadModel('Shop.Category');
                     if (!$this->request->data['section']) $this->request->data['section_id'] = 0;
-                    
+
                     $this->Category->read(null, null);
                     $this->Category->set(array(
                         'name' => $this->request->data['name'],
@@ -194,7 +191,7 @@ class CategoriesController extends ShopAppController
                     $this->Category->save();
                     $this->Session->setFlash($this->Lang->get('SHOP__CATEGORY_ADD_SUCCESS'), 'default.success');
                     $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
-                    
+
                 } else {
                     $this->Session->setFlash($this->Lang->get('ERROR__FILL_ALL_FIELDS'), 'default.error');
                 }
