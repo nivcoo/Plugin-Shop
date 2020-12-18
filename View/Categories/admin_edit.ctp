@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <div class="box">
                 <div class="box-header with-border">
-                    <h3 class="box-title"><?= $Lang->get('SHOP__CATEGORY_ADD') ?></h3>
+                    <h3 class="box-title"><?= $Lang->get('SHOP__CATEGORY_EDIT') ?></h3>
                 </div>
                 <div class="box-body">
                     <form action="" method="post" data-ajax="false">
@@ -12,16 +12,17 @@
 
                         <div class="form-group">
                             <label><?= $Lang->get('GLOBAL__NAME') ?></label>
-                            <input name="name" class="form-control" type="text">
+                            <input name="name" value="<?= $category['Category']['name'] ?>" class="form-control"
+                                   type="text">
                         </div>
+
 
                         <div class="form-group">
                             <div class="checkbox">
                                 <input type="hidden" id="section" name="section"
-                                       value="<?= (!isset($section_id)) ? "0" : "1" ?>">
-                                <input <?= (!isset($section_id)) ? "checked" : "" ?> id="section_checkbox" value="true"
-                                                                                     name="section_checkbox"
-                                                                                     type="checkbox">
+                                       value="<?= $category['Category']['section'] ?>">
+                                <input id="section_checkbox" value="true" name="section_checkbox"
+                                       type="checkbox" <?= $category['Category']['section'] == '0' ? 'checked' : '' ?>>
                                 <label for="section_checkbox"><?= $Lang->get('SHOP__CATEGORY_ADD_NO') ?></label>
                             </div>
                         </div>
@@ -39,16 +40,15 @@
                             });
                         </script>
 
-                        <div class="form-group"
-                             id="section_id" <?= (!isset($section_id)) ? "style='display:none'" : "" ?>>
+                        <div class="form-group" id="section_id"
+                             style="display:<?= ($category['Category']['section'] == 0) ? 'none' : '' ?>">
                             <label><?= $Lang->get('SHOP__SECTION') ?></label>
                             <p><?= $Lang->get('SHOP__CATEGORY_EDIT_MESSAGE') ?> <a
                                         href="<?= $this->Html->url(array('controller' => 'categories', 'action' => 'add_section', 'admin' => true)) ?>"><?= $Lang->get('SHOP__SECTIONS') ?></a>
                             </p>
                             <select class="form-control" name="section_id">
                                 <?php foreach ($search_sections as $v) { ?>
-                                    <option <?= ($section_id == $v['Section']['id']) ? "selected" : "" ?>
-                                            value="<?= $v['Section']['id'] ?>"><?= $v['Section']['name'] ?></option>
+                                    <option value="<?= $v['Section']['id'] ?>" <?= ($category['Category']['section_id'] == $v['Section']['id']) ? 'selected' : '' ?>><?= $v['Section']['name'] ?></option>
                                 <?php } ?>
                             </select>
                         </div>

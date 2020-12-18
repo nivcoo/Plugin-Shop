@@ -2,6 +2,16 @@
   "SHOP__TITLE": "Boutique",
   "SHOP__GLOBAL_AMOUNT": "Montant",
 
+  "SHOP__MENU_CATEGORIES": "Gérer les catégories",
+  "SHOP__MENU_ITEMS": "Gérer les articles",
+  "SHOP__MENU_VOUCHERS": "Gérer les promotions",
+  "SHOP__MENU_PAYMENTS": "Gérer les paiements",
+  "SHOP__MENU_GIFT": "Cadeaux",
+
+  "SHOP__DUPLICATE": "Dupliquer",
+  "SHOP__CONFIRM_DUPLICATE": "Voulez-vous vraiment dupliquer cet article ?",
+  "SHOP__ITEM_DUPLICATE_SUCCESS": "Article dupliqué avec succès !",
+
   "SHOP__CONFIG": "Configuration",
   "SHOP__SAVE_SUCCESS": "Sauvegardé !",
   "SHOP__SAVE_IN_PROGRESS": "Sauvegarde automatique...",
@@ -14,6 +24,7 @@
   "SHOP__CONFIG_VARIABLES":"Variables diponibles",
   "SHOP__CONFIG_VARIABLE_ITEM":"Nom de l'article acheté",
   "SHOP__CONFIG_VARIABLE_QUANTITY":"Quantité de l'article acheté",
+  "NOT_4_CHARACTER": "Une case ne contient pas 4 caractères",
   "SHOP__CONFIG_VARIABLE_PLAYER":"Joueur ayant acheté l'article",
   "SHOP__CONFIG_VARIABLE_SERVERNAME":"Nom du serveur où l'article a été acheté (Affiché sous une liste avec des virgules si il y en a plus d'un)",
   "SHOP__CONFIG_SAVE_SUCCESS":"La configuration a bien été sauvegardée !",
@@ -161,10 +172,25 @@
   "SHOP__CATEGORIES": "Cat\u00e9gories",
   "SHOP__CATEGORY": "Cat\u00e9gorie",
   "SHOP__CATEGORY_ADD": "Ajouter une cat\u00e9gorie",
+  "SHOP__CATEGORY_EDIT": "Modifier une cat\u00e9gorie",
   "SHOP__CATEGORY_ADD_SUCCESS": "Cat\u00e9gorie ajout\u00e9e avec succ\u00e8s !",
   "SHOP__CATEGORY_EDIT_SUCCESS": "Cat\u00e9gorie modifi\u00e9 avec succ\u00e8s !",
   "SHOP__CATEGORY_DELETE_SUCCESS": "Cat\u00e9gorie supprim\u00e9e avec succ\u00e8s !",
   "SHOP__CATEGORY_NUMBER": "Nombre d'article lié à la catégorie",
+
+  "SHOP__CATEGORIES_OTHER": "Catégories non répertoriés",
+  "SHOP__CATEGORY_EDIT_MESSAGE": "Si vous n'avez aucune section veuillez d'abord en créer une ici :",
+  "SHOP__CATEGORIES_TIP": "Si la fonction est disponible sur le thème, les catégories placées en non répertoriés ne seront pas visibles sur la page de la boutique. Il faut donc les attribuer à une section. Et les catégories qui ne seront pas liées à une section ne seront pas sous forme de menus déroulants.",
+  "SHOP__CATEGORY_ADD_NO": "Ne pas lier la catégorie à une section (elle sera sous forme de boutton et non de menu déroulant)",
+  "SHOP__CATEGORIES_NO": "Catégories non liée à une section",
+
+  "SHOP__SECTION_ADD": "Ajouter une section",
+  "SHOP__SECTION": "Section",
+  "SHOP__SECTIONS": "Sections",
+  "SHOP__SECTION_EDIT_SUCCESS": "Section modifié avec succés !",
+  "SHOP__SECTION_ADD_SUCCESS": "Section ajout\u00e9e avec succ\u00e8s !",
+  "SHOP__SECTION_TIP": "Attention, cette fonctionnalité n'est pas disponible sur tous les thèmes, cependant l'utilisation des catégories reste possible si vous choisissez de ne pas les lier à une section. Les sections servent à créer des menus déroulants avec les catégories contenues dedans.",
+  "SHOP__SECTION_AND_CATEGORIES": "Sections et Catégories",
 
   "SHOP__BUY": "Acheter",
   "SHOP__BUY_CART":"Voir mon panier",
@@ -238,7 +264,6 @@
   "PERMISSIONS__VOTE__ADMIN_VIEW_TOP":"Accéder à la page du top vote",
   "PERMISSIONS__SHOP__ADMIN_GIFTALL":"Gérer les cadeaux (don de points)",
   "PERMISSIONS__SHOP__ADMIN_MANAGE_CATEGORIES":"Gérer les catégories de la boutique (Ajouter, éditer, supprimer)",
-  
 
   "NOTIFICATION__NEW_VOUCHER":"Un nouveau code promotionnel est disponible !",
   "NOTIFICATION__NEW_PSC":"Une nouvelle PaySafeCard doit être validée !",

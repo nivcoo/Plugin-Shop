@@ -16,7 +16,7 @@ class ShopController extends ShopAppController
         if ($category) {
             $this->set(compact('category'));
         }
-		
+
         $this->layout = $this->Configuration->getKey('layout'); // On charge le thème configuré
         $this->loadModel('Shop.Item'); // le model des articles
         $this->loadModel('Shop.Category'); // le model des catégories
@@ -30,70 +30,93 @@ class ShopController extends ShopAppController
                   )
               )
             )); // on cherche tous les items et on envoie à la vue
-        $vanow = 0;
         $this->loadModel('Shop.DedipassHistory');
         $this->loadModel('Shop.PaypalHistory');
-        $this->loadModel('Shop.NanoHistory');
         $this->loadModel('Shop.StarpassHistory');
         $this->loadModel('Shop.PaysafecardHistory');
-        $histories_dedi = $this->DedipassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $histories_paypal = $this->PaypalHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $this->loadModel('Shop.Nano');
-        try {           
-            $nano_offers = $this->Nano->find('all');
-            $histories_nano = $this->NanoHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        } catch (\Throwable $th) {
-            $this->Nano->init($this);
+
+        $histories_dedi = $this->DedipassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_paypal = $this->PaypalHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_pay = $this->PaysafecardHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+        $histories_star = $this->StarpassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
+
+        $best_donator_price = [];
+
+        foreach ($histories_dedi as $value) {
+            $money = $value["DedipassHistory"]["credits_gived"];
+            $goal_money += floatval($money);
+            $id = $value["DedipassHistory"]["user_id"];
+            if (!isset($best_donator_price[$id]))
+                $best_donator_price[$id] = 0;
+            $best_donator_price[$id] += $money;
         }
-        $histories_pay = $this->PaysafecardHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        $histories_star = $this->StarpassHistory->find('all',['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
-        foreach ($histories_dedi as $value){
-          $vanow +=  floatval($value["DedipassHistory"]["credits_gived"]);
+        foreach ($histories_paypal as $value) {
+            $money = $value["PaypalHistory"]["payment_amount"];
+            $goal_money += floatval($money);
+
+            $id = $value["PaypalHistory"]["user_id"];
+            if (!isset($best_donator_price[$id]))
+                $best_donator_price[$id] = 0;
+            $best_donator_price[$id] += $money;
         }
-        foreach ($histories_paypal as $value){
-          $vanow +=  floatval($value["PaypalHistory"]["payment_amount"]);
+        foreach ($histories_pay as $value) {
+            $money = $value["PaysafecardHistory"]["credits_gived"];
+            $goal_money += floatval($money);
+            $id = $value["PaysafecardHistory"]["user_id"];
+            if (!isset($best_donator_price[$id]))
+                $best_donator_price[$id] = 0;
+            $best_donator_price[$id] += $money;
         }
-        foreach ($histories_nano as $value){
-          $vanow +=  floatval($value["NanoHistory"]["payment_amount"]);
-        }
-        foreach ($histories_pay as $value){
-          $vanow +=  floatval($value["PaysafecardHistory"]["credits_gived"]);
-        }
-        foreach ($histories_star as $value){
-          $vanow +=  floatval($value["StarpassHistory"]["credits_gived"]);
+
+        foreach ($histories_star as $value) {
+            $money = $value["StarpassHistory"]["credits_gived"];
+            $goal_money += floatval($money);
+            $id = $value["StarpassHistory"]["user_id"];
+            if (!isset($best_donator_price[$id]))
+                $best_donator_price[$id] = 0;
+            $best_donator_price[$id] += $money;
         }
         $this->loadModel('Shop.ItemsConfig');
-        $vagoal = $this->ItemsConfig->find('all');
-        $vagoal = @$vagoal[0]["ItemsConfig"]["goal"];
-        if ($vanow > $vagoal){
-          $vanow = $vagoal;
+        $goal_money_max = $this->ItemsConfig->find('first')["ItemsConfig"]["goal"];
+        if ($goal_money > $goal_money_max) {
+            $goal_money = $goal_money_max;
         }
-        if ($vagoal != 0){
-          $vawidth = round((str_replace(",", '.', $vanow*100/$vagoal)));
+        if ($goal_money_max != 0) {
+            $goal_bar_with = round((str_replace(",", '.', $goal_money * 100 / $goal_money_max)));
         }
-            
-        $best_donator_price = array();
 
-        foreach($histories_dedi as $get) {
-            $best_donator_price[$get["DedipassHistory"]["user_id"]] += $get["DedipassHistory"]["credits_gived"];
+        $best_donator_exclude = array_diff_key($best_donator_price, [3 => 0, 1606 => 0]);
+
+
+        $i = 0;
+        foreach ($best_donator_exclude as $key => $value) {
+            if ($i == 3)
+                break;
+            $best_donator_id = array_search(max($best_donator_exclude), $best_donator_exclude);
+            $best_donator[] = $this->User->find('first', ['conditions' => ['id' => $best_donator_id]]);
+
+            $best_donator_exclude = array_diff_key($best_donator_exclude, [$best_donator_id => $best_donator_exclude[$best_donator_id]]);
+            $i++;
         }
-        foreach($histories_paypal as $get) {
-            $best_donator_price[$get["PaypalHistory"]["user_id"]] += $get["PaypalHistory"]["credits_gived"];
+
+
+        //$best_donator_id = array_search(max($best_donator_exclude), $best_donator_exclude);
+        //$best_donator = $this->User->find('all', ['conditions' => ['id' => $best_donator_id], 'limit' => 5]);
+        //$best_donator = $best_donator;
+
+
+        $this->loadModel('Shop.Section');
+        $search_sections = $this->Section->find('all');
+        $search_categories_without_section = $this->Category->find('all', array('conditions' => array('section' => 0), 'order' => 'order'));
+        $search_categories_section = [];
+        $search_categories = [];
+        if (!empty($search_sections)) foreach ($search_sections as $v) {
+            $search_categories_section[$v['Section']['id']] = $this->Category->find('all', array('conditions' => array('section_id' => $v['Section']['id'], 'section' => 1), 'order' => 'order'));
+            $search_categories = $this->Category->find('all');
         }
-        foreach($histories_nano as $get) {
-            $best_donator_price[$get["NanoHistory"]["user_id"]] += $get["NanoHistory"]["credits_gived"];
-        }
-        foreach($histories_pay as $get) {
-            $best_donator_price[$get["PaysafecardHistory"]["user_id"]] += $get["PaysafecardHistory"]["credits_gived"];
-        }
-        foreach($histories_star as $get) {
-            $best_donator_price[$get["StarpassHistory"]["user_id"]] += $get["StarpassHistory"]["credits_gived"];
-        }
-        $best_donator_id = array_search(max($best_donator_price),$best_donator_price);
-        $best_donator = $this->User->find('first', ['conditions' => ['id' => $best_donator_id]]);
-        $best_donator = $best_donator['User'];
 		
         $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
+
 
         $search_first_category = $this->Category->find('first'); //
         $search_first_category = @$search_first_category['Category']['id']; //
@@ -129,8 +152,8 @@ class ShopController extends ShopAppController
 
         $singular_money = $this->Configuration->getMoneyName(false);
         $plural_money = $this->Configuration->getMoneyName();
+        $this->set(compact('best_donator', 'dedipass', 'goal_money_max', 'goal_bar_with', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'nano_offers', 'search_first_category', 'search_categories', 'search_categories_without_section', 'search_categories_section', 'search_sections', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
 
-        $this->set(compact('best_donator', 'dedipass', 'vagoal', 'vawidth', 'paysafecard_enabled', 'money', 'starpass_offers', 'paypal_offers', 'nano_offers', 'search_first_category', 'search_categories', 'search_items', 'title_for_layout', 'vouchers', 'singular_money', 'plural_money'));
     }
 
     /*
@@ -182,7 +205,7 @@ class ShopController extends ShopAppController
                 $reductional_items_list_display = array();
                 // on parcours tous les articles pour voir si ils ont été achetés
                 $reductional_items = true; // de base on dis que c'est okay
-                $reduction = 0; // 0 de réduction
+                $reduction = 0; //  0 de réduction
                 foreach ($reductional_items_list as $key => $value) {
 
                     $findItem = $this->Item->find('first', array('conditions' => array('id' => $value)));
@@ -191,28 +214,37 @@ class ShopController extends ShopAppController
                         break;
                     }
 
-                    $findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
-                    if (empty($findHistory)) {
+                    $reduction = $this->Item->getReductionWithReductionalItems($search_item[0]['Item'], $this->User->getKey('id'));
+                    if (floatval($reduction) == "0") {
                         $reductional_items = false;
                         break;
                     }
 
-                    $reduction = +$findItem['Item']['price'];
+                    $findHistory = $this->ItemsBuyHistory->find('first', array('conditions' => array('user_id' => $this->User->getKey('id'), 'item_id' => $findItem['Item']['id'])));
+                    if (empty($findHistory)) {
+                        break;
+                    }
+
+
                     $reductional_items_list_display[] = $findItem['Item']['name'];
 
                     unset($findItem);
 
+
                 }
+                $item_price -= $reduction;
 
                 if ($reductional_items) {
-                    $item_price = floor($item_price - $reduction);
 
                     $reduction = $reduction . ' ' . $this->Configuration->getMoneyName();
                     $reductional_items_list = '<i>' . implode('</i>, <i>', $reductional_items_list_display) . '</i>';
+
                     $reductional_items_list = $this->Lang->get('SHOP__ITEM_REDUCTIONAL_ITEMS_LIST', array('{ITEMS_LIST}' => $reductional_items_list, '{REDUCTION}' => $reduction));
 
                 }
+
             }
+
 
             $add_to_cart = (!empty($search_item[0]['Item']['cart']) && $search_item[0]['Item']['cart']) ? true : false;
 
@@ -243,7 +275,7 @@ class ShopController extends ShopAppController
 
             $vars = array(
                 '{ITEM_NAME}' => $search_item['0']['Item']['name'],
-                '{ITEM_DESCRIPTION}' => nl2br($search_item['0']['Item']['description']),
+                '{ITEM_DESCRIPTION}' => $search_item['0']['Item']['description'],
                 '{ITEM_SERVERS}' => $servers,
                 '{ITEM_PRICE}' => $item_price,
                 '{SITE_MONEY}' => $money,
@@ -322,27 +354,29 @@ class ShopController extends ShopAppController
                     $total_price += $findItem['Item']['price'] * $quantity;
 
                     $i = 0;
-                    while ($i < $quantity) {
-
-                        $getVoucherPrice = $this->DiscountVoucher->getNewPrice($findItem['Item']['id'], $code);
-
-                        if ($getVoucherPrice['status']) {
-                            $new_price = $new_price + $getVoucherPrice['price'];
-                        } else {
-                            $new_price = $new_price + $findItem['Item']['price']; // erreur
-                        }
-
-                        $i++;
-                    }
-
 
                     /*
                         On gère les réductions de prix
                     */
-                    $reduction = $this->Item->getReductionWithReductionalItems($findItem['Item'], $this->User->getKey('id'));
-                    // on effectue la reduction
-                    $new_price = $new_price - $reduction * $quantity;
 
+                    $reduction = $this->Item->getReductionWithReductionalItems($findItem['Item'], $this->User->getKey('id'));
+                    while ($i < $quantity) {
+
+                        /*
+                            On gère le nouveau prix
+                        */
+                        $new_price = $total_price - $reduction;
+
+
+                        $getVoucherPrice = $this->DiscountVoucher->getNewPrice($findItem['Item']['id'], $new_price, $code);
+
+
+                        if ($getVoucherPrice['status']) {
+                            $new_price = $getVoucherPrice['price'];
+                        }
+
+                        $i++;
+                    }
                     if ($new_price < 0) {
                         $new_price = 0;
                     }
@@ -459,8 +493,12 @@ class ShopController extends ShopAppController
                 $giveCape = true;
 
             // Voucher
+            // Reductionnal price
+            $reduction = $this->Item->getReductionWithReductionalItems($item, $this->User->getKey('id'));
+            $item['price'] -= $reduction;
+
             if (!empty($voucher)) {
-                $getVoucherPrice = $this->DiscountVoucher->getNewPrice($item['id'], $voucher);
+                $getVoucherPrice = $this->DiscountVoucher->getNewPrice($item['id'], $item['price'], $voucher);
 
                 if ($getVoucherPrice['status']) {
                     $voucherUsedCount++;
@@ -469,21 +507,18 @@ class ShopController extends ShopAppController
                 }
             }
 
-            // Reductionnal price
-            $reduction = $this->Item->getReductionWithReductionalItems($item, $this->User->getKey('id'));
-            $item['price'] -= $reduction;
 
             // Add to items (for quantity)
             for ($i = 1; $i <= $itemData['quantity']; $i++) {
                 if ($i == $itemData['quantity'] && $item['broadcast_global']) { // Broadcast global only on last (avoid multiple global message)
                     $item['commands'] = "{$item['commands']}[{+}]" . strtr($config['broadcast_global'], [
-                        '{PLAYER}' => $this->User->getKey('pseudo'),
-                        '{QUANTITY}' => $itemData['quantity'],
-                        '{ITEM_NAME}' => $item['name'],
-                        '{SERVERNAME}' => implode(', ', array_map(function ($server) {
-                            return $server['Server']['name'];
-                        }, ClassRegistry::init('Server')->find('all', ['conditions' => ['id' => $item['servers']]])))
-                    ]);
+                            '{PLAYER}' => $this->User->getKey('pseudo'),
+                            '{QUANTITY}' => $itemData['quantity'],
+                            '{ITEM_NAME}' => $item['name'],
+                            '{SERVERNAME}' => implode(', ', array_map(function ($server) {
+                                return $server['Server']['name'];
+                            }, ClassRegistry::init('Server')->find('all', ['conditions' => ['id' => $item['servers']]])))
+                        ]);
                 }
                 $items[] = $item;
                 // Add to total price
@@ -567,30 +602,37 @@ class ShopController extends ShopAppController
             $this->loadModel('Server');
             $search_items = $this->Item->find('all', array('order' => 'order'));
             $items = array();
-            $item_server = array();
-            foreach ($search_items as $key => $value) {
-                if (!$this->Category->find('first', array('conditions' => array('id' => $value['Item']['category'])))) {
-                    $search_items_other = $this->Item->find('all', array('conditions' => array('category' => $value['Item']['category'])));
-
-                    $search_server = $this->Server->find('all', array('conditions' => array('id' => unserialize($value['Item']['servers']))));
-                    foreach ($search_server as $v) {
-                        $item_server[$value['Item']['id']] .= $v['Server']['name'];
-                        $item_server[$value['Item']['id']] .= ', ';
-                    }
+            if (!empty($search_items)) foreach ($search_items as $key => $v) {
+                if (!$this->Category->find('first', array('conditions' => array('id' => $v['Item']['category'])))) {
+                    $search_items_other = $this->Item->find('all', array('conditions' => array('category' => $v['Item']['category'])));
                 }
-                $items[$value['Item']['id']] = $value['Item']['name'];
+                $search_server = $this->Server->find('all', array('conditions' => array('id' => unserialize($v['Item']['servers']))));
+                $item_server[$v['Item']['id']] = implode(', ', array_map(function ($server) {
+                    return $server['Server']['name'];
+                }, $search_server));
+                $items[$v['Item']['id']] = $v['Item']['name'];
+            }
+            $this->loadModel('Shop.Section');
+            $search_sections = $this->Section->find('all');
+            $search_categories = $this->Category->find('all');
+            if (!empty($search_categories)) foreach ($search_categories as $v) {
+                $search_items[$v['Category']['id']] = $this->Item->find('all', array('conditions' => array('category' => $v['Category']['id']), 'order' => 'order'));
+
+            }
+            if (!empty($search_sections)) foreach ($search_sections as $v) {
+                $search_categories["section-id-" . $v['Section']['id']] = $this->Category->find('all', array('conditions' => array('section' => 1, 'section_id' => $v['Section']['id']), 'order' => 'order'));
+            }
+            $search_categories_without_section = $this->Category->find('all', array('conditions' => array('section' => 0), 'order' => 'order'));
+            if (!empty($search_categories_without_section)) foreach ($search_categories_without_section as $v) {
+                $search_items[$v['Category']['id']] = $this->Item->find('all', array('conditions' => array('category' => $v['Category']['id']), 'order' => 'order'));
             }
 
-            $search_categories = $this->Category->find('all');
-            foreach ($search_categories as $v) {
-                $categories[$v['Category']['id']]['name'] = $v['Category']['name'];
-            }
 
             $this->loadModel('Shop.ItemsConfig');
             $findConfig = $this->ItemsConfig->find('first');
             $config = (!empty($findConfig)) ? $findConfig['ItemsConfig'] : array();
 
-            $this->set(compact('categories', 'search_categories', 'search_items', 'config', 'items', 'search_items_other', 'item_server'));
+            $this->set(compact('categories', 'search_categories', 'search_items', 'config', 'items', 'search_items_other', 'item_server', 'search_sections', 'search_categories_without_section'));
 
         } else {
             $this->redirect('/');
@@ -610,7 +652,7 @@ class ShopController extends ShopAppController
             $this->modelClass = 'ItemsBuyHistory';
             $this->DataTable->initialize($this);
             $this->paginate = array(
-                'fields' => array('ItemsBuyHistory.created', 'Item.name', 'User.pseudo'),
+                'fields' => array('ItemsBuyHistory.created', 'Item.name', 'User.pseudo', 'User.UUID'),
                 'order' => 'ItemsBuyHistory.id DESC',
                 'recursive' => 1
             );
@@ -629,15 +671,16 @@ class ShopController extends ShopAppController
     /*
     * ======== Page principale du panel admin ===========
     */
-	public function admin_save_ajax()
+    public function admin_save_ajax()
     {
         $this->autoRender = false;
-        if ($this->isConnected AND $this->Permissions->can('MANAGE_NAV')) {
+        $this->response->type('json');
+        if ($this->isConnected and $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
             if ($this->request->is('post')) {
                 if (!empty($this->request->data)) {
-                    $data = $this->request->data['shop_item_order'];
-                    $data = explode('&', $data);
+                    $data = htmlspecialchars($this->request->data['shop_item_order']);
+                    $data = explode('&amp;', $data);
                     $i = 1;
                     foreach ($data as $key => $value) {
                         $data2[] = explode('=', $value);
@@ -650,34 +693,29 @@ class ShopController extends ShopAppController
                     $data = $data1;
                     $this->loadModel('Shop.Item');
                     foreach ($data as $key => $value) {
-                        $find = $this->Item->find('first', array('conditions' => array('name' => $key)));
-                        if (!empty($find)) {
-                            $id = $find['Item']['id'];
-                            $this->Item->read(null, $id);
-                            $this->Item->set(array(
-                                'order' => $value,
-                            ));
-                            $this->Item->save();
-                        } else {
-                            $error = 1;
-                        }
+                        $find = $this->Item->find('first', array('conditions' => array('id' => $key)));
+                        if (empty($find))
+                            return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST'))));
+                        $id = $find['Item']['id'];
+                        $this->Item->read(null, $id);
+                        $this->Item->set(array(
+                            'order' => $value,
+                        ));
+                        $this->Item->save();
                     }
-                    if (empty($error)) {
-						return $this->sendJSON(['statut' => true, 'msg' => $this->Lang->get('SHOP__SAVE_SUCCESS')]);
-					} else{
-                        return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS')]);
-                    }
+
+                    return $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__SAVE_SUCCESS'))));
                 } else {
-					return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS')]);
+                    return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__FILL_ALL_FIELDS'))));
                 }
             } else {
-				return $this->sendJSON(['statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST')]);
-
+                return $this->response->body(json_encode(array('statut' => false, 'msg' => $this->Lang->get('ERROR__BAD_REQUEST'))));
             }
         } else {
             $this->redirect('/');
         }
     }
+
     public function admin_config_items()
     {
         $this->autoRender = false;
@@ -694,9 +732,9 @@ class ShopController extends ShopAppController
                     $this->ItemsConfig->read(null, 1);
                 }
                 $this->ItemsConfig->set(array(
-                        'goal' => $this->request->data['goal'],
-			'broadcast_global' => $this->request->data['broadcast_global']
-                    ));
+                    'goal' => $this->request->data['goal'],
+                    'broadcast_global' => $this->request->data['broadcast_global']
+                ));
                 $this->ItemsConfig->save();
 
                 $this->response->body(json_encode(array('statut' => true, 'msg' => $this->Lang->get('SHOP__CONFIG_SAVE_SUCCESS'))));
@@ -727,17 +765,15 @@ class ShopController extends ShopAppController
                 if (!empty($item)) {
                     $item = $item[0]['Item'];
                     $this->loadModel('Shop.Category');
-                    $item['category'] = $this->Category->find('all', array('conditions' => array('id' => $item['category'])));
-                    $item['category'] = $item['category'][0]['Category']['name'];
+                    $this->loadModel('Shop.Section');
+                    $item['category'] = $this->Category->find('first', array('conditions' => array('id' => $item['category'])));
+                    $item['category'] = $item['category']['Category']['id'];
 
-                    $search_categories = $this->Category->find('all', array('fields' => 'name'));
-                    $categories = array();
+                    $search_categories = $this->Category->find('all', array('order' => 'section_id'));
                     foreach ($search_categories as $v) {
-                        if ($v['Category']['name'] != $item['category']) {
-                            $categories[$v['Category']['name']] = $v['Category']['name'];
-                        }
+                        $section[$v['Category']['section_id']] = $this->Section->find('first', array('conditions' => array('id' => $v['Category']['section_id'])));
                     }
-                    $this->set(compact('categories'));
+                    $this->set(compact('section', 'search_categories'));
 
                     $search_items = $this->Item->find('all', array('fields' => array('name', 'id')));
                     $items_available = array();
@@ -813,8 +849,6 @@ class ShopController extends ShopAppController
                 }
                 if (!empty($this->request->data['id']) AND !empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND strlen($this->request->data['price']) > 0 AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
                     $this->loadModel('Shop.Category');
-                    $this->request->data['category'] = $this->Category->find('all', array('conditions' => array('name' => $this->request->data['category'])));
-                    $this->request->data['category'] = $this->request->data['category'][0]['Category']['id'];
                     $this->request->data['timedCommand'] = ($this->request->data['timedCommand'] == 'true') ? 1 : 0;
                     if (!$this->request->data['timedCommand']) {
                         $this->request->data['timedCommand_cmd'] = NULL;
@@ -881,19 +915,19 @@ class ShopController extends ShopAppController
     * ======== Ajout d'un article (affichage) ===========
     */
     
-    public function admin_add_item()
+    public function admin_add_item($category_id = null)
     {
         if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
 
             $this->set('title_for_layout', $this->Lang->get('SHOP__ITEM_ADD'));
             $this->layout = 'admin';
             $this->loadModel('Shop.Category');
-            $search_categories = $this->Category->find('all', array('fields' => 'name'));
-            $categories = array();
+            $this->loadModel('Shop.Section');
+            $search_categories = $this->Category->find('all', array('order' => 'section_id'));
             foreach ($search_categories as $v) {
-                $categories[$v['Category']['name']] = $v['Category']['name'];
+                $section[$v['Category']['section_id']] = $this->Section->find('first', array('conditions' => array('id' => $v['Category']['section_id'])));
             }
-            $this->set(compact('categories'));
+            $this->set(compact('section', 'search_categories', 'category_id'));
 
             $this->loadModel('Shop.Item');
             $search_items = $this->Item->find('all', array('fields' => array('name', 'id')));
@@ -911,7 +945,6 @@ class ShopController extends ShopAppController
             $this->redirect('/');
         }
     }
-    
     /*
     * ======== Ajout d'un article (Traitement AJAX) ===========
     */
@@ -925,8 +958,6 @@ class ShopController extends ShopAppController
 
                 if (!empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND strlen($this->request->data['price']) > 0 AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands']) AND !empty($this->request->data['timedCommand'])) {
                     $this->loadModel('Shop.Category');
-                    $this->request->data['category'] = $this->Category->find('all', array('conditions' => array('name' => $this->request->data['category'])));
-                    $this->request->data['category'] = $this->request->data['category'][0]['Category']['id'];
                     $this->request->data['timedCommand'] = ($this->request->data['timedCommand'] == 'true') ? 1 : 0;
                     if (!$this->request->data['timedCommand']) {
                         $this->request->data['timedCommand_cmd'] = NULL;
@@ -990,6 +1021,69 @@ class ShopController extends ShopAppController
     }
 
     /*
+   * ======== Duplication d'un article (Traitement AJAX) ===========
+   */
+
+    public function admin_duplicate($id = false)
+    {
+        $this->autoRender = false;
+        if ($this->isConnected AND $this->Permissions->can('SHOP__ADMIN_MANAGE_ITEMS')) {
+            if ($id != false) {
+                $this->loadModel('Shop.Item');
+                $this->request->data = $this->Item->find('first', array('conditions' => array('id' => $id)))['Item'];
+
+                if (!empty($this->request->data['name']) AND !empty($this->request->data['description']) AND !empty($this->request->data['category']) AND strlen($this->request->data['price']) > 0 AND !empty($this->request->data['servers']) AND !empty($this->request->data['commands'])) {
+                    $this->loadModel('Shop.Category');
+
+                    $event = new CakeEvent('beforeAddItem', $this, array('data' => $this->request->data, 'user' => $this->User->getAllFromCurrentUser()));
+                    $this->getEventManager()->dispatch($event);
+                    if ($event->isStopped()) {
+                        return $event->result;
+                    }
+
+                    $this->Item->read(null, null);
+                    $this->Item->set(array(
+                        'name' => $this->request->data['name'],
+                        'description' => $this->request->data['description'],
+                        'category' => $this->request->data['category'],
+                        'price' => $this->request->data['price'],
+                        'servers' => $this->request->data['servers'],
+                        'commands' => $this->request->data['commands'],
+                        'img_url' => $this->request->data['img_url'],
+                        'timedCommand' => $this->request->data['timedCommand'],
+                        'timedCommand_cmd' => $this->request->data['timedCommand_cmd'],
+                        'timedCommand_time' => $this->request->data['timedCommand_time'],
+                        'display_server' => $this->request->data['display_server'],
+                        'need_connect' => $this->request->data['need_connect'],
+                        'display' => $this->request->data['display'],
+                        'multiple_buy' => $this->request->data['multiple_buy'],
+                        'broadcast_global' => $this->request->data['broadcast_global'],
+                        'cart' => $this->request->data['cart'],
+                        'prerequisites_type' => $this->request->data['prerequisites_type'],
+                        'prerequisites' => $this->request->data['prerequisites'],
+                        'reductional_items' => $this->request->data['reductional_items'],
+                        'give_skin' => $this->request->data['give_skin'],
+                        'give_cape' => $this->request->data['give_cape'],
+                        'buy_limit' => $this->request->data['buy_limit'],
+                        'wait_time' => $this->request->data['wait_time']
+                    ));
+                    $this->Item->save();
+                    $this->History->set('ADD_ITEM', 'shop');
+                    $this->Session->setFlash($this->Lang->get('SHOP__ITEM_DUPLICATE_SUCCESS'), 'default.success');
+                    $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                } else {
+                    $this->Session->setFlash($this->Lang->get('ERROR__FILL_ALL_FIELDS'), 'default.error');
+                    $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+                }
+
+            } else {
+                $this->redirect(array('controller' => 'shop', 'action' => 'index', 'admin' => true));
+            }
+        } else {
+            throw new ForbiddenException();
+        }
+    }
+    /*
     * ======== Suppression d'une catégorie/article/paypal/starpass (traitement) ===========
     */
 
@@ -1031,6 +1125,26 @@ class ShopController extends ShopAppController
                         $this->Category->delete($id);
                         $this->History->set('DELETE_CATEGORY', 'shop');
                         $this->Session->setFlash($this->Lang->get('SHOP__CATEGORY_DELETE_SUCCESS'), 'default.success');
+                        $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
+                    } else {
+                        $this->Session->setFlash($this->Lang->get('UNKNONW_ID'), 'default.error');
+                        $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
+
+                    }
+                } elseif ($type == "section") {
+                    $this->loadModel('Shop.Section');
+                    $find = $this->Section->find('all', array('conditions' => array('id' => $id)));
+                    if (!empty($find)) {
+
+                        $event = new CakeEvent('beforeDeleteCategory', $this, array('section_id' => $id, 'user' => $this->User->getAllFromCurrentUser()));
+                        $this->getEventManager()->dispatch($event);
+                        if ($event->isStopped()) {
+                            return $event->result;
+                        }
+
+                        $this->Section->delete($id);
+                        $this->History->set('DELETE_SECTION', 'shop');
+                        $this->Session->setFlash($this->Lang->get('SHOP__SECTION_DELETE_SUCCESS'), 'default.success');
                         $this->redirect(array('controller' => 'categories', 'action' => 'index', 'admin' => true));
                     } else {
                         $this->Session->setFlash($this->Lang->get('UNKNONW_ID'), 'default.error');

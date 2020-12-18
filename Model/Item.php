@@ -53,11 +53,12 @@ class Item extends ShopAppModel
     public function getReductionWithReductionalItems($item, $user_id)
     {
         $reduction = 0;
-        if (empty($item['reductional_items']) || !is_array(($reductionsItems = unserialize($item['reductional_items']))))
+        if (empty($item['reductional_items']) || !is_array(($reductionsItems = array_reverse(unserialize($item['reductional_items'])))))
             return $reduction;
 
+
         foreach ($reductionsItems as $itemId) {
-            $findItem = $this->find('first', array('conditions' => array('id' => $itemId)));
+            $findItem = $this->find('first', array( 'conditions' => array('id' => $itemId)));
             if (empty($findItem))
                 continue;
             $findItem = $findItem['Item'];
@@ -70,6 +71,7 @@ class Item extends ShopAppModel
             if (empty($findHistory))
                     continue;
             $reduction += $findItem['price'];
+            break;
         }
         return $reduction;
     }
