@@ -28,9 +28,9 @@
                             <script type="text/javascript">
                                 tinymce.init({
                                     selector: "textarea",
-                                    height : 300,
-                                    width : '100%',
-                                    language : 'fr_FR',
+                                    height: 300,
+                                    width: '100%',
+                                    language: 'fr_FR',
                                     plugins: "textcolor code image link",
                                     toolbar: "fontselect fontsizeselect bold italic underline strikethrough link image forecolor backcolor alignleft aligncenter alignright alignjustify cut copy paste bullist numlist outdent indent blockquote code"
                                 });
@@ -102,24 +102,25 @@
 
                         <div class="form-group">
                             <label><?= $Lang->get('GLOBAL__SERVER_COMMANDS') ?></label>
-                            <div class="input-group">
+                            <div class="input-group mb-3">
                                 <input name="commands[0]" class="form-control"
                                        value="<?= htmlentities($item['commands'][0]) ?>" type="text">
-                                <div class="input-group-btn">
+                                <div class="input-group-append">
                                     <button data-i="<?= count($item['commands']) ?>" type="button" id="addCommand"
                                             class="btn btn-success"><?= $Lang->get('SHOP__ITEM_ADD_COMMAND') ?></button>
                                 </div>
                             </div>
+
                             <div class="addCommand">
                                 <?php
                                 $i = 0;
                                 unset($item['commands'][0]);
                                 foreach ($item['commands'] as $key => $value) {
                                     $i++;
-                                    echo '<div class="input-group" style="margin-top:5px;" id="' . $i . '">';
+                                    echo '<div class="input-group mb-3" style="margin-top:5px;" id="' . $i . '">';
                                     echo '<input name="commands[' . $i . ']" class="form-control" value="' . htmlentities($value) . '" type="text">';
-                                    echo '<span class="input-group-btn">';
-                                    echo '<button class="btn btn-danger delete-cmd" data-id="' . $i . '" type="button"><span class="fa fa-close"></span></button>';
+                                    echo '<span class="input-group-append">';
+                                    echo '<button class="btn btn-danger delete-cmd" data-id="' . $i . '" type="button"><span class="fas fa-times"></span></button>';
                                     echo '</span>';
                                     echo '</div>';
                                 }
@@ -333,10 +334,10 @@
         var i = parseInt($(this).attr('data-i'));
 
         var input = '';
-        input += '<div style="margin-top:5px;" class="input-group" id="' + i + '">';
+        input += '<div style="margin-top:5px;" class="input-group mb-3" id="' + i + '">';
         input += '<input name="commands[' + i + ']" class="form-control" type="text">';
-        input += '<span class="input-group-btn">';
-        input += '<button class="btn btn-danger delete-cmd" data-id="' + i + '" type="button"><span class="fa fa-close"></span></button>';
+        input += '<span class="input-group-append">';
+        input += '<button class="btn btn-danger delete-cmd" data-id="' + i + '" type="button"><span class="fas fa-times"></span></button>';
         input += '</span>';
         input + '</div>';
 

@@ -93,12 +93,11 @@
                                 <label><?= $Lang->get('SHOP__ITEM_DISPLAY_SERVER') ?></label>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label><?= $Lang->get('GLOBAL__SERVER_COMMANDS') ?></label>
-                            <div class="input-group">
+                            <div class="input-group mb-3">
                                 <input name="commands[0]" class="form-control" type="text">
-                                <div class="input-group-btn">
+                                <div class="input-group-append">
                                     <button data-i="1" type="button" id="addCommand"
                                             class="btn btn-success"><?= $Lang->get('SHOP__ITEM_ADD_COMMAND') ?></button>
                                 </div>
@@ -294,10 +293,10 @@
         var i = parseInt($(this).attr('data-i'));
 
         var input = '';
-        input += '<div style="margin-top:5px;" class="input-group" id="' + i + '">';
+        input += '<div style="margin-top:5px;" class="input-group mb-3" id="' + i + '">';
         input += '<input name="commands[' + i + ']" class="form-control" type="text">';
-        input += '<span class="input-group-btn">';
-        input += '<button class="btn btn-danger delete-cmd" data-id="' + i + '" type="button"><span class="fa fa-close"></span></button>';
+        input += '<span class="input-group-append">';
+        input += '<button class="btn btn-danger delete-cmd" data-id="' + i + '" type="button"><span class="fas fa-times"></span></button>';
         input += '</span>';
         input + '</div>';
 
