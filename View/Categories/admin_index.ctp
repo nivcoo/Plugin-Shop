@@ -7,11 +7,11 @@
             <div class="callout callout-warning"><h4><?= $Lang->get('SHOP__SECTION') ?></h4><?= $Lang->get('SHOP__SECTION_TIP') ?></div>
         </div>
         <div class="col-md-12">
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title"><?= $Lang->get('SHOP__SECTION_AND_CATEGORIES') ?></h3>
+            <div class="card">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><?= $Lang->get('SHOP__SECTION_AND_CATEGORIES') ?></h3>
                 </div>
-                <div class="box-body">
+                <div class="card-body">
                     <table class="table table-bordered">
                         <thead>
                         <tr>
@@ -57,11 +57,11 @@
                     <button id="save" class="btn btn-success pull-right active" disabled="disabled"><?= $Lang->get('SHOP__SAVE_SUCCESS') ?></button>
                 </div>
             </div>
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title"><?= $Lang->get('SHOP__CATEGORIES_NO') ?></h3>
+            <div class="card">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><?= $Lang->get('SHOP__CATEGORIES_NO') ?></h3>
                 </div>
-                <div class="box-body">
+                <div class="card-body">
                     <table class="table table-bordered">
                         <thead>
                         <tr>
@@ -90,11 +90,11 @@
                     <button id="save-2" class="btn btn-success pull-right active" disabled="disabled"><?= $Lang->get('SHOP__SAVE_SUCCESS') ?></button>
                 </div>
             </div>
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title"><?= $Lang->get('SHOP__CATEGORIES_OTHER') ?></h3>
+            <div class="card">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><?= $Lang->get('SHOP__CATEGORIES_OTHER') ?></h3>
                 </div>
-                <div class="box-body">
+                <div class="card-body">
                     <table class="table table-bordered">
                         <thead>
                         <tr>
