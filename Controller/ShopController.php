@@ -41,7 +41,7 @@ class ShopController extends ShopAppController
         $histories_star = $this->StarpassHistory->find('all', ['conditions' => ['created LIKE' => date('Y') . '-' . date('m') . '-%']]);
 
         $best_donator_price = [];
-
+        $goal_money = 0;
         foreach ($histories_dedi as $value) {
             $money = $value["DedipassHistory"]["credits_gived"];
             $goal_money += floatval($money);
@@ -85,41 +85,27 @@ class ShopController extends ShopAppController
             $goal_bar_with = round((str_replace(",", '.', $goal_money * 100 / $goal_money_max)));
         }
 
-        $best_donator_exclude = array_diff_key($best_donator_price, [3 => 0, 1606 => 0]);
-
-
         $i = 0;
-        foreach ($best_donator_exclude as $key => $value) {
+        foreach ($best_donator_price as $key => $value) {
             if ($i == 3)
                 break;
-            $best_donator_id = array_search(max($best_donator_exclude), $best_donator_exclude);
+            $best_donator_id = array_search(max($best_donator_price), $best_donator_price);
             $best_donator[] = $this->User->find('first', ['conditions' => ['id' => $best_donator_id]]);
 
-            $best_donator_exclude = array_diff_key($best_donator_exclude, [$best_donator_id => $best_donator_exclude[$best_donator_id]]);
+            $best_donator_price = array_diff_key($best_donator_price, [$best_donator_id => $best_donator_price[$best_donator_id]]);
             $i++;
         }
-
-
-        //$best_donator_id = array_search(max($best_donator_exclude), $best_donator_exclude);
-        //$best_donator = $this->User->find('all', ['conditions' => ['id' => $best_donator_id], 'limit' => 5]);
-        //$best_donator = $best_donator;
-
-
         $this->loadModel('Shop.Section');
         $search_sections = $this->Section->find('all');
         $search_categories_without_section = $this->Category->find('all', array('conditions' => array('section' => 0), 'order' => 'order'));
         $search_categories_section = [];
-        $search_categories = [];
         if (!empty($search_sections)) foreach ($search_sections as $v) {
             $search_categories_section[$v['Section']['id']] = $this->Category->find('all', array('conditions' => array('section_id' => $v['Section']['id'], 'section' => 1), 'order' => 'order'));
-            $search_categories = $this->Category->find('all');
         }
-		
-        $search_categories = $this->Category->find('all'); // on cherche toutes les catégories et on envoie à la vue
+        $search_categories = $this->Category->find('all');
 
-
-        $search_first_category = $this->Category->find('first'); //
-        $search_first_category = @$search_first_category['Category']['id']; //
+        $search_first_category = $this->Category->find('first');
+        $search_first_category = @$search_first_category['Category']['id'];
 
         $this->loadModel('Shop.Paypal');
         $paypal_offers = $this->Paypal->find('all');
