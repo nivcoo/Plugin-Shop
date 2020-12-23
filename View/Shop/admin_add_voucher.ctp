@@ -1,11 +1,11 @@
 <section class="content">
     <div class="row">
         <div class="col-md-12">
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title"><?= $Lang->get('SHOP__VOUCHER_ADD') ?></h3>
+            <div class="card">
+                <div class="card-header with-border">
+                    <h3 class="card-title"><?= $Lang->get('SHOP__VOUCHER_ADD') ?></h3>
                 </div>
-                <div class="box-body">
+                <div class="card-body">
 
                     <form action="<?= $this->Html->url(array('action' => 'add_voucher_ajax', 'admin' => true)) ?>"
                           method="post" data-ajax="true"
@@ -15,13 +15,13 @@
 
                         <div class="form-group">
                             <label><?= $Lang->get('SHOP__VOUCHER_CODE') ?></label>
-                            <div class="input-group">
+                            <div class="input-group mb-3">
                                 <input name="code" id="random" class="form-control"
                                        placeholder="<?= $Lang->get('SHOP__VOUCHER_CODE') ?>" type="text">
-                                <span class="input-group-btn">
-                  <button class="btn btn-info" type="button"
-                          onClick="$('#random').val(random_code(10))"><?= $Lang->get('SHOP__VOUCHER_GENERATE') ?></button>
-                </span>
+                                <div class="input-group-append">
+                                    <button class="btn btn-info" type="button"
+                                            onClick="$('#random').val(random_code(10))"><?= $Lang->get('SHOP__VOUCHER_GENERATE') ?></button>
+                                </div>
                             </div>
                         </div>
 
@@ -80,28 +80,37 @@
 
                         <div class="form-group">
                             <label><?= $Lang->get('SHOP__VOUCHER_START_DATE') ?></label>
-                            <div class="input-group">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-calendar"></i>
+                            <div class="input-group mb-3">
+
+                                <div class="input-group-prepend" data-target="#datetimepicker"
+                                     data-toggle="datetimepicker">
+                                    <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                                 </div>
-                                <input value="<?= date('Y-m-d H:i:s') ?>" type="text" class="form-control"
+                                <input value="<?= date('Y-m-d H:i:s') ?>" data-target="#datetimepicker"
+                                       data-toggle="datetimepicker" type="text" class="form-control"
                                        name="start_date" id="datetimepicker"
                                        placeholder="<?= 'Format : ' . $Lang->get('GLOBAL__DATE_YEAR') . '-' . $Lang->get('GLOBAL__DATE_MONTH') . '-' . $Lang->get('GLOBAL__DATE_DAY') . ' ' . $Lang->get('GLOBAL__DATE_HOUR') . ':' . $Lang->get('GLOBAL__DATE_MINUTES') . ':' . $Lang->get('GLOBAL__DATE_SECONDS') ?>">
                             </div>
-                            <small class="text-info"><em><?= $Lang->get('SHOP__VOUCHER_START_DATE_EXPLAIN') ?></em>
+                            <small class="text-info">
+                                <em><?= $Lang->get('SHOP__VOUCHER_START_DATE_EXPLAIN') ?></em>
                             </small>
                         </div>
 
+
                         <div class="form-group">
                             <label><?= $Lang->get('SHOP__VOUCHER_END_DATE') ?></label>
-                            <div class="input-group">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-calendar"></i>
+                            <div class="input-group mb-3">
+
+                                <div class="input-group-prepend" data-target="#datetimepicker2"
+                                     data-toggle="datetimepicker">
+                                    <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="end_date" id="datetimepicker2"
+                                <input type="text" data-target="#datetimepicker2" data-toggle="datetimepicker"
+                                       class="form-control" name="end_date" id="datetimepicker2"
                                        placeholder="<?= 'Format : ' . $Lang->get('GLOBAL__DATE_YEAR') . '-' . $Lang->get('GLOBAL__DATE_MONTH') . '-' . $Lang->get('GLOBAL__DATE_DAY') . ' ' . $Lang->get('GLOBAL__DATE_HOUR') . ':' . $Lang->get('GLOBAL__DATE_MINUTES') . ':' . $Lang->get('GLOBAL__DATE_SECONDS') ?>">
                             </div>
                         </div>
+
 
                         <div class="form-group">
                             <label><?= $Lang->get('SHOP__VOUCHER_LIMIT_TYPE') ?></label>
@@ -113,7 +122,8 @@
 
                         <div class="form-group">
                             <label><?= $Lang->get('SHOP__VOUCHER_LIMIT') ?></label>
-                            <input type="text" class="form-control" name="limit" placeholder="<?= $Lang->get('SHOP__VOUCHER_LIMIT_DESC') ?>">
+                            <input type="text" class="form-control" name="limit"
+                                   placeholder="<?= $Lang->get('SHOP__VOUCHER_LIMIT_DESC') ?>">
                         </div>
 
                         <div class="form-group">
@@ -174,9 +184,7 @@
         return Chaine;
     }
 </script>
-<?= $this->Html->script('moment') ?>
-<?= $this->Html->script('bootstrap-datetimepicker') ?>
-<?= $this->Html->css('bootstrap-datetimepicker') ?>
+
 <script type="text/javascript">
     $(function () {
         $('#datetimepicker').datetimepicker({

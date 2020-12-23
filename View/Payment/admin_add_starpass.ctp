@@ -6,11 +6,11 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title"><?= $Lang->get('SHOP__STARPASS_OFFER_ADD') ?></h3>
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title"><?= $Lang->get('SHOP__STARPASS_OFFER_ADD') ?></h3>
         </div>
-        <div class="box-body">
+        <div class="card-body">
           <form action="<?= $this->Html->url(array('controller' => 'payment', 'action' => 'add_starpass_ajax', 'admin' => true)) ?>" method="post" data-ajax="true" data-redirect-url="<?= $this->Html->url(array('controller' => 'payment', 'action' => 'index', 'admin' => true)) ?>">
 
             <div class="ajax-msg"></div>
